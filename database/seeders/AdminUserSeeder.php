@@ -16,10 +16,10 @@ class AdminUserSeeder extends Seeder
     public function run()
     {
         User::create([
-            'username' => 'Admin',
+            'username' => 'admin',
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
-            'role' => 'admin' // Pastikan Anda memiliki kolom 'role' di tabel users
+            'role' => 'admin' 
         ]);
     }
 }

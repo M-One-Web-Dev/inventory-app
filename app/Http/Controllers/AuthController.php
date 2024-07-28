@@ -113,6 +113,13 @@ class AuthController extends Controller
         // Check if user exists and password is correct
         if ($cek) {
             if (Hash::check($request->password, $cek->password)) {
+                // Check if the user's role is student and status is inactive
+                if ($cek->role === 'student' && $cek->status === 'inactive') {
+                    return response()->json([
+                        "status" => "error",
+                        "message" => "Login failed: Not an active user"
+                    ], 422);
+                }
                 $token = $cek->createToken($request->username)->plainTextToken;
                 // Return success response with token
                 return response()->json([
@@ -129,5 +136,4 @@ class AuthController extends Controller
             "message" => "Login failed"
         ], 422);
     }
-
 }

@@ -15,12 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string("id_number");
             $table->string("name");
-            $table->string("description");
-            $table->integer("stock");
-            $table->enum("status", ["available", "not_available"]);
+            $table->string("description")->nullable();
+            $table->enum("status", ["available", "not_available", "lost", "damaged"])->default('available');
 
             // relasi ke categories
-            $table->unsignedBigInteger('categories_id');
+            $table->unsignedBigInteger('categories_id')->nullable();
             $table->foreign('categories_id')->references('id')->on('categories')->onDelete("cascade")->onUpdate("cascade");
 
             $table->timestamps();

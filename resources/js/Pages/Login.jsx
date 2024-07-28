@@ -77,7 +77,7 @@ export default function Login() {
                 Inertia.visit("/");
             } else if (role === "admin") {
                 setIsLoading(false);
-                Inertia.visit("/test-admin");
+                Inertia.visit("/dashboard");
             }
         } catch (error) {
             setIsLoading(false);

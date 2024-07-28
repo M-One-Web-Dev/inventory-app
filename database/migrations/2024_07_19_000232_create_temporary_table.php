@@ -16,13 +16,13 @@ class CreateTemporaryTable extends Migration
         Schema::create('temporary', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('number_id');
-            $table->string('phone');
+            $table->string('number_id')->nullable();
+            $table->string('phone')->nullable();
             $table->string('student_class');
             $table->string('level');
-            $table->string('item_name');
-            $table->string('item_id');
-            $table->string('item_number_id');
+            $table->string('item_name')->nullable();
+            $table->string('item_id')->nullable();
+            $table->string('item_number_id')->nullable();
             $table->timestamps();
         });
     }

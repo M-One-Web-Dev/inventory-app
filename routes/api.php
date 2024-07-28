@@ -33,7 +33,13 @@ Route::post('/test', function (Request $request) {
 
 
 Route::prefix("/v1")->group(function () {
-    Route::get('/students', [StudentsController::class, 'index']);
+
+    Route::controller(StudentsController::class)->middleware('auth:sanctum')->prefix("/student")->group(function () {
+        Route::get("/", "index");
+        Route::post("/add", "create");
+        Route::post("/update", "update");
+        Route::delete("/delete", "delete");
+    });
 
      Route::controller(NotificationController::class)->middleware('auth:sanctum')->prefix("/notification")->group(function () {
         Route::get("/", "index");
