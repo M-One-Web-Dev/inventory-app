@@ -163,10 +163,10 @@ class ActiveStudentsController extends Controller
     {
         $request->validate([
             "data" => "required|array",
-            'data.*.school_year' => 'required|string',
-            'data.*.generation' => 'required|string',
-            'data.*.class' => 'required|string',
-            'data.*.number_id' => 'required|string|exists:students,id_number',
+            'data.*.school_year' => 'required',
+            'data.*.generation' => 'required',
+            'data.*.class' => 'required',
+            'data.*.number_id' => 'required|exists:students,id_number',
         ]);
 
         $activeStudentsData = $request->input('data');

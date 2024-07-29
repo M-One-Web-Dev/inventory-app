@@ -102,7 +102,7 @@ class StudentsController extends Controller
             "data" => "required|array",
             'data.*.username' => 'required|string',
             'data.*.password' => 'required',
-            'data.*.id_number' => 'required|string',
+            'data.*.id_number' => 'required',
         ]);
 
      
@@ -120,13 +120,14 @@ class StudentsController extends Controller
                 "status" => "inactive"
             ]);
 
+            $idNumber = (string) $studentData['id_number'];
             // Create a new student associated with the user
             $student = Students::create([
                 "user_id" => $user->id,
                 "name" => $studentData['username'],
                 "address" => null,
                 "phone_number" => null,
-                "id_number" => $studentData['id_number'],
+                "id_number" => $idNumber,
             ]);
 
             if (!$student) {

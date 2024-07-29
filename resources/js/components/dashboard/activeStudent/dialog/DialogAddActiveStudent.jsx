@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -15,7 +14,6 @@ import {
     SelectValue,
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -36,15 +34,9 @@ const formSchema = z.object({
     number_id: z.string().min(1, {
         message: "Number Id is Empty",
     }),
-    // item_id: z.string().min(1, {
-    //     message: "Item is Empty",
-    // }),
     school_year: z.string().min(1, {
         message: "School Year is Empty",
     }),
-    // phone: z.string().min(1, {
-    //     message: "Phone is Empty",
-    // }),
     student_class: z.string().min(1, {
         message: "Class is Empty",
     }),
@@ -52,19 +44,6 @@ const formSchema = z.object({
         message: "Level is Empty",
     }),
 });
-
-const dummyItem = [
-    {
-        name: "Laptop Acer",
-        id: "123",
-        number_id: "22222",
-    },
-    {
-        name: "Laptop Macbook",
-        id: "123666",
-        number_id: "22323323",
-    },
-];
 
 export function DialogAddActiveStudent() {
     const [openModal, setOpenModal] = useState(false);
@@ -114,12 +93,12 @@ export function DialogAddActiveStudent() {
             );
             setOpenModal(false);
             form.reset();
-            toast.success("Success Add Categories", {
+            toast.success("Success Add Active Student", {
                 duration: 3000,
             });
             refresh();
         } catch (error) {
-            toast.error("Failed Add Categories", {
+            toast.error("Failed Add Active Student", {
                 duration: 3000,
             });
             console.log(error);

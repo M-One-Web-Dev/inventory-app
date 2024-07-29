@@ -175,9 +175,9 @@ function ImportItem({ setOpenModal }) {
                 refresh();
                 setOpenModal(false);
             } catch (error) {
-                 toast.error("Failed Add Categories", {
-                     duration: 3000,
-                 });
+                toast.error("Failed Add Categories", {
+                    duration: 3000,
+                });
                 console.error("Error:", error);
             }
         }
@@ -185,7 +185,7 @@ function ImportItem({ setOpenModal }) {
 
     return (
         <>
-            <Toaster richColors position="top-center" />
+            {/* <Toaster richColors position="top-center" /> */}
             <form className="w-full" onSubmit={handleSubmit}>
                 <label className="block w-full" htmlFor="excel-file">
                     <input
