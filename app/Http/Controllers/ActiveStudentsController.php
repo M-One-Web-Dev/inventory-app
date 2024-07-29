@@ -159,39 +159,89 @@ class ActiveStudentsController extends Controller
         }
     }
 
-    public function import(Request $request)
-    {
-        $request->validate([
-            "data" => "required|array",
-            'data.*.school_year' => 'required',
-            'data.*.generation' => 'required',
-            'data.*.class' => 'required',
-            'data.*.number_id' => 'required|exists:students,id_number',
-        ]);
+public function import(Request $request)
+{
+    // Validasi awal untuk memastikan format data
+    $validator = Validator::make($request->all(), [
+        "data" => "required|array",
+        'data.*.school_year' => 'required|string',
+        'data.*.generation' => 'required|string',
+        'data.*.class' => 'required|string',
+        'data.*.number_id' => 'required|string',
+    ]);
 
-        $activeStudentsData = $request->input('data');
-
-        foreach ($activeStudentsData as $activeStudentData) {
-            $student = Students::where('id_number', $activeStudentData['number_id'])->first();
-
-            if (!$student) {
-                return response()->json([
-                    "message" => "Student with ID number {$activeStudentData['number_id']} not found!"
-                ], 404);
+    if ($validator->fails()) {
+        // Mengubah pesan error menjadi lebih informatif
+        $errors = [];
+        foreach ($validator->errors()->getMessages() as $field => $message) {
+            // Mendapatkan index dari pesan error
+            preg_match('/data\.(\d+)\./', $field, $matches);
+            $index = $matches[1] ?? null;
+            if ($index !== null) {
+                foreach ($message as $msg) {
+                    $errors[] = "Row $index: " . str_replace("data.{$index}.", "", $msg);
+                }
+            } else {
+                $errors[] = implode(', ', $message);
             }
+        }
+        return response()->json([
+            'message' => 'Data validation failed',
+            'errors' => $errors
+        ], 422);
+    }
 
-            $activeStudent = ActiveStudents::create([
+    $activeStudentsData = $request->input('data');
+    $errors = [];
+    $successCount = 0;
+
+    foreach ($activeStudentsData as $key => $activeStudentData) {
+        // Cek apakah student dengan id_number tersebut ada
+        $student = Students::where('id_number', $activeStudentData['number_id'])->first();
+
+        if (!$student) {
+            $errors[] = "Siswa dengan ID number {$activeStudentData['number_id']} tidak ditemukan!";
+            continue;
+        }
+
+        // Cek apakah student tersebut sudah ada di tabel ActiveStudents
+        $existingActiveStudent = ActiveStudents::where('student_id', $student->id)
+            ->where('school_year', $activeStudentData['school_year'])
+            ->where('generation', $activeStudentData['generation'])
+            ->where('class', $activeStudentData['class'])
+            ->first();
+
+        if ($existingActiveStudent) {
+            $errors[] = "Active student with ID number {$activeStudentData['number_id']} at index {$key} already exists!";
+            continue;
+        }
+
+        // Buat entri baru di tabel ActiveStudents
+        try {
+            ActiveStudents::create([
                 'school_year' => $activeStudentData['school_year'],
                 'generation' => $activeStudentData['generation'],
                 'class' => $activeStudentData['class'],
                 'student_id' => $student->id,
             ]);
-
-            if (!$activeStudent) {
-                return response()->json(["message" => "Something went wrong"], 500);
-            }
+            $successCount++;
+        } catch (\Exception $e) {
+            $errors[] = "Error importing student with ID number {$activeStudentData['number_id']} at index {$key}: " . $e->getMessage();
         }
-
-        return response()->json(["message" => "Data imported successfully"], 201);
     }
+
+    if (!empty($errors)) {
+        return response()->json([
+            "message" => "There were errors during the import process.",
+            "errors" => $errors,
+            "success_count" => $successCount
+        ], 400);
+    }
+
+    return response()->json([
+        "message" => "Data imported successfully",
+        "success_count" => $successCount
+    ], 201);
+}
+
 }

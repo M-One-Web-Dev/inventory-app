@@ -175,9 +175,48 @@ function ImportItem({ setOpenModal }) {
                 refresh();
                 setOpenModal(false);
             } catch (error) {
-                toast.error("Failed Add Categories", {
-                    duration: 3000,
-                });
+                if (error.response?.data?.errors[0].includes("Siswa")) {
+                    toast.error(error?.response?.data?.errors[0], {
+                        duration: 3000,
+                    });
+                } else if (
+                    error.response?.data?.errors[0].includes(
+                        "school_year field is required."
+                    )
+                ) {
+                    toast.error("field school_year tidak ditemukan!", {
+                        duration: 3000,
+                    });
+                } else if (
+                    error.response?.data?.errors[0].includes(
+                        "generation field is required."
+                    )
+                ) {
+                    toast.error("field generation tidak ditemukan!", {
+                        duration: 3000,
+                    });
+                } else if (
+                    error.response?.data?.errors[0].includes(
+                        "class field is required."
+                    )
+                ) {
+                    toast.error("field class tidak ditemukan!", {
+                        duration: 3000,
+                    });
+                } else if (
+                    error.response?.data?.errors[0].includes(
+                        "number_id field is required."
+                    )
+                ) {
+                    toast.error("field number_id tidak ditemukan!", {
+                        duration: 3000,
+                    });
+                } else {
+                    toast.error("Gagal Import Data", {
+                        duration: 3000,
+                    });
+                }
+
                 console.error("Error:", error);
             }
         }
