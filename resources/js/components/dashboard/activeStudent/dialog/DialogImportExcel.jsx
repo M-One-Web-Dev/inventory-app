@@ -224,7 +224,7 @@ function ImportItem({ setOpenModal }) {
                 }
                 setOpenModal(false);
 
-                console.error("Error:", error);
+                // console.error("Error:", error);
             }
         }
     };

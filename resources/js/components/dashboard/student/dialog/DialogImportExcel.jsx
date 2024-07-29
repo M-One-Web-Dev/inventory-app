@@ -174,10 +174,46 @@ function ImportItem({ setOpenModal }) {
                     duration: 3000,
                 });
             } catch (error) {
-                toast.error("Failed Import Student", {
-                    duration: 3000,
-                });
-                console.error("Error:", error);
+                if (
+                    error.response?.data?.errors[0].includes(
+                        "digunakan oleh siswa lain."
+                    )
+                ) {
+                    toast.error(error.response?.data?.errors[0], {
+                        duration: 3000,
+                    });
+                } else if (
+                    error.response?.data?.errors[0].includes(
+                        "The username field is required."
+                    )
+                ) {
+                    toast.error("username field tidak ditemukan!", {
+                        duration: 3000,
+                    });
+                } else if (
+                    error.response?.data?.errors[0].includes(
+                        "The password field is required."
+                    )
+                ) {
+                    toast.error("password field tidak ditemukan!", {
+                        duration: 3000,
+                    });
+                } else if (
+                    error.response?.data?.errors[0].includes(
+                        "The id_number field is required."
+                    )
+                ) {
+                    toast.error("id_number field tidak ditemukan!", {
+                        duration: 3000,
+                    });
+                } else {
+                    toast.error("Gagal import data", {
+                        duration: 3000,
+                    });
+                }
+
+                // console.error("Error:", error);
+                setOpenModal(false);
             }
         }
     };

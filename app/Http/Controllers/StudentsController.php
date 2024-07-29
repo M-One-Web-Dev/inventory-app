@@ -50,7 +50,7 @@ class StudentsController extends Controller
             "username" => "required",
             "name" => "required",
             "password" => "required",
-            "id_number" => "required",
+            "id_number" => "required|unique:students,id_number",
         ]);
 
         if ($validators->fails()) {
@@ -96,32 +96,62 @@ class StudentsController extends Controller
         }
     }
 
-     public function import(Request $request)
-    {
-        $request->validate([
-            "data" => "required|array",
-            'data.*.username' => 'required|string',
-            'data.*.password' => 'required',
-            'data.*.id_number' => 'required',
-        ]);
+public function import(Request $request)
+{
+    $validators = Validator::make($request->all(), [
+        "data" => "required|array",
+        'data.*.username' => 'required',
+        'data.*.password' => 'required',
+        'data.*.id_number' => 'required',
+    ]);
 
-     
-        $students = $request->input('data');
+    if ($validators->fails()) {
+        // Mengubah pesan error menjadi lebih informatif
+        $errors = [];
+        foreach ($validators->errors()->getMessages() as $field => $message) {
+            // Mendapatkan index dari pesan error
+            preg_match('/data\.(\d+)\./', $field, $matches);
+            $index = $matches[1] ?? null;
+            if ($index !== null) {
+                foreach ($message as $msg) {
+                    $errors[] = "Row $index: " . str_replace("data.{$index}.", "", $msg);
+                }
+            } else {
+                $errors[] = implode(', ', $message);
+            }
+        }
+        return response()->json([
+            'message' => 'Data validation failed',
+            'errors' => $errors
+        ], 422);
+    }
 
-        foreach ($students as $studentData) {
-            // Create a new user
- $password = (string) $studentData['password'];
+    $students = $request->input('data');
+
+    foreach ($students as $index => $studentData) {
+    
+        $existingStudent = Students::where('id_number', $studentData['id_number'])->first();
+        if ($existingStudent) {
+            return response()->json([
+                'message' => 'Data validation failed',
+                'errors' => ["Row $index: id_number " . $studentData['id_number'] . " telah digunakan oleh siswa lain."]
+            ], 422);
+        }
+
+        try {
+           
+            $password = (string) $studentData['password'];
 
             $user = User::create([
                 "username" => $studentData['username'],
-                 "password" => Hash::make($password),
-                "email" => null, // Assuming no email for import data from excel
+                "password" => Hash::make($password),
+                "email" => null, 
                 "role" => "student",
                 "status" => "inactive"
             ]);
 
             $idNumber = (string) $studentData['id_number'];
-            // Create a new student associated with the user
+           
             $student = Students::create([
                 "user_id" => $user->id,
                 "name" => $studentData['username'],
@@ -131,13 +161,18 @@ class StudentsController extends Controller
             ]);
 
             if (!$student) {
-              
-                return response()->json(["message" => "Something went wrong"], 500);
+                return response()->json(["message" => "Row $index: Something went wrong while creating the student."], 500);
             }
+        } catch (\Exception $e) {
+            return response()->json(["message" => "Row $index: " . $e->getMessage()], 500);
         }
-
-        return response()->json(["message" => "Data imported successfully"], 201);
     }
+
+    return response()->json(["message" => "Data imported successfully"], 201);
+}
+
+
+
 
     public function update(Request $request, $id)
     {
@@ -145,7 +180,7 @@ class StudentsController extends Controller
             "username" => "required",
             "name" => "required",
             "password" => "required",
-            "id_number" => "required",
+            "id_number" => "required|unique:students,id_number,{$id}",
         ]);
 
         if ($validators->fails()) {
