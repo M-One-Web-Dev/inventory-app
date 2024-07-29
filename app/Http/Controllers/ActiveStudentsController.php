@@ -212,7 +212,7 @@ public function import(Request $request)
             ->first();
 
         if ($existingActiveStudent) {
-            $errors[] = "Active student with ID number {$activeStudentData['number_id']} at index {$key} already exists!";
+            $errors[] = "Siswa dengan Number ID {$activeStudentData['number_id']} telah terdaftar!";
             continue;
         }
 

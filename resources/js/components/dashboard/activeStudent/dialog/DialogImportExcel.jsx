@@ -211,11 +211,18 @@ function ImportItem({ setOpenModal }) {
                     toast.error("field number_id tidak ditemukan!", {
                         duration: 3000,
                     });
+                } else if (
+                    error.response?.data?.errors[0].includes("already exists!")
+                ) {
+                    toast.error(error.response?.data?.errors[0], {
+                        duration: 3000,
+                    });
                 } else {
                     toast.error("Gagal Import Data", {
                         duration: 3000,
                     });
                 }
+                setOpenModal(false);
 
                 console.error("Error:", error);
             }
