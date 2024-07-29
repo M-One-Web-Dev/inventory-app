@@ -169,43 +169,52 @@ function ImportItem({ setOpenModal }) {
                     }
                 );
 
+                toast.success("Success Add Active Student", {
+                    duration: 3000,
+                });
                 refresh();
                 setOpenModal(false);
             } catch (error) {
+                 toast.error("Failed Add Categories", {
+                     duration: 3000,
+                 });
                 console.error("Error:", error);
             }
         }
     };
 
     return (
-        <form className="w-full" onSubmit={handleSubmit}>
-            <label className="block w-full" htmlFor="excel-file">
-                <input
-                    className="hidden"
-                    id="excel-file"
-                    type="file"
-                    onChange={handleFileChange}
-                    accept=".xlsx"
-                />
-                <div className="h-[100px] flex justify-center items-center w-full border border-dashed border-gray-300 mt-[10px] rounded-sm">
-                    <p>
-                        {fileName.name === ""
-                            ? "Choose Excel File"
-                            : fileName.name}
-                    </p>
-                </div>
-            </label>
+        <>
+            <Toaster richColors position="top-center" />
+            <form className="w-full" onSubmit={handleSubmit}>
+                <label className="block w-full" htmlFor="excel-file">
+                    <input
+                        className="hidden"
+                        id="excel-file"
+                        type="file"
+                        onChange={handleFileChange}
+                        accept=".xlsx"
+                    />
+                    <div className="h-[100px] flex justify-center items-center w-full border border-dashed border-gray-300 mt-[10px] rounded-sm">
+                        <p>
+                            {fileName.name === ""
+                                ? "Choose Excel File"
+                                : fileName.name}
+                        </p>
+                    </div>
+                </label>
 
-            {errors.file && <div>{errors.file}</div>}
-            <div className="flex justify-end mt-[10px]">
-                <Button
-                    className="transition-all duration-200 active:scale-[0.96] p-0 h-auto py-[7px] px-[15px]"
-                    type="submit"
-                >
-                    Import
-                </Button>
-            </div>
-        </form>
+                {errors.file && <div>{errors.file}</div>}
+                <div className="flex justify-end mt-[10px]">
+                    <Button
+                        className="transition-all duration-200 active:scale-[0.96] p-0 h-auto py-[7px] px-[15px]"
+                        type="submit"
+                    >
+                        Import
+                    </Button>
+                </div>
+            </form>
+        </>
     );
 }
 

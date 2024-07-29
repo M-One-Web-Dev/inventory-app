@@ -32,13 +32,13 @@ export function DialogDeleteActiveStudent({ row }) {
                 }
             );
             setOpenModal(false);
-            toast.success("Success Delete Categories", {
+            toast.success("Success Delete Active Student", {
                 duration: 3000,
             });
             refresh();
         } catch (error) {
             console.log(error);
-            toast.error("Failed Delete Categories", {
+            toast.error("Failed Delete Active Student", {
                 duration: 3000,
             });
             if (error.response?.data?.message === "Unauthenticated.") {
