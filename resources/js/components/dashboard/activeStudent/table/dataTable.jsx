@@ -21,7 +21,7 @@ import {
     TableHeader,
     TableRow,
 } from "../../../ui/index";
-import { DialogAddTeacher, DialogImportExcel } from "../dialog/index";
+import { DialogAddActiveStudent, DialogImportExcel } from "../dialog/index";
 
 export function DataTable({ columns, data }) {
     const [sorting, setSorting] = React.useState([]);
@@ -53,7 +53,9 @@ export function DataTable({ columns, data }) {
             <div className="flex items-center justify-between py-4">
                 <Input
                     placeholder="Filter Name..."
-                    value={table.getColumn("name")?.getFilterValue() ?? ""}
+                    value={
+                        table.getColumn("student_id")?.getFilterValue() ?? ""
+                    }
                     onChange={(event) =>
                         table
                             .getColumn("name")
@@ -63,7 +65,7 @@ export function DataTable({ columns, data }) {
                 />
                 <div className="flex items-center gap-2">
                     <DialogImportExcel />
-                    <DialogAddTeacher />
+                    <DialogAddActiveStudent />
                 </div>
 
                 {/* <DropdownMenu>

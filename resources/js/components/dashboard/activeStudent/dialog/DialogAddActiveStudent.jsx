@@ -30,7 +30,7 @@ import { Toaster, toast } from "sonner";
 import { Info } from "lucide-react";
 import { z } from "zod";
 import { FiPlus } from "react-icons/fi";
-import { useItemRefresher } from "@/lib/context/refresherItem";
+import { useActiveStudentRefresher } from "@/lib/context/refresherActiveStudent";
 
 const formSchema = z.object({
     number_id: z.string().min(1, {
@@ -61,22 +61,23 @@ export function DialogAddActiveStudent() {
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            school_year: school_year,
-            generation: generation,
-            class: userClass,
-            number_id: number_id,
+            school_year: "",
+            generation: "",
+            student_class: "",
+            number_id: "",
         },
     });
     const inventoryToken = Cookies.get("inventory_token");
-    const { refresh } = useItemRefresher();
+    const { refresh } = useActiveStudentRefresher();
 
     const onSubmit = async (data) => {
-        const { number_id, school_year, generation, userClass } = data;
+        console.log(data);
+        const { number_id, school_year, generation, student_class } = data;
 
         const body = {
             school_year: school_year,
             generation: generation,
-            class: userClass,
+            class: student_class,
             number_id: number_id,
         };
 
@@ -84,20 +85,7 @@ export function DialogAddActiveStudent() {
             const { data: getUser } = await axios.post(
                 "/api/v1/active-students",
                 body,
-                {
-                    headers: {
-                        Authorization: `Bearer ${inventoryToken}`,
-                        "Content-Type": "multipart/form-data",
-                    }, // const response = await fetch("", {
-                    //     method: "POST",
-                    //     headers: {
-                    //         "Content-Type": "application/json",
-                    //         Accept: "application/json",
-                    //         Authorization: `Bearer ${inventoryToken}`,
-                    //     },
-                    //     body: JSON.stringify({ data: data }),
-                    // });
-                }
+                { headers: { Authorization: `Bearer ${inventoryToken}` } }
             );
             setOpenModal(false);
             form.reset();
@@ -122,23 +110,6 @@ export function DialogAddActiveStudent() {
         setImageFile(e.target.files[0]);
     };
 
-    const getAllCategory = async () => {
-        try {
-            const { data: getCategory } = await axios("/api/v1/categories", {
-                headers: {
-                    Authorization: `Bearer ${inventoryToken}`,
-                },
-            });
-            setListcategory(getCategory?.data);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    useEffect(() => {
-        getAllCategory();
-    }, []);
-
     useEffect(() => {
         if (!openModal) {
             form.reset();
@@ -157,9 +128,9 @@ export function DialogAddActiveStudent() {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>
-                            <h1 className="text-center mb-[20px] text-[20px] font-semibold text-neutral-700">
+                            <span className="text-center mb-[20px] text-[20px] font-semibold text-neutral-700">
                                 Add Item
-                            </h1>
+                            </span>
                         </DialogTitle>
                     </DialogHeader>
                     <Form {...form}>
@@ -197,99 +168,12 @@ export function DialogAddActiveStudent() {
                             />
                             <FormField
                                 control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem className="space-y-0">
-                                        <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Name
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="Name. . ."
-                                                {...field}
-                                                className={`${
-                                                    form.formState.errors
-                                                        .name &&
-                                                    "outline-red-500 focus:outline-red-400"
-                                                }`}
-                                            />
-                                        </FormControl>
-                                        {form.formState.errors.name && (
-                                            <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
-                                                <Info size={14} />
-                                                <FormMessage className="text-[13px] mt-[3px] leading-none" />
-                                            </div>
-                                        )}
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="description"
-                                render={({ field }) => (
-                                    <FormItem className="space-y-0">
-                                        <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Description
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="text"
-                                                placeholder="Description. . ."
-                                                {...field}
-                                                className={`${
-                                                    form.formState.errors
-                                                        .description &&
-                                                    "outline-red-500 focus:outline-red-400"
-                                                }`}
-                                            />
-                                        </FormControl>
-                                        {form.formState.errors.description && (
-                                            <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
-                                                <Info size={14} />
-                                                <FormMessage className="text-[13px] mt-[3px] leading-none" />
-                                            </div>
-                                        )}
-                                    </FormItem>
-                                )}
-                            />
-                            {/* <FormField
-                                control={form.control}
-                                name="stock"
-                                render={({ field }) => (
-                                    <FormItem className="space-y-0">
-                                        <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Stock
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="Stock. . ."
-                                                {...field}
-                                                className={`${
-                                                    form.formState.errors
-                                                        .stock &&
-                                                    "outline-red-500 focus:outline-red-400"
-                                                }`}
-                                                type="text"
-                                            />
-                                        </FormControl>
-                                        {form.formState.errors.stock && (
-                                            <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
-                                                <Info size={14} />
-                                                <FormMessage className="text-[13px] mt-[3px] leading-none" />
-                                            </div>
-                                        )}
-                                    </FormItem>
-                                )}
-                            /> */}
-                            <FormField
-                                control={form.control}
-                                name="category"
+                                name="generation"
                                 render={({ field }) => {
-                                    console.log(field);
                                     return (
                                         <FormItem className="space-y-0">
                                             <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                                Category
+                                                Level
                                             </FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
@@ -297,41 +181,35 @@ export function DialogAddActiveStudent() {
                                             >
                                                 <FormControl>
                                                     <SelectTrigger
-                                                        className={` [&>span]:text-neutral-400 ${
+                                                        className={`${
                                                             form.formState
                                                                 .errors
-                                                                .category &&
+                                                                .generation &&
                                                             "outline-red-500 focus:outline-red-400"
                                                         }`}
                                                     >
                                                         <SelectValue
-                                                            placeholder="Select Category"
-                                                            className="text-neutral-400"
+                                                            placeholder="Select Level"
+                                                            className=""
                                                         />
                                                     </SelectTrigger>
                                                 </FormControl>
 
-                                                <SelectContent>
-                                                    {listCategory.map(
-                                                        (item, index) => (
-                                                            <SelectItem
-                                                                key={index}
-                                                                value={`${item?.id}`}
-                                                            >
-                                                                {item.name}
-                                                            </SelectItem>
-                                                        )
-                                                    )}
-                                                    {/* <SelectItem value="active">
-                                                        Active
+                                                <SelectContent className="max-h-[140px] overflow-auto">
+                                                    <SelectItem value="X">
+                                                        X
                                                     </SelectItem>
-                                                    <SelectItem value="inactive">
-                                                        In ctive
-                                                    </SelectItem> */}
+                                                    <SelectItem value="XI">
+                                                        XI
+                                                    </SelectItem>
+                                                    <SelectItem value="XII">
+                                                        XII
+                                                    </SelectItem>
                                                 </SelectContent>
                                             </Select>
 
-                                            {form.formState.errors.category && (
+                                            {form.formState.errors
+                                                .generation && (
                                                 <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
                                                     <Info size={14} />
                                                     <FormMessage className="text-[13px] mt-[3px] leading-none" />
@@ -343,20 +221,78 @@ export function DialogAddActiveStudent() {
                             />
                             <FormField
                                 control={form.control}
-                                name="image"
+                                name="student_class"
+                                render={({ field }) => {
+                                    return (
+                                        <FormItem className="space-y-0">
+                                            <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
+                                                Class
+                                            </FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                defaultValue={field.value}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger
+                                                        className={`${
+                                                            form.formState
+                                                                .errors
+                                                                .student_class &&
+                                                            "outline-red-500 focus:outline-red-400"
+                                                        }`}
+                                                    >
+                                                        <SelectValue
+                                                            placeholder="Select Class"
+                                                            className=""
+                                                        />
+                                                    </SelectTrigger>
+                                                </FormControl>
+
+                                                <SelectContent className="max-h-[140px] overflow-auto">
+                                                    <SelectItem value="PPLG 1">
+                                                        PPLG 1
+                                                    </SelectItem>
+                                                    <SelectItem value="PPLG 2">
+                                                        PPLG 2
+                                                    </SelectItem>
+                                                    <SelectItem value="PPLG 3">
+                                                        PPLG 3
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </Select>
+
+                                            {form.formState.errors
+                                                .student_class && (
+                                                <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
+                                                    <Info size={14} />
+                                                    <FormMessage className="text-[13px] mt-[3px] leading-none" />
+                                                </div>
+                                            )}
+                                        </FormItem>
+                                    );
+                                }}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="school_year"
                                 render={({ field }) => (
                                     <FormItem className="space-y-0">
                                         <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Image
+                                            School Year
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={handleImageChange}
+                                                placeholder="School Year. . ."
+                                                {...field}
+                                                className={`${
+                                                    form.formState.errors
+                                                        .school_year &&
+                                                    "outline-red-500 focus:outline-red-400"
+                                                }`}
                                             />
                                         </FormControl>
-                                        {form.formState.errors.image && (
+                                        {form.formState.errors.school_year && (
                                             <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
                                                 <Info size={14} />
                                                 <FormMessage className="text-[13px] mt-[3px] leading-none" />
@@ -377,7 +313,7 @@ export function DialogAddActiveStudent() {
                                 </Button>
                                 <Button
                                     className="w-full bg-[#A27FFE] mt-[50px] hover:bg-[#b295fb]"
-                                    // disable={isLoading}
+                                    disable={isLoading}
                                     type="submit"
                                 >
                                     <span className="text-lg">Add</span>
