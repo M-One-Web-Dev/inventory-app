@@ -33,8 +33,6 @@ function QrScan() {
         console.error(err);
     }, []);
 
-    console.log(result);
-
     const initializeScanner = () => {
         if (qrScannerRef.current) {
             qrScannerRef.current.stop();

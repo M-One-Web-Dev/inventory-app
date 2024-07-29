@@ -61,8 +61,11 @@ export function DataTable({ columns, data }) {
                     }
                     className="max-w-sm"
                 />
-                <DialogImportExcel />
-                <DialogAddTeacher />
+                <div className="flex items-center gap-2">
+                    <DialogImportExcel />
+                    <DialogAddTeacher />
+                </div>
+
                 {/* <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">

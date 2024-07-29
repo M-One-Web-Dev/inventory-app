@@ -37,7 +37,7 @@ import { Toaster, toast } from "sonner";
 import { Info } from "lucide-react";
 import { z } from "zod";
 import { FiPlus } from "react-icons/fi";
-import { useItemRefresher } from "@/lib/context/refresherItem";
+import { useActiveStudentRefresher } from "@/lib/context/refresherActiveStudent";
 
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -116,7 +116,7 @@ export function DialogImportExcel() {
                             </Button>
                         </TabsContent>
                         <TabsContent className="w-[260px]" value="import">
-                            <ImportItem />
+                            <ImportItem setOpenModal={setOpenModal} />
                         </TabsContent>
                         {/* <TabsContent className="w-[260px]" value="export">
                             <ExportAllItemsPDF />
@@ -128,12 +128,12 @@ export function DialogImportExcel() {
     );
 }
 
-function ImportItem() {
+function ImportItem({ setOpenModal }) {
     const [data, setData] = useState([]);
     const [fileName, setFileName] = useState({ name: "" });
     const [errors, setErrors] = useState({});
     const inventoryToken = Cookies.get("inventory_token");
-    // const { refresh } = useItemRefresher();
+    const { refresh } = useActiveStudentRefresher();
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -169,7 +169,8 @@ function ImportItem() {
                     }
                 );
 
-                //refresh();
+                refresh();
+                setOpenModal(false);
             } catch (error) {
                 console.error("Error:", error);
             }

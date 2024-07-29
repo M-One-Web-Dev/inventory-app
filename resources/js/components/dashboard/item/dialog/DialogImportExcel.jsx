@@ -54,7 +54,7 @@ export function DialogImportExcel() {
                 { v: "number_id", s: { font: { bold: true } } },
                 { v: "name", s: { font: { bold: true } } },
             ],
-            ["", ""],
+            ["INV/PPLG/L/001", "Laptop 001"],
         ];
 
         // Membuat worksheet dari data

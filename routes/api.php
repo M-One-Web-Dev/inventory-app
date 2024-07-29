@@ -41,7 +41,14 @@ Route::prefix("/v1")->group(function () {
         Route::get("/", "index");
         Route::post("/add", "create");
         Route::post("/update", "update");
-        Route::delete("/delete", "delete");
+        Route::delete("/{id}", "delete");
+    });
+
+      Route::controller(ActiveStudentsController::class)->middleware('auth:sanctum')->prefix("/active-students")->group(function () {
+        Route::get("/", "index");
+        Route::post("/", "create");
+        Route::post("/{id}", "update");
+        Route::delete("/{id}", "delete");
     });
 
      Route::controller(NotificationController::class)->middleware('auth:sanctum')->prefix("/notification")->group(function () {
@@ -82,7 +89,7 @@ Route::prefix("/v1")->group(function () {
        // Route::post("/import", "import");
     });
 
-    Route::get('/active-students', [ActiveStudentsController::class, 'index']);
+
 
     Route::controller(ScanQRLoanController::class)->middleware('auth:sanctum')->prefix("/scan-qr")->group(function () {
         Route::post("/loan", "loan");

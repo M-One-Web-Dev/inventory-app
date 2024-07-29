@@ -4,10 +4,12 @@ import { DataTable } from "./dataTable";
 import axios from "axios";
 import { Inertia } from "@inertiajs/inertia";
 import Cookies from "js-cookie";
+import { useStudentRefresher } from "@/lib/context/refresherStudent";
 
 export default function TableStudent() {
     const inventoryToken = Cookies.get("inventory_token");
     const [studentList, setStudentList] = useState([]);
+    const { refreshKey } = useStudentRefresher();
 
     const getAllStudent = async () => {
         try {
@@ -28,7 +30,7 @@ export default function TableStudent() {
 
     useEffect(() => {
         getAllStudent();
-    }, []);
+    }, [refreshKey]);
 
     return (
         <div className="mx-auto max-w-[900px] py-10">

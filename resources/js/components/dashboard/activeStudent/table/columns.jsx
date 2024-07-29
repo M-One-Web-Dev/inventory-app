@@ -10,7 +10,11 @@ import {
     DropdownMenuTrigger,
 } from "../../../ui/index";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import { DialogDeleteTeacher, DialogEditTeacher } from "../dialog";
+import {
+    DialogDeleteTeacher,
+    DialogEditTeacher,
+    DialogDeleteActiveStudent,
+} from "../dialog";
 import { FaUserAlt } from "react-icons/fa";
 
 export const columns = [
@@ -134,7 +138,7 @@ export const columns = [
             return (
                 <div className="flex items-center gap-2">
                     <DialogEditTeacher />
-                    <DialogDeleteTeacher />
+                    <DialogDeleteActiveStudent row={row.original} />
                 </div>
             );
         },
