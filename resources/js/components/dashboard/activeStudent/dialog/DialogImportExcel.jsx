@@ -38,7 +38,7 @@ import { Info } from "lucide-react";
 import { z } from "zod";
 import { FiPlus } from "react-icons/fi";
 import { useItemRefresher } from "@/lib/context/refresherItem";
-import ItemImport from "../excel/ImportItem";
+
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
@@ -52,9 +52,11 @@ export function DialogImportExcel() {
         const rowHeader = [
             [
                 { v: "number_id", s: { font: { bold: true } } },
-                { v: "name", s: { font: { bold: true } } },
+                { v: "generation", s: { font: { bold: true } } },
+                { v: "class", s: { font: { bold: true } } },
+                { v: "school_year", s: { font: { bold: true } } },
             ],
-            ["", ""],
+            ["0000", "X", "PPLG 2", "2024"],
         ];
 
         // Membuat worksheet dari data
@@ -84,7 +86,7 @@ export function DialogImportExcel() {
         const blobData = new Blob([excelBuffer], {
             type: "application/octet-stream",
         });
-        saveAs(blobData, "inventory_item_template.xlsx");
+        saveAs(blobData, "inventory_active_student.xlsx");
     };
 
     return (
@@ -104,9 +106,6 @@ export function DialogImportExcel() {
                             <TabsTrigger value="import" className="w-full">
                                 Import
                             </TabsTrigger>
-                            <TabsTrigger value="export" className="w-full">
-                                Export
-                            </TabsTrigger>
                         </TabsList>
                         <TabsContent className="w-[260px]" value="download">
                             <Button
@@ -119,9 +118,9 @@ export function DialogImportExcel() {
                         <TabsContent className="w-[260px]" value="import">
                             <ImportItem />
                         </TabsContent>
-                        <TabsContent className="w-[260px]" value="export">
+                        {/* <TabsContent className="w-[260px]" value="export">
                             <ExportAllItemsPDF />
-                        </TabsContent>
+                        </TabsContent> */}
                     </Tabs>
                 </PopoverContent>
             </Popover>
@@ -134,7 +133,7 @@ function ImportItem() {
     const [fileName, setFileName] = useState({ name: "" });
     const [errors, setErrors] = useState({});
     const inventoryToken = Cookies.get("inventory_token");
-    const { refresh } = useItemRefresher();
+    // const { refresh } = useItemRefresher();
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -161,7 +160,7 @@ function ImportItem() {
                     data: data,
                 };
                 const { data: response } = await axios.post(
-                    "/api/upload-json",
+                    "/api/import-active-students",
                     body,
                     {
                         headers: {
@@ -170,7 +169,7 @@ function ImportItem() {
                     }
                 );
 
-                refresh();
+                //refresh();
             } catch (error) {
                 console.error("Error:", error);
             }
@@ -276,7 +275,7 @@ function ExportAllItemsPDF() {
             // Add item name
             doc.setFontSize(12);
             doc.text(
-                item.id_number,
+                item.name,
                 pageWidth / 2,
                 yPosition + qrCodeSize + padding * 2 + textHeight,
                 { align: "center" }

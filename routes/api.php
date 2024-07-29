@@ -20,6 +20,9 @@ use App\Http\Controllers\TestingUploadController;
 
 Route::post('/upload-json', [ItemsController::class, 'import']);
 
+Route::post('/import-students', [StudentsController::class, 'import']);
+
+Route::post('/import-active-students', [ActiveStudentsController::class, 'import']);
 
 Route::post('/import-users', [TestUserController::class, 'import']);
 
@@ -34,7 +37,7 @@ Route::post('/test', function (Request $request) {
 
 Route::prefix("/v1")->group(function () {
 
-    Route::controller(StudentsController::class)->middleware('auth:sanctum')->prefix("/student")->group(function () {
+    Route::controller(StudentsController::class)->middleware('auth:sanctum')->prefix("/students")->group(function () {
         Route::get("/", "index");
         Route::post("/add", "create");
         Route::post("/update", "update");

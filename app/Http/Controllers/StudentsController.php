@@ -96,6 +96,48 @@ class StudentsController extends Controller
         }
     }
 
+     public function import(Request $request)
+    {
+        $request->validate([
+            "data" => "required|array",
+            'data.*.username' => 'required|string',
+            'data.*.password' => 'required',
+            'data.*.id_number' => 'required|string',
+        ]);
+
+     
+        $students = $request->input('data');
+
+        foreach ($students as $studentData) {
+            // Create a new user
+ $password = (string) $studentData['password'];
+
+            $user = User::create([
+                "username" => $studentData['username'],
+                 "password" => Hash::make($password),
+                "email" => null, // Assuming no email for import data from excel
+                "role" => "student",
+                "status" => "inactive"
+            ]);
+
+            // Create a new student associated with the user
+            $student = Students::create([
+                "user_id" => $user->id,
+                "name" => $studentData['username'],
+                "address" => null,
+                "phone_number" => null,
+                "id_number" => $studentData['id_number'],
+            ]);
+
+            if (!$student) {
+              
+                return response()->json(["message" => "Something went wrong"], 500);
+            }
+        }
+
+        return response()->json(["message" => "Data imported successfully"], 201);
+    }
+
     public function update(Request $request, $id)
     {
         $validators = Validator::make($request->all(), [

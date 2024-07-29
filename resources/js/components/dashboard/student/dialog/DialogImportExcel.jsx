@@ -38,7 +38,7 @@ import { Info } from "lucide-react";
 import { z } from "zod";
 import { FiPlus } from "react-icons/fi";
 import { useItemRefresher } from "@/lib/context/refresherItem";
-import ItemImport from "../excel/ImportItem";
+
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
@@ -51,10 +51,11 @@ export function DialogImportExcel() {
         // Data template dengan header dan gaya bold
         const rowHeader = [
             [
-                { v: "number_id", s: { font: { bold: true } } },
-                { v: "name", s: { font: { bold: true } } },
+                { v: "username", s: { font: { bold: true } } },
+                { v: "password", s: { font: { bold: true } } },
+                { v: "id_number", s: { font: { bold: true } } },
             ],
-            ["", ""],
+            ["Test Username", "test password", "0000"],
         ];
 
         // Membuat worksheet dari data
@@ -65,7 +66,7 @@ export function DialogImportExcel() {
         for (let row = range.s.r + 1; row <= range.e.r; row++) {
             const cellAddress = XLSX.utils.encode_cell({ r: row, c: 0 });
             if (!worksheet[cellAddress]) {
-                worksheet[cellAddress] = { t: "s" }; // Menambahkan cell kosong sebagai teks
+                worksheet[cellAddress] = { t: "s" };
             }
             worksheet[cellAddress].z = "@";
         }
@@ -84,7 +85,7 @@ export function DialogImportExcel() {
         const blobData = new Blob([excelBuffer], {
             type: "application/octet-stream",
         });
-        saveAs(blobData, "inventory_item_template.xlsx");
+        saveAs(blobData, "inventory_student_template.xlsx");
     };
 
     return (
@@ -104,9 +105,6 @@ export function DialogImportExcel() {
                             <TabsTrigger value="import" className="w-full">
                                 Import
                             </TabsTrigger>
-                            <TabsTrigger value="export" className="w-full">
-                                Export
-                            </TabsTrigger>
                         </TabsList>
                         <TabsContent className="w-[260px]" value="download">
                             <Button
@@ -119,9 +117,9 @@ export function DialogImportExcel() {
                         <TabsContent className="w-[260px]" value="import">
                             <ImportItem />
                         </TabsContent>
-                        <TabsContent className="w-[260px]" value="export">
+                        {/* <TabsContent className="w-[260px]" value="export">
                             <ExportAllItemsPDF />
-                        </TabsContent>
+                        </TabsContent> */}
                     </Tabs>
                 </PopoverContent>
             </Popover>
@@ -134,7 +132,7 @@ function ImportItem() {
     const [fileName, setFileName] = useState({ name: "" });
     const [errors, setErrors] = useState({});
     const inventoryToken = Cookies.get("inventory_token");
-    const { refresh } = useItemRefresher();
+    // const { refresh } = useItemRefresher();
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -161,7 +159,7 @@ function ImportItem() {
                     data: data,
                 };
                 const { data: response } = await axios.post(
-                    "/api/upload-json",
+                    "/api/import-students",
                     body,
                     {
                         headers: {
@@ -170,7 +168,7 @@ function ImportItem() {
                     }
                 );
 
-                refresh();
+                //refresh();
             } catch (error) {
                 console.error("Error:", error);
             }
@@ -276,7 +274,7 @@ function ExportAllItemsPDF() {
             // Add item name
             doc.setFontSize(12);
             doc.text(
-                item.id_number,
+                item.name,
                 pageWidth / 2,
                 yPosition + qrCodeSize + padding * 2 + textHeight,
                 { align: "center" }

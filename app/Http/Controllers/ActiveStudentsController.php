@@ -29,13 +29,13 @@ class ActiveStudentsController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'school_year' => 'required',
-            'generation' => 'required',
-            'class' => 'required',
-            'id_number' => 'required',
+            'school_year' => 'required|string',
+            'generation' => 'required|string',
+            'class' => 'required|string',
+            'number_id' => 'required|string|exists:students,id_number',
         ]);
 
         if ($validator->fails()) {
@@ -46,12 +46,12 @@ class ActiveStudentsController extends Controller
         }
 
         try {
-            $student = Students::where('id_number', $request->id_number)->first();
+            $student = Students::where('id_number', $request->number_id)->first();
 
             if (!$student) {
                 return response()->json([
                     "status" => "error",
-                    "message" => "Student with ID number {$request->id_number} not found!",
+                    "message" => "Student with ID number {$request->number_id} not found!",
                 ], 404);
             }
 
@@ -79,10 +79,10 @@ class ActiveStudentsController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'school_year' => 'required',
-            'generation' => 'required',
-            'class' => 'required',
-            'id_number' => 'required',
+            'school_year' => 'required|string',
+            'generation' => 'required|string',
+            'class' => 'required|string',
+            'number_id' => 'required|string|exists:students,id_number',
         ]);
 
         if ($validator->fails()) {
@@ -102,12 +102,12 @@ class ActiveStudentsController extends Controller
                 ], 404);
             }
 
-            $student = Students::where('id_number', $request->id_number)->first();
+            $student = Students::where('id_number', $request->number_id)->first();
 
             if (!$student) {
                 return response()->json([
                     "status" => "error",
-                    "message" => "Student with ID number {$request->id_number} not found!",
+                    "message" => "Student with ID number {$request->number_id} not found!",
                 ], 404);
             }
 
@@ -132,7 +132,7 @@ class ActiveStudentsController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function delete($id)
     {
         try {
             $activeStudent = ActiveStudents::find($id);
@@ -157,5 +157,41 @@ class ActiveStudentsController extends Controller
                 "error" => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            "data" => "required|array",
+            'data.*.school_year' => 'required|string',
+            'data.*.generation' => 'required|string',
+            'data.*.class' => 'required|string',
+            'data.*.number_id' => 'required|string|exists:students,id_number',
+        ]);
+
+        $activeStudentsData = $request->input('data');
+
+        foreach ($activeStudentsData as $activeStudentData) {
+            $student = Students::where('id_number', $activeStudentData['number_id'])->first();
+
+            if (!$student) {
+                return response()->json([
+                    "message" => "Student with ID number {$activeStudentData['number_id']} not found!"
+                ], 404);
+            }
+
+            $activeStudent = ActiveStudents::create([
+                'school_year' => $activeStudentData['school_year'],
+                'generation' => $activeStudentData['generation'],
+                'class' => $activeStudentData['class'],
+                'student_id' => $student->id,
+            ]);
+
+            if (!$activeStudent) {
+                return response()->json(["message" => "Something went wrong"], 500);
+            }
+        }
+
+        return response()->json(["message" => "Data imported successfully"], 201);
     }
 }
