@@ -33,7 +33,7 @@ export function HistoryCard({ id, name, loan_date, return_date, status }) {
                     </p>
                 </div>
             </DialogTrigger>
-            <DialogContent className="max-w-[349px]">
+            <DialogContent className="max-[400px]:w-[320px] max-w-[400px] rounded-md">
                 <div className="">
                     <p className="max-w-max text-[12px] text-[#4E3984] rounded-[50px] px-[11px] py-[4px] bg-[#DACDFF]">
                         {capitalizeFirstLetter(status)}

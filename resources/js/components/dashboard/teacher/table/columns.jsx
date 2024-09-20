@@ -36,7 +36,8 @@ export const columns = [
             return (
                 <div className="flex justify-center items-center">
                     <div className="bg-violet-100 rounded-full h-[40px] w-[40px] flex justify-center items-end overflow-hidden">
-                        {row.original.image !== "" ? (
+                        {row.original.image !== null &&
+                        row.original.image !== "" ? (
                             <img
                                 className="h-[40px] w-[40px]"
                                 src={`/public/img/logo_skanka.png`}
@@ -87,7 +88,11 @@ export const columns = [
         },
         cell: ({ row }) => {
             const getName = row.getValue("name");
-            return <div className="text-left font-medium">{getName}</div>;
+            return (
+                <div className="text-left font-medium w-[200px] overflow-hidden text-ellipsis  whitespace-nowrap">
+                    {getName}
+                </div>
+            );
         },
     },
     {
@@ -98,14 +103,8 @@ export const columns = [
 
             return (
                 <div className="flex items-center gap-2">
-                    <DialogEditTeacher
-                        id={row.original.id}
-                        user_id={row.original.user_id}
-                        name={row.original.name}
-                        number_id={row.original.id_number}
-                        image={row.original.image}
-                    />
-                    <DialogDeleteTeacher id={row.original.id} />
+                    <DialogEditTeacher row={row.original} />
+                    <DialogDeleteTeacher row={row.original} />
                 </div>
             );
         },

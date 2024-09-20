@@ -8,14 +8,40 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function index()
-    {
-        $categories = Categories::all();
+public function index(Request $request)
+{
+    try {
+       
+        $perPage = $request->query('perPage', 10); 
+        $search = $request->query('search', ''); 
+
+        $categoriesQuery = Categories::when($search, function ($query, $search) {
+            return $query->where('name', 'like', "%{$search}%");
+        });
+
+        $categories = $categoriesQuery->paginate($perPage);
+$totalPages = (int) ceil($categories->total() / $categories->perPage());
+
         return response()->json([
             "status" => "success",
-            "data" => $categories
+            "data" => $categories->items(),  
+            "pagination" => [
+                "total" => $categories->total(),
+                "perPage" => $categories->perPage(),
+                "currentPage" => $categories->currentPage(),
+                "lastPage" => $categories->lastPage(),
+                 "totalPages" => $totalPages,
+            ],
         ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            "status" => "error",
+            "message" => "An error occurred while fetching categories.",
+            "error" => $e->getMessage(),
+        ], 500);
     }
+}
+
 
     public function create(Request $request)
     {

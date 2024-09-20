@@ -21,56 +21,100 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
 } from "../../../ui";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Inertia } from "@inertiajs/inertia";
 import Cookies from "js-cookie";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 import { Info } from "lucide-react";
 import { z } from "zod";
+import { FiPlus } from "react-icons/fi";
 import { useItemRefresher } from "@/lib/context/refresherItem";
+import { Check, ChevronsUpDown } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
+const dummyListItem = [
+    "L 001",
+    "L 002",
+    "L 003",
+    "L 004",
+    "L 005",
+    "L 006",
+    "L 007",
+    "L 008",
+    "L 009",
+    "L 010",
+    "L 011",
+    "L 012",
+    "L 013",
+    "L 014",
+    "L 015",
+    "L 016",
+    "L 017",
+    "L 018",
+    "L 019",
+    "L 020",
+    "L 021",
+    "L 022",
+    "L 023",
+    "L 024",
+    "L 025",
+    "L 026",
+    "L 027",
+    "L 028",
+    "L 029",
+    "MSI 027",
+    "No Name Item",
+];
 
 const formSchema = z.object({
-    number_id: z.string().min(1, {
-        message: "Number Id is Empty",
-    }),
+    // number_id: z.any().optional(),
     name: z.string().min(1, {
-        message: "Name is Empty",
-    }),
-    phone: z.string().min(1, {
-        message: "Phone is Empty",
+        message: "Nama Peminjam belum Diisi",
     }),
     student_class: z.string().min(1, {
-        message: "Class is Empty",
+        message: "Kelas belum Diisi",
     }),
     level: z.string().min(1, {
-        message: "Level is Empty",
+        message: "Level belum Diisi",
     }),
     item: z.string().min(1, {
-        message: "Item is Empty",
+        message: "Nama Item belum Diisi",
     }),
 });
 
-const dummyItem = [
-    {
-        name: "Laptop Acer",
-        id: "123",
-    },
-    {
-        name: "Laptop Macbook",
-        id: "123666",
-    },
-];
+// const dummyItem = [
+//     {
+//         name: "Laptop Acer",
+//         id: "123",
+//     },
+//     {
+//         name: "Laptop Macbook",
+//         id: "123666",
+//     },
+// ];
 
 export function DialogEditTemporary({ row }) {
     const [openModal, setOpenModal] = useState(false);
     const [listItems, setListItems] = useState([]);
+    const [studentList, setStudentList] = useState([]);
     const [imageFile, setImageFile] = useState(null);
     const {
         register,
         handleSubmit,
+        setValue,
         watch,
         formState: { errors },
     } = useForm();
@@ -83,14 +127,16 @@ export function DialogEditTemporary({ row }) {
             //     id_number: row?.item_number_id,
             // }),
             item: row?.item_name,
-            number_id: row.number_id,
-            name: row.name,
-            phone: row.phone,
-            student_class: row.student_class,
-            level: row.level,
+            // number_id: row.number_id,
+            name: row?.name,
+            // phone: row.phone,
+            student_class: row?.student_class,
+            level: row?.level,
         },
     });
     const inventoryToken = Cookies.get("inventory_token");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
     const { refresh } = useItemRefresher();
 
     const onSubmit = async (data) => {
@@ -110,17 +156,15 @@ export function DialogEditTemporary({ row }) {
             item_name: item,
             number_id: number_id,
             name: name,
-            phone: phone,
+            phone: row.phone,
             student_class: student_class,
             level: level,
             item_number_id: row?.item_number_id,
         };
 
-        // console.log(body);
-        // return;
         try {
-            const { data: updateItem } = await axios.put(
-                `/api/v1/temporary/${row.id}`,
+            const { data: updateItem } = await axios.post(
+                `/api/v1/temporary/update/${row.id}`,
                 body,
                 {
                     headers: {
@@ -146,76 +190,80 @@ export function DialogEditTemporary({ row }) {
         }
     };
 
-    // const getAllCategory = async () => {
-    //     try {
-    //         const { data: getCategory } = await axios(`/api/v1/categories`, {
-    //             headers: {
-    //                 Authorization: `Bearer ${inventoryToken}`,
-    //             },
-    //         });
-    //         setListcategory(getCategory?.data);
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // };
-
-    const getAllItems = async () => {
+    const getAllStudent = async () => {
         try {
-            const { data: getItems } = await axios(`/api/v1/items`, {
+            const { data: getStudent } = await axios("/api/v1/students", {
                 headers: {
                     Authorization: `Bearer ${inventoryToken}`,
                 },
+                params: {
+                    page: 1,
+                    perPage: 10,
+                    search:
+                        watch("search_student") === undefined
+                            ? ""
+                            : watch("search_student"),
+                },
             });
-            console.log(getItems);
-            const mapping = getItems?.data?.map((item) => {
-                return {
-                    name: item.name,
-                    id: item.id,
-                    id_number: item.id_number,
-                };
-            });
-            setListItems(mapping);
+            const format = getStudent.data.map((item) => ({
+                label: item.name,
+                value: item.name,
+            }));
+            setStudentList(format);
         } catch (error) {
             console.log(error);
+            if (error.response.data.message === "Unauthenticated.") {
+                Inertia.visit("/login");
+                return;
+            }
         }
     };
 
     useEffect(() => {
-        if (openModal) {
-            // getAllCategory();
-            getAllItems();
-        }
-    }, [openModal]);
+        const handler = setTimeout(() => {
+            setDebouncedSearchTerm(watch("search_student"));
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [watch("search_student")]);
 
     useEffect(() => {
-        if (!openModal) {
-            form.reset();
-            //  setImageFile(null);
-        }
-    }, [openModal]);
+        getAllStudent();
+        // console.log("ini masih hit api nih");
+    }, []);
+    console.log("ini masih hit api nih");
 
-    // console.log(listItems);
+    useEffect(() => {
+        form.reset({
+            item: row?.item_name,
+            name: row?.name,
+            student_class: row?.student_class,
+            level: row?.level,
+        });
+    }, [row]);
+
     return (
         <>
-            <Toaster richColors position="top-center" />
             <Dialog open={openModal} onOpenChange={setOpenModal}>
                 <DialogTrigger className="bg-violet-500 py-[10px] px-[10px] rounded-sm">
                     <FaEdit className="text-white h-[14px] w-[14px]" />
                 </DialogTrigger>
-                <DialogContent className="py-[25px] px-[23px] h-auto max-w-[400px]">
+                <DialogContent className="rounded-md py-[25px] px-[23px] h-auto max-[400px]:w-[320px] max-w-[400px]">
                     <DialogHeader>
                         <DialogTitle>
-                            <h1 className="text-center mb-[20px] text-[20px] font-semibold text-neutral-700">
+                            <span className="flex w-full justify-center mb-[20px] text-[20px] font-semibold text-neutral-700">
                                 Edit Temporary
-                            </h1>
+                            </span>
                         </DialogTitle>
                     </DialogHeader>
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}
-                            className="flex flex-col gap-8 rounded-md w-full"
+                            className="flex flex-col gap-5 rounded-md w-full"
                         >
-                            <FormField
+                            {/* <FormField
                                 control={form.control}
                                 name="number_id"
                                 render={({ field }) => (
@@ -242,62 +290,223 @@ export function DialogEditTemporary({ row }) {
                                         )}
                                     </FormItem>
                                 )}
-                            />
+                            /> */}
                             <FormField
                                 control={form.control}
                                 name="name"
-                                render={({ field }) => (
-                                    <FormItem className="space-y-0">
-                                        <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Name
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="Name. . ."
-                                                {...field}
-                                                className={`${
-                                                    form.formState.errors
-                                                        .name &&
-                                                    "outline-red-500 focus:outline-red-400"
-                                                }`}
-                                            />
-                                        </FormControl>
-                                        {form.formState.errors.name && (
-                                            <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
-                                                <Info size={14} />
-                                                <FormMessage className="text-[13px] mt-[3px] leading-none" />
-                                            </div>
-                                        )}
-                                    </FormItem>
-                                )}
+                                render={({ field }) => {
+                                    return (
+                                        <FormItem className="space-y-0 relative">
+                                            <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
+                                                Nama Peminjam{" "}
+                                                <span className="text-red-500">
+                                                    *
+                                                </span>
+                                            </FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant="outline"
+                                                            role="combobox"
+                                                            className={cn(
+                                                                "w-full text-[15px] justify-between border-[1.5px]",
+                                                                !field.value &&
+                                                                    "text-muted-foreground",
+                                                                form.formState
+                                                                    .errors
+                                                                    .name &&
+                                                                    "border-red-500 border:outline-red-400"
+                                                            )}
+                                                        >
+                                                            {field.value
+                                                                ? field.value
+                                                                : "Cari Nama Peminjam"}
+                                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="relative">
+                                                    <Command className="left-0">
+                                                        <CommandInput
+                                                            placeholder="Cari Siswa..."
+                                                            onChange={(e) => {
+                                                                console.log(e);
+                                                            }}
+                                                            onInput={(e) => {
+                                                                // console.log(
+                                                                //     e.target
+                                                                //         .value
+                                                                // );
+                                                                // setSearchTerm(
+                                                                //     e.target
+                                                                //         .value
+                                                                // );
+                                                                setValue(
+                                                                    "search_student",
+                                                                    e.target
+                                                                        .value
+                                                                );
+                                                            }}
+                                                        />
+                                                        <CommandList>
+                                                            <CommandEmpty>
+                                                                Nama Peminjam
+                                                                tidak ditemukan.
+                                                            </CommandEmpty>
+                                                            <CommandGroup className="overflow-y-auto">
+                                                                {studentList.map(
+                                                                    (
+                                                                        language
+                                                                    ) => (
+                                                                        <CommandItem
+                                                                            value={
+                                                                                language.label
+                                                                            }
+                                                                            key={
+                                                                                language.value
+                                                                            }
+                                                                            onSelect={() => {
+                                                                                form.setValue(
+                                                                                    "name",
+                                                                                    language.value
+                                                                                );
+                                                                            }}
+                                                                        >
+                                                                            <Check
+                                                                                className={cn(
+                                                                                    "mr-2 h-4 w-4",
+                                                                                    language.value ===
+                                                                                        field.value
+                                                                                        ? "opacity-100"
+                                                                                        : "opacity-0"
+                                                                                )}
+                                                                            />
+                                                                            {
+                                                                                language.label
+                                                                            }
+                                                                        </CommandItem>
+                                                                    )
+                                                                )}
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
+
+                                            {form.formState.errors.name && (
+                                                <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
+                                                    <Info size={14} />
+                                                    <FormMessage className="text-[13px] mt-[3px] leading-none" />
+                                                </div>
+                                            )}
+                                        </FormItem>
+                                    );
+                                }}
                             />
+
                             <FormField
                                 control={form.control}
                                 name="item"
-                                render={({ field }) => (
-                                    <FormItem className="space-y-0">
-                                        <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Item
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="Item. . ."
-                                                {...field}
-                                                className={`${
-                                                    form.formState.errors
-                                                        .name &&
-                                                    "outline-red-500 focus:outline-red-400"
-                                                }`}
-                                            />
-                                        </FormControl>
-                                        {form.formState.errors.item && (
-                                            <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
-                                                <Info size={14} />
-                                                <FormMessage className="text-[13px] mt-[3px] leading-none" />
-                                            </div>
-                                        )}
-                                    </FormItem>
-                                )}
+                                render={({ field }) => {
+                                    return (
+                                        <FormItem className="space-y-0 relative">
+                                            <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
+                                                Nama Item{" "}
+                                                <span className="text-red-500">
+                                                    *
+                                                </span>
+                                            </FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant="outline"
+                                                            role="combobox"
+                                                            className={cn(
+                                                                "w-full text-[15px] justify-between border-[1.5px]",
+                                                                !field.value &&
+                                                                    "text-muted-foreground",
+                                                                form.formState
+                                                                    .errors
+                                                                    .item &&
+                                                                    "border-red-500 border:outline-red-400"
+                                                            )}
+                                                        >
+                                                            {field.value
+                                                                ? field.value
+                                                                : "Cari Nama Item"}
+                                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="relative">
+                                                    <Command className="left-0">
+                                                        <CommandInput
+                                                            placeholder="Cari Item..."
+                                                            onInput={(e) => {
+                                                                setValue(
+                                                                    "search_item",
+                                                                    e.target
+                                                                        .value
+                                                                );
+                                                            }}
+                                                        />
+                                                        <CommandList className="max-h-[150px]">
+                                                            <CommandEmpty>
+                                                                Nama Item tidak
+                                                                ditemukan.
+                                                            </CommandEmpty>
+                                                            <CommandGroup className="overflow-y-auto">
+                                                                {dummyListItem.map(
+                                                                    (
+                                                                        item,
+                                                                        index
+                                                                    ) => (
+                                                                        <CommandItem
+                                                                            value={
+                                                                                item
+                                                                            }
+                                                                            key={
+                                                                                index
+                                                                            }
+                                                                            onSelect={() => {
+                                                                                form.setValue(
+                                                                                    "item",
+                                                                                    item
+                                                                                );
+                                                                            }}
+                                                                        >
+                                                                            <Check
+                                                                                className={cn(
+                                                                                    "mr-2 h-4 w-4",
+                                                                                    item ===
+                                                                                        field.value
+                                                                                        ? "opacity-100"
+                                                                                        : "opacity-0"
+                                                                                )}
+                                                                            />
+                                                                            {
+                                                                                item
+                                                                            }
+                                                                        </CommandItem>
+                                                                    )
+                                                                )}
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
+
+                                            {form.formState.errors.item && (
+                                                <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
+                                                    <Info size={14} />
+                                                    <FormMessage className="text-[13px] mt-[3px] leading-none" />
+                                                </div>
+                                            )}
+                                        </FormItem>
+                                    );
+                                }}
                             />
                             {/* <FormField
                                 control={form.control}
@@ -367,7 +576,10 @@ export function DialogEditTemporary({ row }) {
                                     return (
                                         <FormItem className="space-y-0">
                                             <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                                Level
+                                                Tingkat{" "}
+                                                <span className="text-red-500">
+                                                    *
+                                                </span>
                                             </FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
@@ -408,6 +620,9 @@ export function DialogEditTemporary({ row }) {
                                                     <SelectItem value="XII">
                                                         XII
                                                     </SelectItem>
+                                                    <SelectItem value="Guru">
+                                                        Guru
+                                                    </SelectItem>
                                                 </SelectContent>
                                             </Select>
 
@@ -428,7 +643,10 @@ export function DialogEditTemporary({ row }) {
                                     return (
                                         <FormItem className="space-y-0">
                                             <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                                Class
+                                                Kelas{" "}
+                                                <span className="text-red-500">
+                                                    *
+                                                </span>
                                             </FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
@@ -470,6 +688,9 @@ export function DialogEditTemporary({ row }) {
                                                     <SelectItem value="PPLG 3">
                                                         PPLG 3
                                                     </SelectItem>
+                                                    <SelectItem value="PPLG">
+                                                        PPLG
+                                                    </SelectItem>
                                                 </SelectContent>
                                             </Select>
 
@@ -484,7 +705,7 @@ export function DialogEditTemporary({ row }) {
                                     );
                                 }}
                             />
-                            <FormField
+                            {/* <FormField
                                 control={form.control}
                                 name="phone"
                                 render={({ field }) => (
@@ -512,7 +733,7 @@ export function DialogEditTemporary({ row }) {
                                         )}
                                     </FormItem>
                                 )}
-                            />
+                            /> */}
 
                             <div className="mt-[20px] flex gap-4 justify-end w-full">
                                 <Button
@@ -521,7 +742,7 @@ export function DialogEditTemporary({ row }) {
                                     type="button"
                                     onClick={() => setOpenModal(false)}
                                 >
-                                    <span className="text-md">Cancel</span>
+                                    <span className="text-md">Batal</span>
                                 </Button>
                                 <Button
                                     className="max-w-max bg-[#A27FFE] hover:bg-[#b295fb]"

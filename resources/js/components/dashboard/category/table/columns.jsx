@@ -43,7 +43,11 @@ export const columns = [
         },
         cell: ({ row }) => {
             const getName = row.getValue("name");
-            return <div className="text-left font-medium">{getName}</div>;
+            return (
+                <div className="text-left font-medium w-[200px] overflow-hidden text-ellipsis  whitespace-nowrap">
+                    {getName}
+                </div>
+            );
         },
     },
     {

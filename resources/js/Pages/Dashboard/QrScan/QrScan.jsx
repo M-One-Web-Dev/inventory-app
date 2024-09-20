@@ -1,31 +1,100 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import Layout from "../Layout";
+
+// ui component
+import {
+    Button,
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "../../../components/ui/index";
+
+// icon
+import { Check, ChevronsUpDown } from "lucide-react";
+import QrCodeIcon from "../../../../../public/img/qr-code.svg";
+
+// other library
+import { Inertia } from "@inertiajs/inertia";
 import QrScanner from "qr-scanner";
 import Cookies from "js-cookie";
-import { Button, Card, Navigation } from "../../../components/ui/index";
-import QrCodeIcon from "../../../../../public/img/qr-code.svg";
-import CloseIcon from "../../../../../public/img/close-icon.svg";
-import InformationIcon from "../../../../../public/img/information-icon.svg";
-import { Inertia } from "@inertiajs/inertia";
+import axios from "axios";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 function QrScan() {
-    const [result, setResult] = useState("");
     const [isScannerOpen, setIsScannerOpen] = useState(false);
-    const [alertOpen, setAlertOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [facingMode, setFacingMode] = useState("environment");
+    const { setValue, watch } = useForm();
     const videoRef = useRef(null);
     const qrScannerRef = useRef(null);
     const inventoryToken = Cookies.get("inventory_token");
+    const [open, setOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [studentList, setStudentList] = useState([]);
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
     const handleScan = useCallback(async (data) => {
         if (data) {
-            //setAlertOpen(true);
-            // qrScannerRef.current?.stop();
-            //setIsScannerOpen(false);
-            setResult(data);
+            qrScannerRef.current?.stop();
+            setIsScannerOpen(false);
 
-            console.log(data);
+            try {
+                const body = {
+                    item_id: Number(data.data),
+                    user_id: watch("student_info")?.value,
+                };
+                const { data: postData } = await axios.post(
+                    "/api/v1/notification/borrow",
+                    body,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${inventoryToken}`,
+                        },
+                    }
+                );
+                toast.success("Berhasil pinjam barang");
+            } catch (error) {
+                if (
+                    error?.response?.data?.message?.includes(
+                        "Item is not available for borrowing"
+                    )
+                ) {
+                    toast.info("Barang sedang Dipinjam oleh Orang Lain");
+                } else if (
+                    error?.response?.data?.message?.includes(
+                        "User has already borrowed this item"
+                    )
+                ) {
+                    toast.info("Kamu sudah Meminjam Barang ini");
+                } else if (
+                    error?.response?.data?.message?.includes(
+                        "The item id field is required."
+                    )
+                ) {
+                    toast.info("Kode QR Tidak Sesuai");
+                } else if (
+                    error?.response?.data?.message?.includes(
+                        "The selected user id is invalid."
+                    )
+                ) {
+                    toast.warning("User Tidak Sesuai");
+                } else if (
+                    error?.response?.data?.message?.includes(
+                        "The user id field is required."
+                    )
+                ) {
+                    toast.error("Pilih User Terlebih Dahulu");
+                } else {
+                    toast.error("Gagal meminjam Barang");
+                }
+                console.log(error);
+            }
         }
     }, []);
 
@@ -62,58 +131,51 @@ function QrScan() {
     };
 
     useEffect(() => {
-        getPreferredCamera();
-    }, []);
-
-    useEffect(() => {
         if (isScannerOpen) {
             initializeScanner();
         }
     }, [isScannerOpen]);
 
-    const getPreferredCamera = async () => {
+    const getAllStudent = async (search = "") => {
         try {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const videoDevices = devices.filter(
-                (device) => device.kind === "videoinput"
-            );
-            const hasBackCamera = videoDevices.some((device) =>
-                device.label.toLowerCase().includes("back")
-            );
+            const { data: getStudent } = await axios("/api/v1/students", {
+                headers: {
+                    Authorization: `Bearer ${inventoryToken}`,
+                },
+                params: {
+                    page: 1,
+                    perPage: 10,
+                    search,
+                },
+            });
+            const format = getStudent.data.map((item) => ({
+                label: item.name,
+                value: item.user_id,
+            }));
 
-            if (window.innerWidth > 768) {
-                setFacingMode("environment");
-            } else {
-                setFacingMode("environment");
-            }
+            setStudentList(format);
         } catch (error) {
-            console.error("Error getting preferred camera:", error);
+            console.log(error);
+            if (error.response.data.message === "Unauthenticated.") {
+                Inertia.visit("/login");
+                return;
+            }
         }
     };
 
-    // const getData = async () => {
-    //     setIsLoading(true);
-    //     try {
-    //         const getUser = await axios("/api/user", {
-    //             headers: {
-    //                 Authorization: `Bearer ${inventoryToken}`,
-    //             },
-    //         });
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 500);
 
-    //         setIsLoading(false);
-    //     } catch (error) {
-    //         console.log(error);
-    //         if (error.response.data.message === "Unauthenticated.") {
-    //             Inertia.visit("/login");
-    //             setTimeout(() => {}, 3000);
-    //             return;
-    //         }
-    //     }
-    // };
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchTerm]);
 
-    // useEffect(() => {
-    //     getData();
-    // }, []);
+    useEffect(() => {
+        getAllStudent(debouncedSearchTerm);
+    }, [debouncedSearchTerm]);
 
     return (
         <div className="relative w-full pb-[30px]">
@@ -122,14 +184,74 @@ function QrScan() {
                     <h1 className="text-[20px]">QrScan</h1>
                 </div>
             </div>
+            <div className="pt-[80px] w-full flex justify-center items-center">
+                <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                                "w-[80%] text-[15px] justify-between border-[1.5px]"
+                            )}
+                        >
+                            {watch("student_info") !== undefined
+                                ? watch("student_info").label
+                                : "Pilih Siswa..."}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="relative">
+                        <Command className="">
+                            <CommandInput
+                                placeholder="Cari Siswa..."
+                                onInput={(e) => {
+                                    setSearchTerm(e.target.value);
+                                }}
+                            />
+                            <CommandList>
+                                <CommandEmpty>
+                                    Nama Peminjam tidak ditemukan.
+                                </CommandEmpty>
 
-            <div className="pt-[20px] px-[20px]">
+                                <CommandGroup className="overflow-y-auto">
+                                    {studentList.map((student) => (
+                                        <CommandItem
+                                            key={student.value}
+                                            value={student.label}
+                                            onSelect={() => {
+                                                setValue(
+                                                    "student_info",
+                                                    student
+                                                );
+                                                setOpen(false);
+                                            }}
+                                        >
+                                            <Check
+                                                className={cn(
+                                                    "mr-2 h-4 w-4",
+                                                    watch("student_info") ===
+                                                        student
+                                                        ? "opacity-100"
+                                                        : "opacity-0"
+                                                )}
+                                            />
+                                            {student.label}
+                                        </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                            </CommandList>
+                        </Command>
+                    </PopoverContent>
+                </Popover>
+            </div>
+
+            <div className="pt-[10px] px-[20px]">
                 <div
                     className={`${
                         isScannerOpen
                             ? "justify-between px-[20px]"
                             : "px-[30px]"
-                    } max-w-[700px] w-full h-[500px] mt-[50px] mx-auto transition-all duration-150 flex flex-col items-center justify-center rounded-[10px] py-[20px] bg-[#F7F4FF]`}
+                    } max-w-[700px] w-full h-[500px] mx-auto transition-all duration-150 flex flex-col items-center justify-center rounded-[10px] py-[20px] bg-[#F7F4FF]`}
                 >
                     {isScannerOpen ? (
                         <>
@@ -153,57 +275,24 @@ function QrScan() {
                         </>
                     ) : (
                         <div className="max-w-[340px] flex flex-col items-center">
-                            {/* {alertOpen && result !== "" ? (
-                                <div className="w-[90%] bg-[#F2EFFB] border-[1.5px] border-solid border-[#D1C6ED] absolute top-[20px] z-20 pt-[11px] px-[15px] pb-[11px] rounded-md">
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-2">
-                                            <img src={InformationIcon} alt="" />
-                                            <h1 className=" leading-3 p-0 m-0 h-auto flex pt-[3px] font-medium">
-                                                Success!
-                                            </h1>
-                                        </div>
-                                        <Button
-                                            className="h-auto px-0 py-0 w-auto bg-transparent hover:bg-transparent"
-                                            onClick={() => setAlertOpen(false)}
-                                        >
-                                            <img src={CloseIcon} alt="" />
-                                        </Button>
-                                    </div>
-                                    <p className="ml-[25px] mt-[5px] text-[14px]">
-                                        Your QR Code has been scanned
-                                    </p>
-                                </div>
-                            ) : (
-                                ""
-                            )} */}
                             <img
                                 className="h-[220px] w-[220px]"
                                 src={QrCodeIcon}
                                 alt=""
                             />
                             <p className="text-[15px] mt-[9px] text-center text-[#414141]">
-                                We need your permission to access the camera for
-                                QR code scanning. Please allow it.
+                                Untuk memindai Kode QR, Izinkan Aplikasi ini
+                                untuk dapat mengakses Kamera anda.
                             </p>
 
                             <Button
                                 className="w-full bg-[#bda5ff] hover:bg-[#a788fd] mt-[17px] font-semibold"
-                                disabled={alertOpen}
                                 onClick={toggleScanner}
                             >
                                 Scan
                             </Button>
                         </div>
                     )}
-                </div>
-
-                <div className="flex justify-center mt-[30px]">
-                    <div>
-                        <h1 className="font-semibold">
-                            Detected QR Code:{" "}
-                            <span>{result ? result.data : "-"}</span>
-                        </h1>
-                    </div>
                 </div>
             </div>
         </div>

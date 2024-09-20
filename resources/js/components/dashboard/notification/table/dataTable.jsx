@@ -8,7 +8,6 @@ import {
     getPaginationRowModel,
     useReactTable,
 } from "@tanstack/react-table";
-import { useForm } from "react-hook-form";
 import {
     Button,
     Input,
@@ -29,17 +28,26 @@ import {
     SelectLabel,
     SelectTrigger,
     SelectValue,
+    Pagination,
 } from "../../../ui/index";
 import { DialogAddTeacher } from "../../teacher/dialog/index";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
-export function DataTable({ columns, data }) {
+export function DataTable({
+    columns,
+    data,
+    pagination,
+    onPageChange,
+    onSearchChange,
+}) {
     const [sorting, setSorting] = React.useState([]);
     const [status, setStatus] = React.useState("");
     const [columnFilters, setColumnFilters] = React.useState([]);
     const [columnVisibility, setColumnVisibility] = React.useState({});
     const [rowSelection, setRowSelection] = React.useState({});
+    const { watch, setValue } = useForm();
 
     const table = useReactTable({
         data,
@@ -60,25 +68,24 @@ export function DataTable({ columns, data }) {
         },
     });
 
-    useEffect(() => {
-        table.getColumn("status")?.setFilterValue(status);
-    }, [status]);
-
     return (
         <div>
-            <div className="flex items-center justify-between py-4">
+            <div className="flex sm:flex-row items-center justify-between py-4 gap-[10px] md:gap-0">
                 <Input
                     placeholder="Search Item..."
-                    value={table.getColumn("item_name")?.getFilterValue() ?? ""}
-                    onChange={(event) =>
-                        table
-                            .getColumn("item_name")
-                            ?.setFilterValue(event.target.value)
-                    }
+                    value={watch("search") ?? ""}
+                    onChange={(event) => {
+                        const searchValue = event.target.value;
+                        setValue("search", searchValue);
+                        // table
+                        //     .getColumn(searchBy)
+                        //     ?.setFilterValue(searchValue);
+                        onSearchChange(searchValue);
+                    }}
                     className="max-w-sm"
                 />
 
-                <Select>
+                {/* <Select>
                     <SelectTrigger className="max-w-max">
                         <SelectValue placeholder="Status" />
                     </SelectTrigger>
@@ -99,35 +106,7 @@ export function DataTable({ columns, data }) {
                             </SelectItem>
                         </SelectGroup>
                     </SelectContent>
-                </Select>
-
-                {/* <DialogAddTeacher /> */}
-                {/* <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-auto">
-                            Columns
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {table
-                            .getAllColumns()
-                            .filter((column) => column.getCanHide())
-                            .map((column) => {
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) =>
-                                            column.toggleVisibility(!!value)
-                                        }
-                                    >
-                                        {column.id}
-                                    </DropdownMenuCheckboxItem>
-                                );
-                            })}
-                    </DropdownMenuContent>
-                </DropdownMenu> */}
+                </Select> */}
             </div>
             <div className="rounded-md border">
                 <Table>
@@ -183,24 +162,36 @@ export function DataTable({ columns, data }) {
                 </Table>
             </div>
 
-            <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="mt-[20px]">
+                <Pagination
+                    currentPage={pagination.currentPage}
+                    totalPages={pagination.totalPages}
+                    onPageChange={onPageChange}
+                />
+            </div>
+            {/* <div className="flex items-center justify-end space-x-2 py-4">
                 <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
+                    onClick={() => {
+                        onPageChange(pagination.currentPage - 1);
+                    }}
+                    disabled={pagination.currentPage === 1}
                 >
                     Previous
                 </Button>
                 <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
+                    onClick={() => {
+                        // table.nextPage();
+                        onPageChange(pagination.currentPage + 1);
+                    }}
+                    disabled={pagination.currentPage === pagination.lastPage}
                 >
                     Next
                 </Button>
-            </div>
+            </div> */}
         </div>
     );
 }

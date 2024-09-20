@@ -1,5 +1,6 @@
 import React from "react";
 import {
+    Switch,
     Checkbox,
     Button,
     DropdownMenu,
@@ -14,6 +15,7 @@ import { DialogDeleteNotification, DialogEditNotification } from "../dialog";
 import { FaUserAlt } from "react-icons/fa";
 import moment from "moment";
 import "moment/locale/id";
+import SwitchToggle from "../switchToggle/switchToggle";
 
 export const columns = [
     {
@@ -64,7 +66,12 @@ export const columns = [
         },
         cell: ({ row }) => {
             const getName = row.getValue("user_name");
-            return <div className="text-center font-medium">{getName}</div>;
+            return (
+                <div className="text-left font-medium w-[200px] overflow-hidden text-ellipsis  whitespace-nowrap">
+                    {getName}
+                </div>
+            );
+            // return <div className="text-center font-medium">{getName}</div>;
         },
     },
     {
@@ -85,7 +92,11 @@ export const columns = [
         cell: ({ row }) => {
             const getName = row.getValue("status");
             return (
-                <div className="text-left font-medium">
+                <div
+                    className={`${
+                        getName === "returned" ? "bg-violet-600" : "bg-red-500"
+                    } text-white font-medium text-center py-[8px] px-[20px] rounded-[50px]`}
+                >
                     {getName === "returned" ? "Dikembalikan" : "Dipinjam"}
                 </div>
             );
@@ -113,7 +124,12 @@ export const columns = [
                 .format("D MMMM YYYY [pukul] HH.mm");
 
             const getName = row.getValue("borrowed_at");
-            return <div className="text-left font-medium">{formatDate}</div>;
+            return (
+                <div className="text-left font-medium w-[200px]">
+                    {formatDate}
+                </div>
+            );
+            // return <div className="text-left font-medium">{formatDate}</div>;
         },
     },
     {
@@ -140,7 +156,31 @@ export const columns = [
                           .format("D MMMM YYYY [pukul] HH.mm");
 
             const getName = row.getValue("borrowed_at");
-            return <div className="text-left font-medium">{formatDate}</div>;
+            return (
+                <div className="text-left font-medium w-[200px]">
+                    {formatDate}
+                </div>
+            );
+        },
+    },
+    {
+        accessorKey: "returned_at",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }
+                >
+                    Atur Status
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
+        cell: ({ row }) => {
+            const getName = row.getValue("borrowed_at");
+            return <SwitchToggle row={row.original} />;
         },
     },
     {
@@ -151,7 +191,7 @@ export const columns = [
 
             return (
                 <div className="flex items-center gap-2">
-                    <DialogEditNotification row={row.original} />
+                    {/* <DialogEditNotification row={row.original} /> */}
                     <DialogDeleteNotification row={row.original} />
                 </div>
             );

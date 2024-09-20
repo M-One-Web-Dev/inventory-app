@@ -23,8 +23,9 @@ export function DialogDeleteActiveStudent({ row }) {
 
     const DeleteItem = async () => {
         try {
-            const { data: deleteCategory } = await axios.delete(
-                `/api/v1/active-students/${row.id}`,
+            const { data: deleteCategory } = await axios.post(
+                `/api/v1/active-students/delete`,
+                { id: row?.id },
                 {
                     headers: {
                         Authorization: `Bearer ${inventoryToken}`,
@@ -32,13 +33,13 @@ export function DialogDeleteActiveStudent({ row }) {
                 }
             );
             setOpenModal(false);
-            toast.success("Success Delete Active Student", {
+            toast.success("Success Delete Student", {
                 duration: 3000,
             });
             refresh();
         } catch (error) {
             console.log(error);
-            toast.error("Failed Delete Active Student", {
+            toast.error("Failed Delete Student", {
                 duration: 3000,
             });
             if (error.response?.data?.message === "Unauthenticated.") {
@@ -55,10 +56,10 @@ export function DialogDeleteActiveStudent({ row }) {
                 <DialogTrigger className="bg-red-500 py-[10px] px-[10px] rounded-sm">
                     <FaTrash className="text-white h-[14px] w-[14px]" />
                 </DialogTrigger>
-                <DialogContent className="w-auto py-[20px] px-[25px]">
+                <DialogContent className="rounded-md w-[240px] py-[20px] px-[25px]">
                     <DialogHeader>
                         <DialogTitle className="text-center font-medium">
-                            are you sure to delete this item?
+                            Hapus Siswa Aktif ini ?
                         </DialogTitle>
                     </DialogHeader>
                     <div className="flex items-center justify-center gap-3 mt-[10px]">
@@ -66,7 +67,7 @@ export function DialogDeleteActiveStudent({ row }) {
                             className="bg-violet-500 hover:bg-violet-400 font-semibold"
                             onClick={() => setOpenModal(false)}
                         >
-                            Cancel
+                            Batal
                         </Button>
                         <Button
                             className="bg-red-500 hover:bg-red-400 font-semibold"

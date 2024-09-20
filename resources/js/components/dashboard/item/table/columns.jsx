@@ -40,42 +40,46 @@ export const columns = [
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    Name
+                    Nama Item
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: ({ row }) => {
             const getName = row.getValue("name");
-            return <div className="text-left font-medium">{getName}</div>;
-        },
-    },
-    {
-        accessorKey: "description",
-        header: ({ column }) => {
             return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                >
-                    Description
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: ({ row }) => {
-            const getDescription = row.getValue("description");
-            return (
-                <div className="text-left font-medium">
-                    {getDescription === null || getDescription === "null"
-                        ? "-"
-                        : getDescription}
+                <div className="text-left font-medium w-[200px] overflow-hidden text-ellipsis  whitespace-nowrap">
+                    {getName}
                 </div>
             );
         },
     },
+    // {
+    //     accessorKey: "description",
+    //     header: ({ column }) => {
+    //         return (
+    //             <Button
+    //                 variant="ghost"
+    //                 onClick={() =>
+    //                     column.toggleSorting(column.getIsSorted() === "asc")
+    //                 }
+    //             >
+    //                 Description
+    //                 <ArrowUpDown className="ml-2 h-4 w-4" />
+    //             </Button>
+    //         );
+    //     },
+    //     cell: ({ row }) => {
+    //         const getDescription = row.getValue("description");
+    //         return (
+    //             <div className="text-left font-medium">
+    //                 {getDescription === null || getDescription === "null"
+    //                     ? "-"
+    //                     : getDescription}
+    //             </div>
+    //         );
+    //     },
+    // },
     {
         accessorKey: "status",
         header: ({ column }) => {
@@ -115,10 +119,10 @@ export const columns = [
         cell: ({ row }) => {
             return (
                 <div className="flex items-center gap-2">
-                    <ButtonDownloadPdf row={row.original} />
+                    {/* <ButtonDownloadPdf row={row.original} /> */}
                     <DialogDetailItem row={row.original} />
                     <DialogEditItem row={row.original} />
-                    <DialogDeleteItem id={row.original.id} />
+                    <DialogDeleteItem id={row.original} />
                 </div>
             );
         },

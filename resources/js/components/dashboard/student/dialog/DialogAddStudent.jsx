@@ -34,20 +34,17 @@ import { useStudentRefresher } from "@/lib/context/refresherStudent";
 
 const formSchema = z.object({
     number_id: z.string().min(1, {
-        message: "Number Id is Empty",
+        message: "Number Id belum Diisi",
     }),
     name: z.string().min(1, {
-        message: "Name is Empty",
+        message: "Nama Siswa belum Diisi",
     }),
     password: z.string().min(1, {
-        message: "password is Empty",
+        message: "Password belum Diisi",
     }),
-    address: z.string().min(1, {
-        message: "address' is Empty",
-    }),
-    phone_number: z.string().min(1, {
-        message: "phone_number is Empty",
-    }),
+    address: z.any().optional(),
+    phone_number: z.any().optional(),
+    image: z.any().optional(),
 });
 
 export function DialogAddStudent() {
@@ -86,7 +83,7 @@ export function DialogAddStudent() {
         formData.append("password", password);
         formData.append("email", email) ?? null,
             formData.append("address", address ?? null);
-        formData.append("phone_number", phone_number);
+        formData.append("phone_number", phone_number ?? null);
 
         // if (imageFile) {
         //     formData.append("image", imageFile);
@@ -94,21 +91,13 @@ export function DialogAddStudent() {
 
         try {
             const { data: getUser } = await axios.post(
-                "/api/v1/students",
+                "/api/v1/students/add",
                 formData,
                 {
                     headers: {
                         Authorization: `Bearer ${inventoryToken}`,
                         "Content-Type": "multipart/form-data",
-                    }, // const response = await fetch("", {
-                    //     method: "POST",
-                    //     headers: {
-                    //         "Content-Type": "application/json",
-                    //         Accept: "application/json",
-                    //         Authorization: `Bearer ${inventoryToken}`,
-                    //     },
-                    //     body: JSON.stringify({ data: data }),
-                    // });
+                    },
                 }
             );
             setOpenModal(false);
@@ -145,18 +134,18 @@ export function DialogAddStudent() {
                     <FiPlus className="h-[16px] w-[16px] " />{" "}
                     <span className="mt-[3px]">Tambah</span>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="rounded-md py-[25px] px-[23px] h-auto max-[400px]:w-[320px] max-w-[400px]">
                     <DialogHeader>
                         <DialogTitle>
-                            <h1 className="text-center mb-[20px] text-[20px] font-semibold text-neutral-700">
-                                Add Student
-                            </h1>
+                            <span className="w-full flex justify-center mb-[20px] text-[20px] font-semibold text-neutral-700">
+                                Tambah Siswa
+                            </span>
                         </DialogTitle>
                     </DialogHeader>
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}
-                            className="flex flex-col gap-8 rounded-md px-[30px] w-full"
+                            className="flex flex-col gap-5 rounded-md w-full"
                         >
                             <FormField
                                 control={form.control}
@@ -164,7 +153,10 @@ export function DialogAddStudent() {
                                 render={({ field }) => (
                                     <FormItem className="space-y-0">
                                         <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Number ID
+                                            Number ID{" "}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </FormLabel>
                                         <FormControl>
                                             <Input
@@ -192,11 +184,14 @@ export function DialogAddStudent() {
                                 render={({ field }) => (
                                     <FormItem className="space-y-0">
                                         <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Name
+                                            Nama Siswa{" "}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="Name. . ."
+                                                placeholder="Nama Siswa. . ."
                                                 {...field}
                                                 className={`${
                                                     form.formState.errors
@@ -216,16 +211,48 @@ export function DialogAddStudent() {
                             />
                             <FormField
                                 control={form.control}
-                                name="description"
+                                name="password"
                                 render={({ field }) => (
                                     <FormItem className="space-y-0">
                                         <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Description
+                                            Password{" "}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="password"
+                                                placeholder="Password. . ."
+                                                {...field}
+                                                className={`${
+                                                    form.formState.errors
+                                                        .password &&
+                                                    "outline-red-500 focus:outline-red-400"
+                                                }`}
+                                            />
+                                        </FormControl>
+                                        {form.formState.errors.password && (
+                                            <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
+                                                <Info size={14} />
+                                                <FormMessage className="text-[13px] mt-[3px] leading-none" />
+                                            </div>
+                                        )}
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="address"
+                                render={({ field }) => (
+                                    <FormItem className="space-y-0">
+                                        <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
+                                            Alamat ( opsional )
                                         </FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="text"
-                                                placeholder="Description. . ."
+                                                placeholder="Alamat. . ."
                                                 {...field}
                                                 className={`${
                                                     form.formState.errors
@@ -243,27 +270,27 @@ export function DialogAddStudent() {
                                     </FormItem>
                                 )}
                             />
-                            {/* <FormField
+                            <FormField
                                 control={form.control}
-                                name="stock"
+                                name="Phone Number"
                                 render={({ field }) => (
                                     <FormItem className="space-y-0">
                                         <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Stock
+                                            Nomor Telepon ( opsional )
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="Stock. . ."
+                                                type="text"
+                                                placeholder="Nomor Telepon. . ."
                                                 {...field}
                                                 className={`${
                                                     form.formState.errors
-                                                        .stock &&
+                                                        .description &&
                                                     "outline-red-500 focus:outline-red-400"
                                                 }`}
-                                                type="text"
                                             />
                                         </FormControl>
-                                        {form.formState.errors.stock && (
+                                        {form.formState.errors.description && (
                                             <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
                                                 <Info size={14} />
                                                 <FormMessage className="text-[13px] mt-[3px] leading-none" />
@@ -271,68 +298,9 @@ export function DialogAddStudent() {
                                         )}
                                     </FormItem>
                                 )}
-                            /> */}
-                            <FormField
-                                control={form.control}
-                                name="category"
-                                render={({ field }) => {
-                                    console.log(field);
-                                    return (
-                                        <FormItem className="space-y-0">
-                                            <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                                Category
-                                            </FormLabel>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                defaultValue={field.value}
-                                            >
-                                                <FormControl>
-                                                    <SelectTrigger
-                                                        className={` [&>span]:text-neutral-400 ${
-                                                            form.formState
-                                                                .errors
-                                                                .category &&
-                                                            "outline-red-500 focus:outline-red-400"
-                                                        }`}
-                                                    >
-                                                        <SelectValue
-                                                            placeholder="Select Category"
-                                                            className="text-neutral-400"
-                                                        />
-                                                    </SelectTrigger>
-                                                </FormControl>
-
-                                                <SelectContent>
-                                                    {listCategory.map(
-                                                        (item, index) => (
-                                                            <SelectItem
-                                                                key={index}
-                                                                value={`${item?.id}`}
-                                                            >
-                                                                {item.name}
-                                                            </SelectItem>
-                                                        )
-                                                    )}
-                                                    {/* <SelectItem value="active">
-                                                        Active
-                                                    </SelectItem>
-                                                    <SelectItem value="inactive">
-                                                        In ctive
-                                                    </SelectItem> */}
-                                                </SelectContent>
-                                            </Select>
-
-                                            {form.formState.errors.category && (
-                                                <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
-                                                    <Info size={14} />
-                                                    <FormMessage className="text-[13px] mt-[3px] leading-none" />
-                                                </div>
-                                            )}
-                                        </FormItem>
-                                    );
-                                }}
                             />
-                            <FormField
+
+                            {/* <FormField
                                 control={form.control}
                                 name="image"
                                 render={({ field }) => (
@@ -344,7 +312,7 @@ export function DialogAddStudent() {
                                             <Input
                                                 type="file"
                                                 accept="image/*"
-                                                onChange={handleImageChange}
+                                                //onChange={handleImageChange}
                                             />
                                         </FormControl>
                                         {form.formState.errors.image && (
@@ -355,23 +323,23 @@ export function DialogAddStudent() {
                                         )}
                                     </FormItem>
                                 )}
-                            />
+                            /> */}
 
-                            <div className="flex gap-7  w-full">
+                            <div className="mt-[20px] flex gap-4 justify-end w-full">
                                 <Button
-                                    className="w-full bg-[#A27FFE] mt-[50px] hover:bg-[#b295fb]"
+                                    className="max-w-max bg-[#A27FFE] hover:bg-[#b295fb]"
                                     // disable={isLoading}
                                     type="button"
                                     onClick={() => setOpenModal(false)}
                                 >
-                                    <span className="text-lg">Cancel</span>
+                                    <span className="text-md">Batal</span>
                                 </Button>
                                 <Button
-                                    className="w-full bg-[#A27FFE] mt-[50px] hover:bg-[#b295fb]"
+                                    className="max-w-max bg-[#A27FFE] hover:bg-[#b295fb]"
                                     // disable={isLoading}
                                     type="submit"
                                 >
-                                    <span className="text-lg">Add</span>
+                                    <span className="text-md">Tambah</span>
                                 </Button>
                             </div>
                         </form>
@@ -381,3 +349,10 @@ export function DialogAddStudent() {
         </>
     );
 }
+/*
+ ppp
+meycel 024
+ Deca syarapova 027
+ navla febiana 012
+deceana 020
+ */

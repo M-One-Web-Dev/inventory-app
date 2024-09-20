@@ -14,17 +14,79 @@ use Illuminate\Support\Str;
 class ItemsController extends Controller
 {
 
-  public function index(Request $request)
-    {
-        $itemsQuery = Items::query();
+public function index(Request $request)
+{
+    try {
+       
+        $perPage = $request->query('perPage', 10); 
+        $search = $request->query('search', ''); 
+        
+        $itemsQuery = Items::when($search, function ($query, $search) {
+            return $query->where('id_number', 'like', "%{$search}%")
+                         ->orWhere('name', 'like', "%{$search}%");
+        });
 
-        $items = $itemsQuery->get();
+        $items = $itemsQuery->paginate($perPage);
+
+        $totalPages = (int) ceil($items->total() / $items->perPage());
+        return response()->json([
+            "status" => "success",
+            "data" => $items->items(), 
+            "pagination" => [
+                "total" => $items->total(),
+                "perPage" => $items->perPage(),
+                "currentPage" => $items->currentPage(),
+                "lastPage" => $items->lastPage(),
+                  "totalPages" => $totalPages, 
+            ],
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            "status" => "error",
+            "message" => "An error occurred while fetching items.",
+            "error" => $e->getMessage(),
+        ], 500);
+    }
+}
+
+public function show($id)
+{
+    try {
+        $item = Items::with('category')->find($id);
+
+        if (!$item) {
+            return response()->json([
+                "status" => "error",
+                "message" => "Item not found",
+            ], 404);
+        }
+
+        $categoryName = $item->category ? $item->category->name : null;
 
         return response()->json([
             "status" => "success",
-            "data" => $items,
-        ]);
+            "data" => [
+                "id" => $item->id,
+                "id_number" => $item->id_number,
+                "name" => $item->name,
+                "description" => $item->description,
+                "status" => $item->status,
+                "image" => $item->image,
+                "categories_name" => $categoryName,  
+                "created_at" => $item->created_at,
+                "updated_at" => $item->updated_at,
+            ],
+        ], 200);
+    } catch (\Exception $e) {
+
+        return response()->json([
+            "status" => "error",
+            "message" => "An error occurred while fetching the item.",
+            "error" => $e->getMessage(),
+        ], 500);
     }
+}
+
 
     public function create(Request $request)
     {
@@ -33,7 +95,7 @@ class ItemsController extends Controller
             "name" => "required",
             "image" => "nullable|image|mimes:jpeg,png,jpg,gif,svg",
             "description" => "nullable|string",
-            "category" => "nullable|numeric"
+            "categories_id" => "nullable"
         ]);
 
         $image = null;
@@ -49,7 +111,7 @@ class ItemsController extends Controller
             "id_number" => $request->id_number,
             "name" => $request->name,
             "description" => $request->description ?? null,
-            "categories_id" => $request->category ?? null,
+            "categories_id" => $request->categories_id ?? null,
             "image" => $image ?? null,
             "status" => "available"
         ]);
@@ -78,7 +140,7 @@ class ItemsController extends Controller
                 "name" => $itemData['name'],
                 "description" =>  null,
                 "categories_id" =>null,
-                "image" => null, // Asumsikan tidak ada image untuk import data dari excel
+                "image" => null, 
                 "status" => "available"
             ]);
 
@@ -96,24 +158,20 @@ class ItemsController extends Controller
     $request->validate([
         "id_number" => "required",
         "name" => "required",
-        "description" => "required",
-        "categories_id" => "nullable|required",
+        "description" => "nullable|string",
+        "categories_id" => "nullable",
         "status" => "required|in:available,not_available,lost,damaged",
         "image" => "image|mimes:jpeg,png,jpg,gif,svg"
     ]);
 
-    $categoryFind = Categories::find($request->categories_id);
+   
     $findItem = Items::find($id);
 
     if (!$findItem) {
         return response()->json(["message" => "Item not found"], 404);
     }
 
-    if (!$categoryFind) {
-        return response()->json(["message" => "Category not found"], 404);
-    }
-
-// Check if the current status is 'not_available'
+  
     $status = $findItem->status == 'not_available' ? 'not_available' : $request->status;
 
     $image = $findItem->image;
@@ -129,14 +187,17 @@ class ItemsController extends Controller
         $image = $file_name;
     }
 
-    $updateItem = $findItem->update([
-        "id_number" => $request->id_number,
-        "name" => $request->name,
-         "status" => $status,
-        "description" => $request->description,
-        "categories_id" => $categoryFind->id,
-        "image" => $image
-    ]);
+    $categoriesId = $request->categories_id === 'null' || $request->categories_id === null ? null : $request->categories_id;
+
+$updateItem = $findItem->update([
+    "id_number" => $request->id_number,
+    "name" => $request->name,
+    "status" => $status,
+    "description" => $request->description,
+    "categories_id" => $categoriesId,
+    "image" => $image
+]);
+
 
     if ($updateItem) {
         return response()->json(["message" => "Item updated successfully"], 200);

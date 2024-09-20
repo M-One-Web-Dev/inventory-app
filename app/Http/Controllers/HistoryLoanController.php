@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\LoanHistoryResource;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 
@@ -11,19 +10,24 @@ class HistoryLoanController extends Controller
     /**
      * Show the loan history for the currently authenticated user.
      *
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil ID pengguna yang sedang login
+       
         $userId = auth()->user()->id;
+        $status = $request->query('status');
+        $perPage = $request->query('per_page', 10);
+        $query = Notification::with('item') 
+            ->where('user_id', $userId);
+        if ($status) {
+            $query->where('status', $status);
+        }
 
-        // Ambil semua notifikasi untuk pengguna yang sedang login
-        $notifications = Notification::with('item') // Muat relasi 'item'
-            ->where('user_id', $userId)
-            ->get();
+        
+        $notifications = $query->paginate($perPage);
 
-        // Format data untuk respons
         $formattedNotifications = $notifications->map(function ($notification) {
             return [
                 'id' => $notification->id,
@@ -38,6 +42,13 @@ class HistoryLoanController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $formattedNotifications,
+            'pagination' => [
+                'current_page' => $notifications->currentPage(),
+                'last_page' => $notifications->lastPage(),
+                'per_page' => $notifications->perPage(),
+                'total' => $notifications->total(),
+                'total_pages' => $notifications->lastPage(), 
+            ],
         ]);
     }
 }

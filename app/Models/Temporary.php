@@ -20,5 +20,6 @@ class Temporary extends Model
         'item_name',
         'item_id',
         'item_number_id',
+        'status'
     ];
 }

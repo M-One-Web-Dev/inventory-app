@@ -16,13 +16,13 @@ export function LogoutButton() {
 
     return (
         <Dialog open={openModal} onOpenChange={setOpenModal}>
-            <DialogTrigger className="py-[5px] px-[20px] bg-[#A589F0] max-w-max mx-auto text-white rounded-[50px]">
+            <DialogTrigger className="py-[5px] px-[20px] bg-[#A589F0] max-w-max text-white rounded-[50px]">
                 Logout
             </DialogTrigger>
-            <DialogContent className="max-w-[270px] px-0 py-[23px]">
+            <DialogContent className="max-w-[270px] px-0 py-[23px] rounded-md">
                 <DialogHeader>
                     <DialogTitle className="font-medium text-[16px] text-center mb-[18px]">
-                        Are you sure you want to logout?
+                        Apakah Kamu yakin ingin Logout?
                     </DialogTitle>
                     <div className="flex gap-4 justify-center">
                         <button className="px-[11px] py-[5px] border-[1px] border-[#A589F0] text-[#A589F0] rounded-sm">
@@ -30,14 +30,14 @@ export function LogoutButton() {
                                 onClick={() => setOpenModal(false)}
                                 className="mt-[15px] leading-3"
                             >
-                                Cancel
+                                Batal
                             </span>
                         </button>
                         <button
                             className="px-[11px] py-[5px] bg-[#A589F0] text-[#A589F0] rounded-sm"
                             onClick={() => {
                                 Cookies.remove("inventory_token");
-                                Inertia.visit("/");
+                                Inertia.visit("/login");
                             }}
                         >
                             <span className="mt-[15px] leading-3 text-white">

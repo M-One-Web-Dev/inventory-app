@@ -1,17 +1,7 @@
 import React from "react";
-import {
-    Checkbox,
-    Button,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "../../../ui/index";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { Button } from "../../../ui/index";
+import { ArrowUpDown } from "lucide-react";
 import { DialogDeleteActiveStudent } from "../dialog";
-import { FaUserAlt } from "react-icons/fa";
 
 export const columns = [
     {
@@ -46,7 +36,7 @@ export const columns = [
     //     },
     // },
     {
-        accessorKey: "student_id",
+        accessorKey: "student_name",
         header: ({ column }) => {
             return (
                 <Button
@@ -55,14 +45,18 @@ export const columns = [
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    Student Id
+                    Nama Siswa
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: ({ row }) => {
-            const getName = row.getValue("student_id");
-            return <div className="text-center font-medium">{getName}</div>;
+            const getName = row.getValue("student_name");
+            return (
+                <div className="text-left font-medium w-[200px] overflow-hidden text-ellipsis  whitespace-nowrap">
+                    {getName}
+                </div>
+            );
         },
     },
     {
@@ -75,7 +69,7 @@ export const columns = [
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    Major
+                    Jurusan
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
@@ -95,7 +89,7 @@ export const columns = [
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    Class
+                    Kelas
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
@@ -115,7 +109,7 @@ export const columns = [
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    Year
+                    Tahun Pelajaran
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
@@ -133,7 +127,6 @@ export const columns = [
 
             return (
                 <div className="flex items-center gap-2">
-                    {/* <DialogEditTeacher /> */}
                     <DialogDeleteActiveStudent row={row.original} />
                 </div>
             );

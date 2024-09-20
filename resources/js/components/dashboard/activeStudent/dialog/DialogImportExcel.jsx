@@ -46,6 +46,7 @@ import QRCode from "qrcode";
 
 export function DialogImportExcel() {
     const [openModal, setOpenModal] = useState(false);
+    const [isImporting, setIsImporting] = useState(false);
 
     const downloadTemplate = () => {
         // Data template dengan header dan gaya bold
@@ -91,36 +92,55 @@ export function DialogImportExcel() {
 
     return (
         <>
-            <Toaster richColors position="top-center" />
+            {/* <Toaster richColors position="top-center" /> */}
             <Popover open={openModal} onOpenChange={setOpenModal}>
-                <PopoverTrigger className="flex items-center gap-1 bg-violet-500 text-white py-[5px] text-[14px] px-[15px] rounded-[20px] hover:bg-violet-400">
-                    <FiPlus className="h-[16px] w-[16px] " />{" "}
-                    <span className="mt-[3px]">Import</span>
+                <PopoverTrigger
+                    className={`flex items-center gap-1 text-white py-[5px] text-[14px] px-[15px] rounded-[20px]  ${
+                        isImporting
+                            ? "bg-violet-300"
+                            : "hover:bg-violet-400 bg-violet-500"
+                    }`}
+                    disabled={isImporting}
+                >
+                    {isImporting ? (
+                        <span className="mt-[3px]">Mengimport...</span>
+                    ) : (
+                        <>
+                            <FiPlus className="h-[16px] w-[16px] " />{" "}
+                            <span className="mt-[3px]">Import</span>
+                        </>
+                    )}
                 </PopoverTrigger>
-                <PopoverContent className="p-0 py-[10px] px-[10px] max-w-max">
+                <PopoverContent className="p-0 py-[10px] px-[10px] left-[-140px] max-w-max">
                     <Tabs defaultValue="import" className="">
-                        <TabsList className="w-full">
-                            <TabsTrigger value="download" className="w-full">
+                        <TabsList className="w-full bg-violet-100">
+                            <TabsTrigger
+                                value="download"
+                                className="w-full data-[state=active]:bg-violet-400 data-[state=active]:text-white"
+                            >
                                 Unduh
                             </TabsTrigger>
-                            <TabsTrigger value="import" className="w-full">
+                            <TabsTrigger
+                                value="import"
+                                className="w-full data-[state=active]:bg-violet-400 data-[state=active]:text-white"
+                            >
                                 Import
                             </TabsTrigger>
                         </TabsList>
                         <TabsContent className="w-[260px]" value="download">
                             <Button
                                 onClick={downloadTemplate}
-                                className="w-full text-center py-2"
+                                className="w-full text-center py-2 bg-violet-500 hover:bg-violet-400 font-semibold"
                             >
                                 Unduh Template
                             </Button>
                         </TabsContent>
                         <TabsContent className="w-[260px]" value="import">
-                            <ImportItem setOpenModal={setOpenModal} />
+                            <ImportItem
+                                setIsImporting={setIsImporting}
+                                setIsOpenPopup={setOpenModal}
+                            />
                         </TabsContent>
-                        {/* <TabsContent className="w-[260px]" value="export">
-                            <ExportAllItemsPDF />
-                        </TabsContent> */}
                     </Tabs>
                 </PopoverContent>
             </Popover>
@@ -128,7 +148,7 @@ export function DialogImportExcel() {
     );
 }
 
-function ImportItem({ setOpenModal }) {
+function ImportItem({ setIsImporting, setIsOpenPopup }) {
     const [data, setData] = useState([]);
     const [fileName, setFileName] = useState({ name: "" });
     const [errors, setErrors] = useState({});
@@ -154,7 +174,18 @@ function ImportItem({ setOpenModal }) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        // setIsImporting(true);
+        // setIsOpenPopup(false);
+        // setTimeout(() => {
+        //     setIsImporting(false);
+        //     toast.success("Berhasil Import Data Item", {
+        //         duration: 3000,
+        //     });
+        // }, 5000);
+        // return;
         if (data.length !== 0) {
+            setIsOpenPopup(false);
+            setIsImporting(true);
             try {
                 const body = {
                     data: data,
@@ -169,11 +200,10 @@ function ImportItem({ setOpenModal }) {
                     }
                 );
 
-                toast.success("Success Add Active Student", {
+                toast.success("Berhasil Import data Siswa Aktif", {
                     duration: 3000,
                 });
                 refresh();
-                setOpenModal(false);
             } catch (error) {
                 if (error.response?.data?.errors[0].includes("Siswa")) {
                     toast.error(error?.response?.data?.errors[0], {
@@ -222,16 +252,15 @@ function ImportItem({ setOpenModal }) {
                         duration: 3000,
                     });
                 }
-                setOpenModal(false);
-
-                // console.error("Error:", error);
+            } finally {
+                setIsImporting(false);
             }
         }
     };
 
     return (
         <>
-            {/* <Toaster richColors position="top-center" /> */}
+            <Toaster richColors position="top-center" />
             <form className="w-full" onSubmit={handleSubmit}>
                 <label className="block w-full" htmlFor="excel-file">
                     <input
@@ -253,7 +282,7 @@ function ImportItem({ setOpenModal }) {
                 {errors.file && <div>{errors.file}</div>}
                 <div className="flex justify-end mt-[10px]">
                     <Button
-                        className="transition-all duration-200 active:scale-[0.96] p-0 h-auto py-[7px] px-[15px]"
+                        className="transition-all duration-200 active:scale-[0.96] p-0 h-auto py-[7px] px-[15px] bg-violet-500 hover:bg-violet-400"
                         type="submit"
                     >
                         Import

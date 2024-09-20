@@ -15,11 +15,27 @@ class NotificationController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
-    {
-        $notifications = Notification::with('item', 'user')->get();
+ public function index(Request $request)
+{
+    try {
+        // Ambil parameter pagination dan search dari request
+        $perPage = $request->query('perPage', 10); // Default 10 items per page
+        $search = $request->query('search', ''); // Default empty search query
 
-        $notifications = $notifications->map(function ($notification) {
+        // Dapatkan data notification dengan pagination dan search
+        $notificationsQuery = Notification::with('item', 'user')
+            ->when($search, function ($query, $search) {
+                return $query->whereHas('user', function ($query) use ($search) {
+                    $query->where('username', 'like', "%{$search}%");
+                })->orWhereHas('item', function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%");
+                });
+            });
+
+        $notifications = $notificationsQuery->paginate($perPage);
+
+        // Transformasi data hanya pada items
+        $data = $notifications->getCollection()->map(function ($notification) {
             return [
                 'id' => $notification->id,
                 'item_id' => $notification->item->id,
@@ -32,11 +48,31 @@ class NotificationController extends Controller
             ];
         });
 
+        // Set hasil transformasi kembali ke collection di paginator
+        $notifications->setCollection($data);
+
+        $totalPages = (int) ceil($notifications->total() / $notifications->perPage());
+
         return response()->json([
             'status' => 'success',
-            'data' => $notifications,
+            'data' => $notifications->items(), // Data untuk halaman saat ini
+            'pagination' => [
+                'total' => $notifications->total(),
+                'perPage' => $notifications->perPage(),
+                'currentPage' => $notifications->currentPage(),
+                'lastPage' => $notifications->lastPage(),
+                  "totalPages" => $totalPages
+                ],
         ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'An error occurred while fetching notifications.',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
+
 
     /**
      * handle borrow item
@@ -44,46 +80,52 @@ class NotificationController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function borrowItem(Request $request)
-    {
-        $request->validate([
-            'item_id' => 'required|exists:items,id',
-            'user_id' => 'required|exists:users,id',
-        ]);
+public function borrowItem(Request $request)
+{
+    $request->validate([
+        'item_id' => 'required|exists:items,id',
+        'user_id' => 'required|exists:users,id',
+    ]);
 
-        $item = Items::find($request->item_id);
+    $item = Items::find($request->item_id);
 
-        // Check if the item is already borrowed by the same user
+    // Jika item tidak ditemukan
+    if (!$item) {
+        return response()->json(['message' => 'Item not found'], 404);
+    }
+
+   
+
+    // Periksa apakah user sudah meminjam item tersebut
     $existingNotification = Notification::where('item_id', $request->item_id)
                                         ->where('user_id', $request->user_id)
                                         ->where('status', 'borrowed')
-                                        ->first();
+                                        ->exists();
 
- if ($existingNotification) {
-        return response()->json(['message' => 'You have already borrowed this item'], 400);
+    if ($existingNotification) {
+        return response()->json(['message' => 'User has already borrowed this item'], 400);
     }
 
-    // Check if the item is available for borrowing
-    if ($item->status != 'available') {
+     // Jika item tidak tersedia untuk dipinjam
+    if ($item->status !== 'available') {
         return response()->json(['message' => 'Item is not available for borrowing'], 400);
     }
 
-    
+    // Buat catatan notifikasi baru
+    Notification::create([
+        'item_id' => $request->item_id,
+        'user_id' => $request->user_id,
+        'status' => 'borrowed',
+        'borrowed_at' => Carbon::now('Asia/Jakarta'),
+    ]);
 
-        // Update item status
-        $item->status = 'not_available';
-        $item->save();
+    // Perbarui status item menjadi 'not_available'
+    $item->status = 'not_available';
+    $item->save();
 
-        // Create notification
-        $notification = Notification::create([
-            'item_id' => $item->id,
-            'user_id' => $request->user_id,
-            'status' => 'borrowed',
-            'borrowed_at' => Carbon::now('Asia/Jakarta'),
-        ]);
+    return response()->json(['message' => 'Item borrowed successfully'], 200);
+}
 
-        return response()->json(['message' => 'Item borrowed successfully', 'notification' => $notification], 201);
-    }
 
     /**
      * handle return item
@@ -91,46 +133,55 @@ class NotificationController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function returnItem(Request $request)
-    {
-        $request->validate([
-            'item_id' => 'required|exists:items,id',
-            'user_id' => 'required|exists:users,id',
-            'status' => 'required|in:returned,borrowed', // Validasi status
-        ]);
+public function returnItem(Request $request)
+{
+    $request->validate([
+        'notification_id' => 'required|integer', 
+        'status' => 'required|in:returned,borrowed',
+    ]);
 
-        $notification = Notification::where('item_id', $request->item_id)
-                                     ->where('user_id', $request->user_id)
-                                     ->whereIn('status', ['borrowed', 'returned'])
-                                     ->first();
+    $notificationId = $request->input('notification_id');
 
-        if (!$notification) {
-            return response()->json(['message' => 'Borrow record not found'], 404);
-        }
+    $notification = Notification::find($notificationId);
 
-        $item = Items::find($request->item_id);
-
-        if ($request->status === 'borrowed' && $item->status !== 'available') {
-            return response()->json(['message' => 'Item is not available for borrowing'], 400);
-        }
-
-        // Update notification status
-        $notification->update([
-            'status' => $request->status, // Menggunakan status dari request
-            'returned_at' => ($request->status === 'returned') ? Carbon::now('Asia/Jakarta') : null,
-        ]);
-
-        // Update item status jika item dikembalikan dengan status 'returned'
-        if ($request->status === 'returned') {
-            $item->status = 'available';
-        }  else if ($request->status === 'borrowed') {
-            $item->status = 'not_available';
-        }
-
-        $item->save();
-
-        return response()->json(['message' => 'Item status updated successfully', 'notification' => $notification], 200);
+    if (!$notification) {
+        return response()->json(['message' => 'Notification not found'], 404);
     }
+
+    $item = Items::find($notification->item_id);
+
+    $isItemBorrowedByOtherUser = Notification::where('item_id', $notification->item_id)
+                                             ->where('status', 'borrowed')
+                                             ->where('user_id', '!=', $notification->user_id)
+                                             ->exists();
+
+    if ($request->status === 'borrowed' && ($item->status !== 'available' || $isItemBorrowedByOtherUser)) {
+        return response()->json(['message' => 'Item is not available for borrowing'], 400);
+    }
+
+    
+    $notification->update([
+        'status' => $request->status,
+        'returned_at' => ($request->status === 'returned') ? Carbon::now('Asia/Jakarta') : null,
+    ]);
+
+    
+    if ($request->status === 'returned') {
+        $item->status = 'available';
+    } else if ($request->status === 'borrowed') {
+        $item->status = 'not_available';
+    }
+
+    $item->save();
+
+    return response()->json([
+        'message' => 'Item status updated successfully',
+        'notification' => $notification
+    ], 200);
+}
+
+
+
 
     public function delete($id)
     {

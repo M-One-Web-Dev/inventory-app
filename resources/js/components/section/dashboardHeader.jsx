@@ -6,6 +6,12 @@ import {
     Popover,
     PopoverContent,
     PopoverTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
     Dialog,
     DialogContent,
     DialogDescription,
@@ -15,36 +21,40 @@ import {
 } from "../ui/index";
 import { FaUserCircle } from "react-icons/fa";
 import { CustomSheet } from "./customSheet";
+import { Link } from "@inertiajs/inertia-react";
 
 export function DashboardHeader() {
     return (
-        <div className="w-full px-[25px] flex items-center bg-[#885ff9] pt-[20px] justify-between min-[1000px]:justify-end pb-[70px]">
-            {/* <div className="max-[1000px]:block hidden"></div> */}
+        <div className="w-full px-[25px] flex items-center bg-[#885ff9] pt-[20px] justify-between min-[1050px]:justify-end pb-[70px]">
             <CustomSheet />
-            <div className="flex items-center gap-2">
-                <FaUserCircle className="h-[30px] w-[30px] text-slate-100" />
-                <h1 className="text-white">Hi, User!</h1>
-            </div>
+            <LogoutDialog />
         </div>
     );
 }
 
 export function LogoutDialog() {
     return (
-        <Dialog>
-            <DialogTrigger className="w-full bg-red-800 text-white py-[5px] rounded-sm mt-[10px] text-[14px]">
-                Logout
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Are you absolutely sure?</DialogTitle>
-                    <DialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete your account and remove your data from our
-                        servers.
-                    </DialogDescription>
-                </DialogHeader>
-            </DialogContent>
-        </Dialog>
+        <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-2 border-none">
+                <FaUserCircle className="h-[30px] w-[30px] text-slate-100" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="py-[10px] px-[10px] flex flex-col h-auto mr-[40px] gap-[5px]">
+                <Link
+                    href="/"
+                    className="bg-violet-500 text-white rounded-md py-[8px] px-[16px] font-semibold text-sm"
+                >
+                    Halaman Peminjaman
+                </Link>
+                <Button
+                    onClick={() => {
+                        Cookies.remove("inventory_token");
+                        Inertia.visit("/login");
+                    }}
+                    className="w-full bg-red-500 font-semibold"
+                >
+                    Logout
+                </Button>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }

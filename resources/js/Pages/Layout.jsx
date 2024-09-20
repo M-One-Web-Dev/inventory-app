@@ -3,6 +3,8 @@ import { Button, Card, Navigation } from "../components/ui/index";
 import { Inertia } from "@inertiajs/inertia";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { RenderedProvider } from "@/lib/context/renderedHome";
+import { Toaster } from "sonner";
 
 export default function Layout({ children }) {
     const [isLoading, setIsLoading] = useState(false);
@@ -19,12 +21,15 @@ export default function Layout({ children }) {
                 },
             });
 
-            const role = getUser.role;
-            if (role === "student") {
-                setIsLoading(false);
-                Inertia.visit("/");
-            }
+            // const role = getUser.role;
+            // if (role === "student") {
+            //     setIsLoading(false);
+            //     Inertia.visit("/");
+            //     return;
+            // } else {
             setCheckRole(true);
+            //     return;
+            // }
         } catch (error) {
             setIsLoading(false);
             if (error.response.data.message) {
@@ -35,15 +40,28 @@ export default function Layout({ children }) {
     };
 
     useEffect(() => {
-        if (checkRole === false) {
-            checkingRole();
-        }
+        checkingRole();
     }, []);
+
+    // useEffect(() => {
+    //     if (checkRole === true) {
+    //         setIsVerifyLoading(false);
+    //     }
+    // }, [checkRole]);
 
     return (
         <>
-            <main className="flex">{children}</main>
-            <Navigation />
+            {checkRole === false ? (
+                <div className="h-screen w-full flex justify-center items-center">
+                    <h1>Loading...</h1>
+                </div>
+            ) : (
+                <RenderedProvider>
+                    <Toaster richColors position="top-center" />
+                    <main className="flex">{children}</main>
+                    <Navigation />
+                </RenderedProvider>
+            )}
         </>
     );
 }

@@ -6,6 +6,7 @@ use App\Models\ActiveStudents;
 use App\Models\Students;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -38,7 +39,7 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        // Check if the ID number already exists in the database
+      
         $cek = Students::where("id_number", $request->id_number)->first();
         if ($cek) {
             return response()->json([
@@ -47,7 +48,7 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // Create a new user
+       
         $user = User::create([
             "username" => $request->username,
             "email" => $request->email,
@@ -55,7 +56,7 @@ class AuthController extends Controller
             "role" => "student",
         ]);
         if ($user) {
-            // Create a new student associated with the user
+         
             $student = Students::create([
                 "id_number" => $request->id_number,
                 "address" => $request->address,
@@ -64,7 +65,7 @@ class AuthController extends Controller
                 "user_id" => $user->id,
             ]);
 
-            // Calculate the school year based on the current year
+           
             $currentYear = date('Y');
             $nextYear = $currentYear + 1;
             $schoolYear = $currentYear . "/" . $nextYear;
@@ -76,7 +77,7 @@ class AuthController extends Controller
                 "school_year" => $schoolYear
             ]);
 
-            // If student creation is successful, return success response
+           
             if ($activeStudent) {
                 return response()->json([
                     "status" => "success",
@@ -85,8 +86,6 @@ class AuthController extends Controller
             }
         }
 
-
-        // If student creation fails, return error response
         return response()->json([
             "status" => "error",
             "message" => "Registration failed"
@@ -99,41 +98,44 @@ class AuthController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(Request $request) {
-        // Validate the request data
-        $validatedData = $request->validate([
-            'email' => 'email|max:255',
-            'username' => 'string|max:255',
-            'password' => 'required|string|min:8',
-        ]);
+public function login(Request $request)
+{
+    // Validasi input request
+    $request->validate([
+        'username' => 'required|string',
+        'password' => 'required|string',
+    ]);
 
-        // Attempt to find the user by email or username
-        $cek = User::where("email", $request->email)->orWhere("username", $request->username)->first();
+    // Ambil kredensial yang diperlukan
+    $credentials = $request->only('username', 'password');
 
-        // Check if user exists and password is correct
-        if ($cek) {
-            if (Hash::check($request->password, $cek->password)) {
-                // Check if the user's role is student and status is inactive
-                if ($cek->role === 'student' && $cek->status === 'inactive') {
-                    return response()->json([
-                        "status" => "error",
-                        "message" => "Login failed: Not an active user"
-                    ], 422);
-                }
-                $token = $cek->createToken($request->username)->plainTextToken;
-                // Return success response with token
-                return response()->json([
-                    "status" => "success",
-                    "message" => "Login successful",
-                    "token" => $token
-                ]);
-            }
-        }
+    // Cari user berdasarkan username
+    $user = User::where('username', $request->username)->first();
 
-        // Return error response on failure
-        return response()->json([
-            "status" => "error",
-            "message" => "Login failed"
-        ], 422);
+    if (!$user) {
+        // Error handler ketika username tidak ditemukan
+        return response()->json(['message' => 'Username or password is incorrect'], 401);
     }
+
+    // Error handler ketika user tidak aktif
+    if ($user->status !== 'active') {
+        return response()->json(['message' => 'User is not active'], 403);
+    }
+
+    // Cek apakah kredensial cocok menggunakan Auth::attempt
+    if (Auth::attempt($credentials)) {
+        // Jika login berhasil
+        $user = Auth::user();
+        $token = $user->createToken('authToken')->plainTextToken;
+        return response()->json([
+            'message' => 'Login successful',
+            'token' => $token,
+            'user' => $user
+        ], 200);
+    } else {
+        // Error handler ketika password salah
+        return response()->json(['message' => 'Username or password is incorrect'], 401);
+    }
+}
+
 }

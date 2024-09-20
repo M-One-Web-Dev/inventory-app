@@ -1,35 +1,57 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { Button, Card, Navigation } from "../components/ui/index";
+import {
+    Button,
+    Card,
+    Navigation,
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "../components/ui/index";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { CircleUserRound } from "lucide-react";
 import QrReader from "react-qr-scanner";
 import QrCodeIcon from "../../../public/img/qr-code.svg";
 import CloseIcon from "../../../public/img/close-icon.svg";
 import InformationIcon from "../../../public/img/information-icon.svg";
 import axios from "axios";
+import { useForm } from "react-hook-form";
 import { Inertia } from "@inertiajs/inertia";
 import Cookies from "js-cookie";
 import { Header } from "../components/section/index";
 import QrScanner from "qr-scanner";
 import { Link, usePage } from "@inertiajs/inertia-react";
+import { useRendered } from "@/lib/context/renderedHome";
 import Layout from "./Layout";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const Home = () => {
-    const { props } = usePage();
+    const { props, url } = usePage();
     const [result, setResult] = useState("");
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [alertOpen, setAlertOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [facingMode, setFacingMode] = useState("environment");
     const videoRef = useRef(null);
+    const { setValue, watch } = useForm();
     const qrScannerRef = useRef(null);
     const inventoryToken = Cookies.get("inventory_token");
-    const [userId, setUserId] = useState(0);
+    const [userId, setUserId] = useState(null);
+    const [userRole, setUserRole] = useState(null);
     const [message, setMessage] = useState("");
     const userIdRef = useRef(userId);
+    const [open, setOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [studentList, setStudentList] = useState([]);
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
-    useEffect(() => {
-        userIdRef.current = userId;
-    }, [userId]);
+    const { isHomeRendered, renderHome } = useRendered();
 
     const getData = async () => {
         setIsLoading(true);
@@ -41,7 +63,13 @@ const Home = () => {
             });
 
             setUserId(getUserId.id);
+            setUserRole(getUserId.role);
             setIsLoading(false);
+            renderHome();
+            sessionStorage.setItem(
+                "homeInformation",
+                JSON.stringify({ id: getUserId.id, role: getUserId.role })
+            );
         } catch (error) {
             console.log(error);
             if (error.response.data.message === "Unauthenticated.") {
@@ -61,7 +89,10 @@ const Home = () => {
             try {
                 const body = {
                     item_id: Number(data.data),
-                    user_id: userIdRef.current,
+                    user_id:
+                        watch("student_info") !== undefined
+                            ? watch("student_info").value
+                            : userIdRef.current,
                 };
                 const { data: postData } = await axios.post(
                     "/api/v1/notification/borrow",
@@ -72,21 +103,34 @@ const Home = () => {
                         },
                     }
                 );
-                setMessage("Berhasil pinjam barang");
-                // console.log(postData);
+                toast.success("Berhasil pinjam barang");
             } catch (error) {
                 if (
-                    error.response.data.message ===
-                    "Item is not available for borrowing"
+                    error?.response?.data?.message?.includes(
+                        "Item is not available for borrowing"
+                    )
                 ) {
-                    setMessage("Barang sedang dipinjam orang lain");
+                    toast.info("Barang sedang Dipinjam oleh Orang Lain");
                 } else if (
-                    error.response.data.message ===
-                    "You have already borrowed this item"
+                    error?.response?.data?.message?.includes(
+                        "User has already borrowed this item"
+                    )
                 ) {
-                    setMessage("Kamu sudah meminjam barang ini");
+                    toast.info("Kamu sudah Meminjam Barang ini");
+                } else if (
+                    error?.response?.data?.message?.includes(
+                        "The item id field is required."
+                    )
+                ) {
+                    toast.info("Kode QR Tidak Sesuai");
+                } else if (
+                    error?.response?.data?.message?.includes(
+                        "The selected user id is invalid."
+                    )
+                ) {
+                    toast.warning("User Tidak Sesuai");
                 } else {
-                    setMessage("Gagal meminjam Barang");
+                    toast.error("Gagal meminjam Barang");
                 }
                 console.log(error);
             }
@@ -95,8 +139,23 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
-        getData();
-    }, []);
+        userIdRef.current = userId;
+    }, [userId]);
+
+    useEffect(() => {
+        const previousUrl = sessionStorage.getItem("previousUrl");
+        sessionStorage.setItem("previousUrl", url);
+        const homeInformation = sessionStorage.getItem("homeInformation");
+
+        const parseObject = JSON.parse(homeInformation);
+
+        if (previousUrl !== "/") {
+            getData();
+        } else {
+            setUserId(parseObject.id);
+            setUserRole(parseObject.role);
+        }
+    }, [url]);
 
     const handleError = useCallback((err) => {
         console.error(err);
@@ -161,100 +220,104 @@ const Home = () => {
         }
     };
 
+    const getAllStudent = async (search = "") => {
+        try {
+            const { data: getStudent } = await axios("/api/v1/students", {
+                headers: {
+                    Authorization: `Bearer ${inventoryToken}`,
+                },
+                params: {
+                    page: 1,
+                    perPage: 10,
+                    search,
+                },
+            });
+            const format = getStudent.data.map((item) => ({
+                label: item.name,
+                value: item.user_id,
+            }));
+
+            setStudentList(format);
+        } catch (error) {
+            console.log(error);
+            if (error.response.data.message === "Unauthenticated.") {
+                Inertia.visit("/login");
+                return;
+            }
+        }
+    };
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchTerm]);
+
+    useEffect(() => {
+        getAllStudent(debouncedSearchTerm);
+    }, [debouncedSearchTerm]);
+
     return (
         <>
-            {!isLoading && (
-                <>
-                    <div className="h-auto w-full max-w-[420px] mx-auto pb-[110px] relative">
-                        <Header title="Scan QR" />
+            <div className="h-auto w-full max-w-[420px] mx-auto pb-[110px] relative">
+                <Header title="Scan QR" />
 
-                        <div
-                            className={`${
-                                isScannerOpen
-                                    ? "w-[346px] h-[466px] justify-between px-[20px]"
-                                    : "w-[320px] h-[330px] px-[30px]"
-                            } mt-[50px] mx-auto transition-all duration-150 flex flex-col items-center  rounded-[10px] py-[20px] bg-[#F7F4FF]`}
-                        >
-                            {isScannerOpen ? (
-                                <>
-                                    <div className="w-full">
-                                        <video
-                                            ref={videoRef}
-                                            style={{
-                                                height: "360px",
-                                                width: "100%",
-                                                objectFit: "cover",
-                                                borderRadius: "10px",
-                                            }}
-                                        />
-                                        <Button
-                                            className="mt-[23px] w-full bg-[#bda5ff] hover:bg-[#a788fd]"
-                                            onClick={toggleScanner}
-                                        >
-                                            Cancel Scan
-                                        </Button>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    {alertOpen && result !== "" ? (
-                                        <div className="w-[90%] bg-[#F2EFFB] border-[1.5px] border-solid border-[#D1C6ED] absolute top-[20px] z-20 pt-[11px] px-[15px] pb-[11px] rounded-md">
-                                            <div className="flex justify-between items-center">
-                                                <div className="flex items-center gap-2">
-                                                    <img
-                                                        src={InformationIcon}
-                                                        alt=""
-                                                    />
-                                                    <h1 className=" leading-3 p-0 m-0 h-auto flex pt-[3px] font-medium">
-                                                        Success!
-                                                    </h1>
-                                                </div>
-                                                <Button
-                                                    className="h-auto px-0 py-0 w-auto bg-transparent hover:bg-transparent"
-                                                    onClick={() =>
-                                                        setAlertOpen(false)
-                                                    }
-                                                >
-                                                    <img
-                                                        src={CloseIcon}
-                                                        alt=""
-                                                    />
-                                                </Button>
-                                            </div>
-                                            <p className="ml-[25px] mt-[5px] text-[14px]">
-                                                {message}
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        ""
-                                    )}
-                                    <h2 className="font-bold text-[20px]">
-                                        Scan QR Code
-                                    </h2>
-                                    <img
-                                        className="h-[120px] w-[120px]"
-                                        src={QrCodeIcon}
-                                        alt=""
-                                    />
-                                    <p className="text-[15px] mt-[9px] text-center text-[#414141]">
-                                        We need your permission to access the
-                                        camera for QR code scanning. Please
-                                        allow it.
-                                    </p>
+                <div
+                    className={`${
+                        isScannerOpen
+                            ? "w-[346px] h-[466px] justify-between px-[20px]"
+                            : "w-[320px] h-[330px] px-[30px]"
+                    } mt-[50px] mx-auto transition-all duration-150 flex flex-col items-center  rounded-[10px] py-[20px] bg-[#F7F4FF]`}
+                >
+                    {isScannerOpen ? (
+                        <>
+                            <div className="w-full">
+                                <video
+                                    ref={videoRef}
+                                    style={{
+                                        height: "360px",
+                                        width: "100%",
+                                        objectFit: "cover",
+                                        borderRadius: "10px",
+                                    }}
+                                />
+                                <Button
+                                    className="mt-[23px] w-full bg-[#bda5ff] hover:bg-[#a788fd]"
+                                    onClick={toggleScanner}
+                                >
+                                    Cancel Scan
+                                </Button>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <h2 className="font-bold text-[20px]">
+                                Scan QR Code
+                            </h2>
+                            <img
+                                className="h-[120px] w-[120px]"
+                                src={QrCodeIcon}
+                                alt=""
+                            />
+                            <p className="text-[15px] mt-[9px] text-center text-[#414141]">
+                                Untuk memindai Kode QR, Izinkan Aplikasi ini
+                                untuk dapat mengakses Kamera anda.
+                            </p>
 
-                                    <Button
-                                        className="w-full bg-[#bda5ff] hover:bg-[#a788fd] mt-[17px] font-semibold"
-                                        disabled={alertOpen}
-                                        onClick={toggleScanner}
-                                    >
-                                        Scan
-                                    </Button>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </>
-            )}
+                            <Button
+                                className="w-full bg-[#bda5ff] hover:bg-[#a788fd] mt-[17px] font-semibold"
+                                onClick={toggleScanner}
+                            >
+                                Scan
+                            </Button>
+                        </>
+                    )}
+                </div>
+            </div>
         </>
     );
 };

@@ -1,7 +1,7 @@
 {
-    "name": "My Laravel PWA",
-    "short_name": "LaravelPWA",
-    "description": "My Laravel Progressive Web App",
+    "name": "Inventory App",
+    "short_name": "Inventory",
+    "description": "Inventory App",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",

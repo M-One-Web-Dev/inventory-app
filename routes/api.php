@@ -12,13 +12,16 @@ use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\TemporaryController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserImportController;
-
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\TestUserController;
+use App\Http\Controllers\HistoryBorrowedItemController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestingUploadController;
 
 Route::post('/upload-json', [ItemsController::class, 'import']);
+
+Route::post('/import-teachers', [TeacherController::class, 'import']);
 
 Route::post('/import-students', [StudentsController::class, 'import']);
 
@@ -36,60 +39,72 @@ Route::post('/test', function (Request $request) {
 
 
 Route::prefix("/v1")->group(function () {
+   Route::controller(ActiveStudentsController::class)->middleware('auth:sanctum')->prefix("/active-students")->group(function () {
+        Route::get("/", "index");
+        Route::post("/add", "create");
+        Route::post("/delete", "delete");
+    });
 
     Route::controller(StudentsController::class)->middleware('auth:sanctum')->prefix("/students")->group(function () {
         Route::get("/", "index");
         Route::post("/add", "create");
         Route::post("/update", "update");
-        Route::delete("/{id}", "delete");
+        Route::post("/delete/{id}", "delete");
     });
 
-      Route::controller(ActiveStudentsController::class)->middleware('auth:sanctum')->prefix("/active-students")->group(function () {
+ Route::controller(HistoryBorrowedItemController::class)->middleware('auth:sanctum')->prefix("/history-borrowed")->group(function () {
         Route::get("/", "index");
-        Route::post("/", "create");
-        Route::post("/{id}", "update");
-        Route::delete("/{id}", "delete");
+        Route::post("/add", "create");
+        Route::post("/update/{id}", "update");
+        Route::post("/update-status", "editStatus");
+        Route::post("/delete/{id}", "delete");
+    });
+
+     Route::controller(UserController::class)->middleware('auth:sanctum')->prefix("/list-user")->group(function () {
+        Route::get("/", "listUsernames");
     });
 
      Route::controller(NotificationController::class)->middleware('auth:sanctum')->prefix("/notification")->group(function () {
         Route::get("/", "index");
         Route::post("/borrow", "borrowItem");
         Route::post("/return", "returnItem");
-        Route::delete("/{id}", "delete");
+        Route::post("/delete/{id}", "delete");
     });
 
     Route::controller(TemporaryController::class)->middleware('auth:sanctum')->prefix("/temporary")->group(function () {
+        //
         Route::get("/", "index");
-        Route::post("/", "create");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "delete");
+        Route::get("/available-dates", "availableDates");
+        Route::get("/export", "exportData");
+        Route::post("/add", "create");
+        Route::post("/update/{id}", "update");
+        Route::post("/update-status", "updateStatus");
+        Route::post("/delete/{id}", "delete");
     });
 
     Route::controller(TeacherController::class)->middleware('auth:sanctum')->prefix("/teachers")->group(function () {
         Route::get("/", "index");
-        Route::post("/", "create");
-        Route::post("/{id}", "update");
-        Route::delete("/{id}", "delete");
+        Route::post("/add", "create");
+        Route::post("/update/{id}", "update");
+        Route::post("/delete/{id}", "delete");
     });
 
     Route::controller(CategoryController::class)->middleware('auth:sanctum')->prefix("/categories")->group(function () {
         Route::get("/", "index");
-        Route::post("/", "create");
-        Route::get("/{id}", "show");
-        Route::post("/{id}", "update");
-        Route::delete("/{id}", "delete");
+        Route::post("/add", "create");
+        Route::get("/detail/{id}", "show");
+        Route::post("/update/{id}", "update");
+        Route::post("/delete/{id}", "delete");
     });
 
     Route::controller(ItemsController::class)->middleware('auth:sanctum')->prefix("/items")->group(function () {
         Route::get("/", "index");
-        Route::post("/", "create");
-        Route::post("/{id}", "update");
-        Route::post("/{id}/available", "updateAvailable");
-        Route::delete("/{id}", "delete");
-       // Route::post("/import", "import");
+        Route::get("/detail/{id}", "show");
+        Route::post("/add", "create");
+        Route::post("/update/{id}", "update");
+        Route::post("/change-status/{id}/available", "updateAvailable");
+        Route::post("/delete/{id}", action: "delete");
     });
-
-
 
     Route::controller(ScanQRLoanController::class)->middleware('auth:sanctum')->prefix("/scan-qr")->group(function () {
         Route::post("/loan", "loan");

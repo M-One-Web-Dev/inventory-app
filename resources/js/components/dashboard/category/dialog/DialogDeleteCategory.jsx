@@ -16,15 +16,16 @@ import Cookies from "js-cookie";
 import { Toaster, toast } from "sonner";
 import { useCategoryRefresher } from "@/lib/context/refresherCategory";
 
-export default function DialogDeleteCategory({ id }) {
+export default function DialogDeleteCategory({ row }) {
     const [openModal, setOpenModal] = useState(false);
     const inventoryToken = Cookies.get("inventory_token");
     const { refresh } = useCategoryRefresher();
 
     const DeleteCategory = async () => {
         try {
-            const { data: deleteCategory } = await axios.delete(
-                `/api/v1/categories/${id}`,
+            const { data: deleteCategory } = await axios.post(
+                `/api/v1/categories/delete/${row?.id}`,
+                {},
                 {
                     headers: {
                         Authorization: `Bearer ${inventoryToken}`,
@@ -55,10 +56,10 @@ export default function DialogDeleteCategory({ id }) {
                 <DialogTrigger className="bg-red-500 py-[10px] px-[10px] rounded-sm">
                     <FaTrash className="text-white h-[14px] w-[14px]" />
                 </DialogTrigger>
-                <DialogContent className="w-auto py-[20px] px-[25px]">
+                <DialogContent className="rounded-md w-[240px] py-[20px] px-[25px]">
                     <DialogHeader>
                         <DialogTitle className="text-center font-medium">
-                            are you sure to delete this category?
+                            Hapus Category ini?
                         </DialogTitle>
                     </DialogHeader>
                     <div className="flex items-center justify-center gap-3 mt-[10px]">
@@ -66,7 +67,7 @@ export default function DialogDeleteCategory({ id }) {
                             className="bg-violet-500 hover:bg-violet-400 font-semibold"
                             onClick={() => setOpenModal(false)}
                         >
-                            Cancel
+                            Batal
                         </Button>
                         <Button
                             className="bg-red-500 hover:bg-red-400 font-semibold"

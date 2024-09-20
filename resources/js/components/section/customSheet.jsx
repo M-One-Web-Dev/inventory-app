@@ -20,11 +20,13 @@ import { BiSolidCategory } from "react-icons/bi";
 import { FaQrcode } from "react-icons/fa6";
 import { useState } from "react";
 import { LuChevronsLeft, LuChevronsRight } from "react-icons/lu";
-import { FiChevronRight } from "react-icons/fi";
+import { FiChevronRight, FiBox } from "react-icons/fi";
+import { PiUserCircleDashedFill } from "react-icons/pi";
 
 export function CustomSheet() {
     const pathname = usePage();
     const [iconMode, setIconMode] = useState(false);
+    const [sheetOpen, setSheetOpen] = useState(false);
     const [openSubMenu, setOpenSubMenu] = useState({
         open: false,
         menuName: "",
@@ -97,8 +99,8 @@ export function CustomSheet() {
     };
 
     return (
-        <Sheet>
-            <SheetTrigger className="max-[1000px]:block hidden">
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+            <SheetTrigger className="max-[1050px]:block hidden">
                 <RxHamburgerMenu className="h-[25px] w-[25px] text-white" />
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-auto">
@@ -106,10 +108,19 @@ export function CustomSheet() {
                 <nav
                     className={`${
                         iconMode ? "w-[100px]" : "w-[300px]"
-                    } sticky top-0 block min-[1000px]:hidden transition-all duration-300 shadow-[5px_0px_10px_-5px_#00000024] overflow-auto  h-screen pt-[20px]`}
+                    } sticky top-0 block min-[1050px]:hidden transition-all duration-300 shadow-[5px_0px_10px_-5px_#00000024] overflow-auto  h-screen pt-[20px]`}
                 >
-                    <div className="flex justify-center">
-                        <h1 className="text-[18px]">Inventory</h1>
+                    <div className="flex justify-center text-violet-700 font-medium gap-1 items-center">
+                        <FiBox
+                            className={`${
+                                iconMode
+                                    ? "h-[25px] w-[25px]"
+                                    : "h-[19px] w-[19px]"
+                            }`}
+                        />
+                        {iconMode ? null : (
+                            <h1 className="text-[18px] mt-[5px]">Inventory</h1>
+                        )}
                     </div>
                     <div
                         className={`px-[20px] flex items-center mt-[20px] ${
@@ -138,14 +149,13 @@ export function CustomSheet() {
                         }`}
                     >
                         <Link
-                            href="/test-admin"
+                            href="/dashboard"
                             className={`${HandleActivePath(
-                                "/test-admin"
+                                "/dashboard"
                             )} flex items-center gap-5 `}
+                            onClick={() => setSheetOpen(false)}
                         >
-                            <div
-                                className={`${HandleIconColor("/test-admin")}`}
-                            >
+                            <div className={`${HandleIconColor("/dashboard")}`}>
                                 <TiHome className={`h-[19px] w-[19px]`} />
                             </div>
                             {!iconMode && (
@@ -154,7 +164,7 @@ export function CustomSheet() {
                                 </h1>
                             )}
                         </Link>
-                        <Link
+                        {/* <Link
                             href="/test-admin/setting"
                             className={`${HandleActivePath(
                                 "/test-admin/setting"
@@ -175,16 +185,17 @@ export function CustomSheet() {
                                     Setting
                                 </h1>
                             )}
-                        </Link>
+                        </Link> */}
                         <Link
-                            href="/test-admin/notification"
+                            href="/dashboard/notification"
                             className={`${HandleActivePath(
-                                "/test-admin/notification"
+                                "/dashboard/notification"
                             )}  flex items-center gap-5 `}
+                            onClick={() => setSheetOpen(false)}
                         >
                             <div
                                 className={`${HandleIconColor(
-                                    "/test-admin/notification"
+                                    "/dashboard/notification"
                                 )}
                         }`}
                             >
@@ -198,13 +209,36 @@ export function CustomSheet() {
                                 </h1>
                             )}
                         </Link>
+                        <Link
+                            href="/dashboard/temporary"
+                            className={`${HandleActivePath(
+                                "/dashboard/temporary"
+                            )}  flex items-center gap-5 `}
+                            onClick={() => setSheetOpen(false)}
+                        >
+                            <div
+                                className={`${HandleIconColor(
+                                    "/dashboard/temporary"
+                                )}
+                        }`}
+                            >
+                                <PiUserCircleDashedFill
+                                    className={` h-[19px] w-[19px]`}
+                                />
+                            </div>
+                            {!iconMode && (
+                                <h1 className="mt-[4px] text-[15px]">
+                                    Temporary
+                                </h1>
+                            )}
+                        </Link>
                         <div>
                             <div
                                 onClick={() => HandleOpenSubMenu("student")}
                                 className={`cursor-pointer  ${HandleSubMenuWrapper(
                                     "link",
-                                    "/test-admin/student",
-                                    "/test-admin/active-student"
+                                    "/dashboard/student",
+                                    "/dashboard/active-student"
                                 )}`}
                             >
                                 <div className="flex items-center gap-5">
@@ -220,8 +254,8 @@ export function CustomSheet() {
                                                 <PopoverTrigger
                                                     className={`${HandleSubMenuWrapper(
                                                         "icon",
-                                                        "/test-admin/student",
-                                                        "/test-admin/active-student"
+                                                        "/dashboard/student",
+                                                        "/dashboard/active-student"
                                                     )}`}
                                                 >
                                                     <FaUsers
@@ -230,18 +264,24 @@ export function CustomSheet() {
                                                 </PopoverTrigger>
                                                 <PopoverContent className="right-[-160px] top-[-44px] flex flex-col py-[5px] w-max">
                                                     <Link
-                                                        href="/test-admin/student"
+                                                        href="/dashboard/student"
                                                         className={`${HandleActiveSubMenu(
-                                                            "/test-admin/student"
+                                                            "/dashboard/student"
                                                         )}`}
+                                                        onClick={() =>
+                                                            setSheetOpen(false)
+                                                        }
                                                     >
                                                         Student
                                                     </Link>
                                                     <Link
-                                                        href="/test-admin/active-student"
+                                                        href="/dashboard/active-student"
                                                         className={`${HandleActiveSubMenu(
-                                                            "/test-admin/active-student"
+                                                            "/dashboard/active-student"
                                                         )}`}
+                                                        onClick={() =>
+                                                            setSheetOpen(false)
+                                                        }
                                                     >
                                                         Active Student
                                                     </Link>
@@ -287,18 +327,20 @@ export function CustomSheet() {
                                     } overflow-hidden transition-all duration-300 flex flex-col gap-3 ml-[60px]`}
                                 >
                                     <Link
-                                        href="/test-admin/student"
+                                        href="/dashboard/student"
                                         className={`${HandleActiveSubMenu(
-                                            "/test-admin/student"
+                                            "/dashboard/student"
                                         )}`}
+                                        onClick={() => setSheetOpen(false)}
                                     >
                                         Student
                                     </Link>
                                     <Link
-                                        href="/test-admin/active-student"
+                                        href="/dashboard/active-student"
                                         className={`${HandleActiveSubMenu(
-                                            "/test-admin/active-student"
+                                            "/dashboard/active-student"
                                         )}`}
+                                        onClick={() => setSheetOpen(false)}
                                     >
                                         Active Student
                                     </Link>
@@ -307,14 +349,15 @@ export function CustomSheet() {
                         </div>
 
                         <Link
-                            href="/test-admin/teacher"
+                            href="/dashboard/teacher"
                             className={`${HandleActivePath(
-                                "/test-admin/teacher"
+                                "/dashboard/teacher"
                             )}  flex items-center gap-5 `}
+                            onClick={() => setSheetOpen(false)}
                         >
                             <div
                                 className={`${HandleIconColor(
-                                    "/test-admin/teacher"
+                                    "/dashboard/teacher"
                                 )}
                         }`}
                             >
@@ -332,8 +375,8 @@ export function CustomSheet() {
                                 }
                                 className={`cursor-pointer ${HandleSubMenuWrapper(
                                     "link",
-                                    "/test-admin/item",
-                                    "/test-admin/category"
+                                    "/dashboard/item",
+                                    "/dashboard/category"
                                 )}`}
                             >
                                 <div className="flex items-center gap-5">
@@ -349,8 +392,8 @@ export function CustomSheet() {
                                                 <PopoverTrigger
                                                     className={`${HandleSubMenuWrapper(
                                                         "icon",
-                                                        "/test-admin/item",
-                                                        "/test-admin/category"
+                                                        "/dashboard/item",
+                                                        "/dashboard/category"
                                                     )}`}
                                                 >
                                                     <BiSolidCategory
@@ -359,18 +402,24 @@ export function CustomSheet() {
                                                 </PopoverTrigger>
                                                 <PopoverContent className="right-[-120px] top-[-44px] flex flex-col py-[5px] w-max">
                                                     <Link
-                                                        href="/test-admin/item"
+                                                        href="/dashboard/item"
                                                         className={`${HandleActiveSubMenu(
-                                                            "/test-admin/item"
+                                                            "/dashboard/item"
                                                         )}`}
+                                                        onClick={() =>
+                                                            setSheetOpen(false)
+                                                        }
                                                     >
                                                         Item
                                                     </Link>
                                                     <Link
-                                                        href="/test-admin/category"
+                                                        href="/dashboard/category"
                                                         className={`${HandleActiveSubMenu(
-                                                            "/test-admin/category"
+                                                            "/dashboard/category"
                                                         )}`}
+                                                        onClick={() =>
+                                                            setSheetOpen(false)
+                                                        }
                                                     >
                                                         Category
                                                     </Link>
@@ -418,18 +467,20 @@ export function CustomSheet() {
                                     } overflow-hidden transition-all duration-300 flex flex-col gap-3 ml-[60px]`}
                                 >
                                     <Link
-                                        href="/test-admin/item"
+                                        href="/dashboard/item"
                                         className={`${HandleActiveSubMenu(
-                                            "/test-admin/item"
+                                            "/dashboard/item"
                                         )}`}
+                                        onClick={() => setSheetOpen(false)}
                                     >
                                         Item
                                     </Link>
                                     <Link
-                                        href="/test-admin/category"
+                                        href="/dashboard/category"
                                         className={`${HandleActiveSubMenu(
-                                            "/test-admin/category"
+                                            "/dashboard/category"
                                         )}`}
+                                        onClick={() => setSheetOpen(false)}
                                     >
                                         Category
                                     </Link>
@@ -437,14 +488,15 @@ export function CustomSheet() {
                             )}
                         </div>
                         <Link
-                            href="/test-admin/qr-scan"
+                            href="/dashboard/qr-scan"
                             className={`${HandleActivePath(
-                                "/test-admin/qr-scan"
+                                "/dashboard/qr-scan"
                             )}  flex items-center gap-5 `}
+                            onClick={() => setSheetOpen(false)}
                         >
                             <div
                                 className={`${HandleIconColor(
-                                    "/test-admin/qr-scan"
+                                    "/dashboard/qr-scan"
                                 )}
                         }`}
                             >

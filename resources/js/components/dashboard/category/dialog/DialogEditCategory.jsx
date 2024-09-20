@@ -62,7 +62,7 @@ export default function DialogEditCategory({ id, name }) {
 
         try {
             const { data: updateCategory } = await axios.post(
-                `/api/v1/categories/${id}`,
+                `/api/v1/categories/update/${id}`,
                 body,
                 {
                     headers: {
@@ -95,7 +95,7 @@ export default function DialogEditCategory({ id, name }) {
                 <DialogTrigger className="bg-violet-500 py-[10px] px-[10px] rounded-sm">
                     <FaEdit className="text-white h-[14px] w-[14px]" />
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="rounded-md py-[25px] px-[23px] h-auto max-[400px]:w-[320px] max-w-[400px]">
                     <DialogHeader>
                         <DialogTitle>
                             <h1 className="text-center mb-[20px] text-[20px] font-semibold text-neutral-700">
@@ -106,7 +106,7 @@ export default function DialogEditCategory({ id, name }) {
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}
-                            className="flex flex-col gap-8 rounded-md px-[30px] w-full"
+                            className="flex flex-col gap-5 rounded-md w-full"
                         >
                             <FormField
                                 control={form.control}

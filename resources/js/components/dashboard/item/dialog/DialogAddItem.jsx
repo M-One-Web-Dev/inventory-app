@@ -7,6 +7,7 @@ import {
     DialogTitle,
     DialogTrigger,
     Input,
+    Textarea,
     Button,
     Select,
     SelectContent,
@@ -26,7 +27,7 @@ import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Inertia } from "@inertiajs/inertia";
 import Cookies from "js-cookie";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 import { Info } from "lucide-react";
 import { z } from "zod";
 import { FiPlus } from "react-icons/fi";
@@ -34,15 +35,12 @@ import { useItemRefresher } from "@/lib/context/refresherItem";
 
 const formSchema = z.object({
     number_id: z.string().min(1, {
-        message: "Number Id is Empty",
+        message: "Number Id belum Diisi",
     }),
     name: z.string().min(1, {
-        message: "Name is Empty",
+        message: "Nama Item belum Diisi",
     }),
     description: z.any().optional(),
-    // stock: z.string().min(1, {
-    //     message: "Stock is Empty",
-    // }),
     category: z.any().optional(),
     image: z.any().optional(),
 });
@@ -64,7 +62,6 @@ export function DialogAddItem() {
             number_id: "",
             name: "",
             description: "",
-            //   stock: "",
             category: "",
             image: "",
         },
@@ -78,18 +75,17 @@ export function DialogAddItem() {
         formData.append("id_number", number_id);
         formData.append("name", name);
         formData.append("description", description === "" ? null : description);
+        formData.append("categories_id", data.category);
+
         //formData.append("stock", Number(stock));
-        //formData.append("category", category === "" ? null : Number(category));
-        if (imageFile) {
-            formData.append("category", Number(category));
-        }
+
         if (imageFile) {
             formData.append("image", imageFile);
         }
 
         try {
             const { data: getUser } = await axios.post(
-                "/api/v1/items",
+                "/api/v1/items/add",
                 formData,
                 {
                     headers: {
@@ -155,24 +151,23 @@ export function DialogAddItem() {
 
     return (
         <>
-            <Toaster richColors position="top-center" />
             <Dialog open={openModal} onOpenChange={setOpenModal}>
                 <DialogTrigger className="flex items-center gap-1 bg-violet-500 text-white py-[5px] text-[14px] px-[15px] rounded-[20px] hover:bg-violet-400">
                     <FiPlus className="h-[16px] w-[16px] " />{" "}
                     <span className="mt-[3px]">Tambah</span>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="rounded-md py-[25px] px-[23px] h-auto max-[400px]:w-[320px] max-w-[400px]">
                     <DialogHeader>
                         <DialogTitle>
                             <h1 className="text-center mb-[20px] text-[20px] font-semibold text-neutral-700">
-                                Add Item
+                                Tambah Item
                             </h1>
                         </DialogTitle>
                     </DialogHeader>
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}
-                            className="flex flex-col gap-8 rounded-md px-[30px] w-full"
+                            className="flex flex-col gap-5 rounded-md w-full"
                         >
                             <FormField
                                 control={form.control}
@@ -180,7 +175,10 @@ export function DialogAddItem() {
                                 render={({ field }) => (
                                     <FormItem className="space-y-0">
                                         <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Number ID
+                                            Number ID{" "}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </FormLabel>
                                         <FormControl>
                                             <Input
@@ -208,11 +206,14 @@ export function DialogAddItem() {
                                 render={({ field }) => (
                                     <FormItem className="space-y-0">
                                         <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Name
+                                            Nama Item{" "}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="Name. . ."
+                                                placeholder="Nama Item. . ."
                                                 {...field}
                                                 className={`${
                                                     form.formState.errors
@@ -230,35 +231,7 @@ export function DialogAddItem() {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="description"
-                                render={({ field }) => (
-                                    <FormItem className="space-y-0">
-                                        <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Description
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="text"
-                                                placeholder="Description. . ."
-                                                {...field}
-                                                className={`${
-                                                    form.formState.errors
-                                                        .description &&
-                                                    "outline-red-500 focus:outline-red-400"
-                                                }`}
-                                            />
-                                        </FormControl>
-                                        {form.formState.errors.description && (
-                                            <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
-                                                <Info size={14} />
-                                                <FormMessage className="text-[13px] mt-[3px] leading-none" />
-                                            </div>
-                                        )}
-                                    </FormItem>
-                                )}
-                            />
+
                             {/* <FormField
                                 control={form.control}
                                 name="stock"
@@ -296,7 +269,7 @@ export function DialogAddItem() {
                                     return (
                                         <FormItem className="space-y-0">
                                             <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                                Category
+                                                Kategori (opsional)
                                             </FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
@@ -312,7 +285,7 @@ export function DialogAddItem() {
                                                         }`}
                                                     >
                                                         <SelectValue
-                                                            placeholder="Select Category"
+                                                            placeholder="Pilih Kategori"
                                                             className="text-neutral-400"
                                                         />
                                                     </SelectTrigger>
@@ -350,6 +323,34 @@ export function DialogAddItem() {
                             />
                             <FormField
                                 control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem className="space-y-0">
+                                        <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
+                                            Catatan (opsional)
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="Catatan. . ."
+                                                {...field}
+                                                className={`${
+                                                    form.formState.errors
+                                                        .description &&
+                                                    "outline-red-500 focus:outline-red-400"
+                                                }`}
+                                            />
+                                        </FormControl>
+                                        {form.formState.errors.description && (
+                                            <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
+                                                <Info size={14} />
+                                                <FormMessage className="text-[13px] mt-[3px] leading-none" />
+                                            </div>
+                                        )}
+                                    </FormItem>
+                                )}
+                            />
+                            {/* <FormField
+                                control={form.control}
                                 name="image"
                                 render={({ field }) => (
                                     <FormItem className="space-y-0">
@@ -371,7 +372,7 @@ export function DialogAddItem() {
                                         )}
                                     </FormItem>
                                 )}
-                            />
+                            /> */}
 
                             <div className="flex gap-7  w-full">
                                 <Button
@@ -380,14 +381,14 @@ export function DialogAddItem() {
                                     type="button"
                                     onClick={() => setOpenModal(false)}
                                 >
-                                    <span className="text-lg">Cancel</span>
+                                    <span className="text-lg">Batal</span>
                                 </Button>
                                 <Button
                                     className="w-full bg-[#A27FFE] mt-[50px] hover:bg-[#b295fb]"
                                     // disable={isLoading}
                                     type="submit"
                                 >
-                                    <span className="text-lg">Add</span>
+                                    <span className="text-lg">Tambah</span>
                                 </Button>
                             </div>
                         </form>

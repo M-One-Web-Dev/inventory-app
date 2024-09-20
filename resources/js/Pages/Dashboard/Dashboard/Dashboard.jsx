@@ -4,8 +4,6 @@ import { FaUsers } from "react-icons/fa";
 import axios from "axios";
 import { Inertia } from "@inertiajs/inertia";
 import Cookies from "js-cookie";
-import UploadForm from "../test";
-import UserImport from "../testing";
 
 function Dashboard() {
     const inventoryToken = Cookies.get("inventory_token");
@@ -21,7 +19,7 @@ function Dashboard() {
                 },
             });
 
-            const total = getTeacher.data?.length;
+            const total = getTeacher?.pagination?.total;
             setTotalTeacher(total);
         } catch (error) {
             console.log(error);
@@ -40,7 +38,7 @@ function Dashboard() {
                 },
             });
 
-            const total = getStudent.data?.length;
+            const total = getStudent?.pagination?.total;
             setTotalStudent(total);
         } catch (error) {
             console.log(error);
@@ -62,7 +60,7 @@ function Dashboard() {
                 }
             );
 
-            const total = getActiveStudent.data?.length;
+            const total = getActiveStudent?.pagination?.total;
             setTotalActiveStudent(total);
         } catch (error) {
             console.log(error);

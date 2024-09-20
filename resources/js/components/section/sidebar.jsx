@@ -90,7 +90,7 @@ export function Sidebar() {
         <nav
             className={`${
                 iconMode ? "w-[100px]" : "w-[300px]"
-            } sticky top-0 hidden min-[1000px]:block transition-all duration-300 shadow-[5px_0px_10px_-5px_#00000024] overflow-auto h-screen pt-[20px]`}
+            } sticky top-0 hidden min-[1050px]:block transition-all duration-300 shadow-[5px_0px_10px_-5px_#00000024] overflow-auto h-screen pt-[20px]`}
         >
             <div className="flex justify-center text-violet-700 font-medium gap-1 items-center">
                 <FiBox
@@ -533,7 +533,7 @@ export function Sidebar() {
                         className={`${HandleIconColor("/dashboard/qr-scan")}
                         }`}
                     >
-                        <FaQrcode lassName={` h-[19px] w-[19px]`} />
+                        <FaQrcode className={` h-[19px] w-[19px]`} />
                     </div>
                     {!iconMode && (
                         <h1 className="mt-[4px] text-[15px]">QR Scan</h1>

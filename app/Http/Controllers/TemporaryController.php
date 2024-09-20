@@ -8,24 +8,112 @@ use Illuminate\Support\Facades\Validator;
 
 class TemporaryController extends Controller
 {
-    public function index()
+public function availableDates()
+{
+    try {
+        $dates = Temporary::selectRaw('DATE(created_at) as date')
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Available dates fetched successfully",
+            "data" => $dates,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            "status" => "error",
+            "message" => "An error occurred while fetching dates.",
+            "error" => $e->getMessage()
+        ], 500);
+    }
+}
+
+
+public function index()
+{
+    try {
+        $perPage = request()->query('perPage', 10); // Default 10 items per page
+        $search = request()->query('search', '');
+        
+        // Filtering based on search query
+        $temporaries = Temporary::when($search, function ($query, $search) {
+            return $query->where('name', 'like', "%{$search}%")
+                         ->orWhere('item_name', 'like', "%{$search}%");
+        })->paginate($perPage);
+
+        // Calculating total pages
+        $totalPages = (int) ceil($temporaries->total() / $temporaries->perPage());
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Temporaries fetched successfully",
+            "data" => $temporaries->items(),  
+            "pagination" => [
+                "total" => $temporaries->total(),
+                "perPage" => $temporaries->perPage(),
+                "currentPage" => $temporaries->currentPage(),
+                "lastPage" => $temporaries->lastPage(),
+                "totalPages" => $totalPages,
+            ],
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            "status" => "error",
+            "message" => "An error occurred while fetching temporaries.",
+            "error" => $e->getMessage()
+        ], 500);
+    }
+}
+
+  public function updateStatus(Request $request)
     {
-        try {
-            $temporaries = Temporary::all();
+        $request->validate([
+            'id' => 'required|integer|exists:temporary,id',
+            'status' => 'required|boolean',
+        ]);
+
+        $temporary = Temporary::find($request->id);
+
+        if ($temporary) {
+            $temporary->status = $request->status === true ? 0 : 1;
+            $temporary->save();
 
             return response()->json([
-                "status" => "success",
-                "message" => "Temporaries fetched successfully",
-                "data" => $temporaries
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                "status" => "error",
-                "message" => "An error occurred while fetching temporaries.",
-                "error" => $e->getMessage()
-            ], 500);
+                'message' => 'Status updated successfully.',
+                'data' => $temporary
+            ], 200);
         }
+
+        return response()->json([
+            'message' => 'Record not found.'
+        ], 404);
     }
+
+public function exportData()
+{
+    try {
+        $date = request()->query('date');
+
+        $temporaries = Temporary::when($date, function ($query, $date) {
+            return $query->whereDate('created_at', $date);
+        })->get(); 
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Temporaries fetched successfully",
+            "data" => $temporaries,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            "status" => "error",
+            "message" => "An error occurred while fetching temporaries.",
+            "error" => $e->getMessage()
+        ], 500);
+    }
+}
+
 
     public function create(Request $request)
     {
@@ -38,6 +126,7 @@ class TemporaryController extends Controller
             'item_name' => 'required|string|max:255',
             'item_id' => 'required|string|max:255',
             'item_number_id' => 'required|string|max:255',
+            'status' => 'required',
         ]);
 
         if ($validator->fails()) {

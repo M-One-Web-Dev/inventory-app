@@ -4,7 +4,7 @@ import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
     plugins: [
-        laravel(["resources/js/app.jsx"]),
+        laravel(["resources/js/app.jsx", "resources/css/app.css"]),
         VitePWA({
             registerType: "autoUpdate",
             devOptions: {
@@ -17,9 +17,9 @@ export default defineConfig({
                 "apple-touch-icon.png",
             ],
             manifest: {
-                name: "My Laravel PWA",
-                short_name: "LaravelPWA",
-                description: "My Laravel Progressive Web App",
+                name: "Inventory App",
+                short_name: "Inventory",
+                description: "Inventory App",
                 theme_color: "#ffffff",
                 icons: [
                     {

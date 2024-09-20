@@ -32,16 +32,16 @@ import { useActiveStudentRefresher } from "@/lib/context/refresherActiveStudent"
 
 const formSchema = z.object({
     number_id: z.string().min(1, {
-        message: "Number Id is Empty",
+        message: "Number Id belum Diisi",
     }),
     school_year: z.string().min(1, {
-        message: "School Year is Empty",
+        message: "Tahun Pelajaran belum Diisi",
     }),
     student_class: z.string().min(1, {
-        message: "Class is Empty",
+        message: "Kelas belum Diisi",
     }),
     level: z.string().min(1, {
-        message: "Level is Empty",
+        message: "Level belum Diisi",
     }),
 });
 
@@ -82,7 +82,7 @@ export function DialogAddActiveStudent() {
 
         try {
             const { data: postData } = await axios.post(
-                "/api/v1/active-students",
+                "/api/v1/active-students/add",
                 body,
                 {
                     headers: {
@@ -93,12 +93,12 @@ export function DialogAddActiveStudent() {
             );
             setOpenModal(false);
             form.reset();
-            toast.success("Success Add Active Student", {
+            toast.success("Berhasil menambahkan Siswa Aktif", {
                 duration: 3000,
             });
             refresh();
         } catch (error) {
-            toast.error("Failed Add Active Student", {
+            toast.error("Gagal menambahkan Siswa Aktif", {
                 duration: 3000,
             });
             console.log(error);
@@ -146,18 +146,18 @@ export function DialogAddActiveStudent() {
                     <FiPlus className="h-[16px] w-[16px] " />{" "}
                     <span className="mt-[3px]">Tambah</span>
                 </DialogTrigger>
-                <DialogContent className="py-[25px] px-[23px] h-auto max-w-[400px]">
+                <DialogContent className="rounded-md py-[25px] px-[23px] h-auto max-[400px]:w-[320px] max-w-[400px]">
                     <DialogHeader>
                         <DialogTitle>
-                            <span className="text-center mb-[20px] text-[20px] font-semibold text-neutral-700">
-                                Add Temporary
+                            <span className="w-full flex justify-center mb-[20px] text-[20px] font-semibold text-neutral-700">
+                                Tambah Siswa Aktif
                             </span>
                         </DialogTitle>
                     </DialogHeader>
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}
-                            className="flex flex-col gap-8 rounded-md w-full"
+                            className="flex flex-col gap-5 rounded-md w-full"
                         >
                             {/* <FormField
                                 control={form.control}
@@ -193,11 +193,14 @@ export function DialogAddActiveStudent() {
                                 render={({ field }) => (
                                     <FormItem className="space-y-0">
                                         <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            School Year
+                                            Tahun Pelajaran{" "}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="School Year. . ."
+                                                placeholder="Tahun Pelajaran. . ."
                                                 {...field}
                                                 type="number"
                                                 className={`${
@@ -222,7 +225,10 @@ export function DialogAddActiveStudent() {
                                 render={({ field }) => (
                                     <FormItem className="space-y-0">
                                         <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Number ID
+                                            Number ID{" "}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </FormLabel>
                                         <FormControl>
                                             <Input
@@ -253,7 +259,10 @@ export function DialogAddActiveStudent() {
                                     return (
                                         <FormItem className="space-y-0">
                                             <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                                Level
+                                                Tingkat{" "}
+                                                <span className="text-red-500">
+                                                    *
+                                                </span>
                                             </FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
@@ -268,7 +277,7 @@ export function DialogAddActiveStudent() {
                                                         }`}
                                                     >
                                                         <SelectValue
-                                                            placeholder="Select Level"
+                                                            placeholder="Pilih Tingkat"
                                                             className=""
                                                         />
                                                     </SelectTrigger>
@@ -314,7 +323,10 @@ export function DialogAddActiveStudent() {
                                     return (
                                         <FormItem className="space-y-0">
                                             <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                                Class
+                                                Kelas{" "}
+                                                <span className="text-red-500">
+                                                    *
+                                                </span>
                                             </FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
@@ -330,7 +342,7 @@ export function DialogAddActiveStudent() {
                                                         }`}
                                                     >
                                                         <SelectValue
-                                                            placeholder="Select Class"
+                                                            placeholder="Pilih Kelas"
                                                             className=""
                                                         />
                                                     </SelectTrigger>
@@ -432,14 +444,14 @@ export function DialogAddActiveStudent() {
                                     type="button"
                                     onClick={() => setOpenModal(false)}
                                 >
-                                    <span className="text-md">Cancel</span>
+                                    <span className="text-md">Batal</span>
                                 </Button>
                                 <Button
                                     className="max-w-max bg-[#A27FFE] hover:bg-[#b295fb]"
                                     // disable={isLoading}
                                     type="submit"
                                 >
-                                    <span className="text-md">Add</span>
+                                    <span className="text-md">Tambah</span>
                                 </Button>
                             </div>
                         </form>

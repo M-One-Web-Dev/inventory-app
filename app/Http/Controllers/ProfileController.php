@@ -59,6 +59,7 @@ class ProfileController extends Controller
             "phone_number" => null,
             "email" => $user->email,
             "status" => $user->status,
+            "role" => $user->role,
             "class" => null,
             "generation" => null,
             "school_year" => null,
@@ -74,6 +75,7 @@ class ProfileController extends Controller
                 "phone_number" => $user->student->phone_number,
                 "email" => $user->email,
                 "status" => $user->status,
+                "role" => $user->role,
                 "class" => $lastActiveStudent->class,
                 "generation" => $lastActiveStudent->generation,
                 "school_year" => $lastActiveStudent->school_year

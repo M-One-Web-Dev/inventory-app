@@ -10,20 +10,16 @@ import {
     DropdownMenuTrigger,
 } from "../../../ui/index";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import {
-    DialogDeleteTeacher,
-    DialogEditTeacher,
-    DialogDeleteStudent,
-} from "../dialog";
+import { DialogDetailStudent, DialogDeleteStudent } from "../dialog";
 import { FaUserAlt } from "react-icons/fa";
 
 export const columns = [
     {
         accessorKey: "image",
         header: () => <div className="text-center">No</div>,
-        cell: ({ row }) => {
+        cell: ({ row, table }) => {
             const amount = row.getValue("image");
-
+            console.log(table.getState());
             return (
                 <div className="flex justify-center items-center">
                     <h1>{row.index + 1}</h1>
@@ -81,14 +77,18 @@ export const columns = [
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    Name
+                    Nama Siswa
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: ({ row }) => {
             const getName = row.getValue("name");
-            return <div className="text-left font-medium">{getName}</div>;
+            return (
+                <div className="text-left font-medium w-[200px] overflow-hidden text-ellipsis  whitespace-nowrap">
+                    {getName}
+                </div>
+            );
         },
     },
     {
@@ -99,7 +99,7 @@ export const columns = [
 
             return (
                 <div className="flex items-center gap-2">
-                    <DialogEditTeacher />
+                    <DialogDetailStudent row={row.original} />
                     <DialogDeleteStudent row={row.original} />
                 </div>
             );

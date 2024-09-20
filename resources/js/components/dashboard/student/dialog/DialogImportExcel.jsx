@@ -46,22 +46,20 @@ import QRCode from "qrcode";
 
 export function DialogImportExcel() {
     const [openModal, setOpenModal] = useState(false);
+    const [isImporting, setIsImporting] = useState(false);
 
     const downloadTemplate = () => {
-        // Data template dengan header dan gaya bold
         const rowHeader = [
             [
                 { v: "username", s: { font: { bold: true } } },
                 { v: "password", s: { font: { bold: true } } },
                 { v: "id_number", s: { font: { bold: true } } },
             ],
-            ["Test Username", "test password", "0000"],
+            ["Nama Siswa", "Password akun", "0000"],
         ];
 
-        // Membuat worksheet dari data
         const worksheet = XLSX.utils.aoa_to_sheet(rowHeader);
 
-        // Mengatur format kolom A sebagai teks
         const range = XLSX.utils.decode_range(worksheet["!ref"]);
         for (let row = range.s.r + 1; row <= range.e.r; row++) {
             const cellAddress = XLSX.utils.encode_cell({ r: row, c: 0 });
@@ -71,17 +69,14 @@ export function DialogImportExcel() {
             worksheet[cellAddress].z = "@";
         }
 
-        // Membuat workbook dan menambahkan worksheet
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
 
-        // Menulis workbook ke buffer
         const excelBuffer = XLSX.write(workbook, {
             bookType: "xlsx",
             type: "array",
         });
 
-        // Membuat blob dari buffer dan mengunduhnya
         const blobData = new Blob([excelBuffer], {
             type: "application/octet-stream",
         });
@@ -90,36 +85,54 @@ export function DialogImportExcel() {
 
     return (
         <>
-            <Toaster richColors position="top-center" />
             <Popover open={openModal} onOpenChange={setOpenModal}>
-                <PopoverTrigger className="flex items-center gap-1 bg-violet-500 text-white py-[5px] text-[14px] px-[15px] rounded-[20px] hover:bg-violet-400">
-                    <FiPlus className="h-[16px] w-[16px] " />{" "}
-                    <span className="mt-[3px]">Import</span>
+                <PopoverTrigger
+                    className={`flex items-center gap-1 text-white py-[5px] text-[14px] px-[15px] rounded-[20px]  ${
+                        isImporting
+                            ? "bg-violet-300"
+                            : "hover:bg-violet-400 bg-violet-500"
+                    }`}
+                    disabled={isImporting}
+                >
+                    {isImporting ? (
+                        <span className="mt-[3px]">Mengimport...</span>
+                    ) : (
+                        <>
+                            <FiPlus className="h-[16px] w-[16px] " />{" "}
+                            <span className="mt-[3px]">Import</span>
+                        </>
+                    )}
                 </PopoverTrigger>
-                <PopoverContent className="p-0 py-[10px] px-[10px] max-w-max">
+                <PopoverContent className="p-0 py-[10px] px-[10px] left-[-140px] max-w-max">
                     <Tabs defaultValue="import" className="">
-                        <TabsList className="w-full">
-                            <TabsTrigger value="download" className="w-full">
+                        <TabsList className="w-full bg-violet-100">
+                            <TabsTrigger
+                                value="download"
+                                className="w-full data-[state=active]:bg-violet-400 data-[state=active]:text-white"
+                            >
                                 Unduh
                             </TabsTrigger>
-                            <TabsTrigger value="import" className="w-full">
+                            <TabsTrigger
+                                value="import"
+                                className="w-full data-[state=active]:bg-violet-400 data-[state=active]:text-white"
+                            >
                                 Import
                             </TabsTrigger>
                         </TabsList>
                         <TabsContent className="w-[260px]" value="download">
                             <Button
                                 onClick={downloadTemplate}
-                                className="w-full text-center py-2"
+                                className="w-full text-center py-2 bg-violet-500 hover:bg-violet-400 font-semibold"
                             >
                                 Unduh Template
                             </Button>
                         </TabsContent>
                         <TabsContent className="w-[260px]" value="import">
-                            <ImportItem setOpenModal={setOpenModal} />
+                            <ImportItem
+                                setIsImporting={setIsImporting}
+                                setIsOpenPopup={setOpenModal}
+                            />
                         </TabsContent>
-                        {/* <TabsContent className="w-[260px]" value="export">
-                            <ExportAllItemsPDF />
-                        </TabsContent> */}
                     </Tabs>
                 </PopoverContent>
             </Popover>
@@ -127,7 +140,7 @@ export function DialogImportExcel() {
     );
 }
 
-function ImportItem({ setOpenModal }) {
+function ImportItem({ setIsImporting, setIsOpenPopup }) {
     const [data, setData] = useState([]);
     const [fileName, setFileName] = useState({ name: "" });
     const [errors, setErrors] = useState({});
@@ -153,7 +166,18 @@ function ImportItem({ setOpenModal }) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        // setIsImporting(true);
+        // setIsOpenPopup(false);
+        // setTimeout(() => {
+        //     setIsImporting(false);
+        //     toast.success("Berhasil Import Data Item", {
+        //         duration: 3000,
+        //     });
+        // }, 5000);
+        // return;
         if (data.length !== 0) {
+            setIsOpenPopup(false);
+            setIsImporting(true);
             try {
                 const body = {
                     data: data,
@@ -169,8 +193,7 @@ function ImportItem({ setOpenModal }) {
                 );
 
                 refresh();
-                setOpenModal(false);
-                toast.success("Success Import Student", {
+                toast.success("Berhasil Import data Siswa", {
                     duration: 3000,
                 });
             } catch (error) {
@@ -211,42 +234,44 @@ function ImportItem({ setOpenModal }) {
                         duration: 3000,
                     });
                 }
-
-                // console.error("Error:", error);
-                setOpenModal(false);
+            } finally {
+                setIsImporting(false);
             }
         }
     };
 
     return (
-        <form className="w-full" onSubmit={handleSubmit}>
-            <label className="block w-full" htmlFor="excel-file">
-                <input
-                    className="hidden"
-                    id="excel-file"
-                    type="file"
-                    onChange={handleFileChange}
-                    accept=".xlsx"
-                />
-                <div className="h-[100px] flex justify-center items-center w-full border border-dashed border-gray-300 mt-[10px] rounded-sm">
-                    <p>
-                        {fileName.name === ""
-                            ? "Choose Excel File"
-                            : fileName.name}
-                    </p>
-                </div>
-            </label>
+        <>
+            <Toaster richColors position="top-center" />
+            <form className="w-full" onSubmit={handleSubmit}>
+                <label className="block w-full" htmlFor="excel-file">
+                    <input
+                        className="hidden"
+                        id="excel-file"
+                        type="file"
+                        onChange={handleFileChange}
+                        accept=".xlsx"
+                    />
+                    <div className="h-[100px] flex justify-center items-center w-full border border-dashed border-gray-300 mt-[10px] rounded-sm">
+                        <p>
+                            {fileName.name === ""
+                                ? "Pilih File Excel"
+                                : fileName.name}
+                        </p>
+                    </div>
+                </label>
 
-            {errors.file && <div>{errors.file}</div>}
-            <div className="flex justify-end mt-[10px]">
-                <Button
-                    className="transition-all duration-200 active:scale-[0.96] p-0 h-auto py-[7px] px-[15px]"
-                    type="submit"
-                >
-                    Import
-                </Button>
-            </div>
-        </form>
+                {errors.file && <div>{errors.file}</div>}
+                <div className="flex justify-end mt-[10px]">
+                    <Button
+                        className="transition-all duration-200 active:scale-[0.96] p-0 h-auto py-[7px] px-[15px] bg-violet-500 hover:bg-violet-400 "
+                        type="submit"
+                    >
+                        Import
+                    </Button>
+                </div>
+            </form>
+        </>
     );
 }
 
@@ -331,7 +356,7 @@ function ExportAllItemsPDF() {
     return (
         <Button
             onClick={fetchData}
-            className="bg-blue-500 text-white py-2 px-4 rounded"
+            className="bg-violet-500 w-full hover:bg-violet-400 text-white py-2 px-4 rounded font-semibold"
         >
             Export All Items to PDF
         </Button>

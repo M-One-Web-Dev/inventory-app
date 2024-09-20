@@ -23,8 +23,9 @@ export function DialogDeleteNotification({ row }) {
 
     const DeleteNotification = async () => {
         try {
-            const { data: deleteNotification } = await axios.delete(
-                `/api/v1/notification/${row.id}`,
+            const { data: deleteNotification } = await axios.post(
+                `/api/v1/notification/delete/${row.id}`,
+                {},
                 {
                     headers: {
                         Authorization: `Bearer ${inventoryToken}`,
@@ -50,12 +51,11 @@ export function DialogDeleteNotification({ row }) {
 
     return (
         <>
-            <Toaster richColors position="top-center" />
             <Dialog open={openModal} onOpenChange={setOpenModal}>
                 <DialogTrigger className="bg-red-500 py-[10px] px-[10px] rounded-sm">
                     <FaTrash className="text-white h-[14px] w-[14px]" />
                 </DialogTrigger>
-                <DialogContent className="w-auto py-[20px] px-[25px]">
+                <DialogContent className="w-auto py-[20px] px-[25px] rounded-md">
                     <DialogHeader>
                         <DialogTitle className="text-center font-medium">
                             Hapus Notifikasi ini?

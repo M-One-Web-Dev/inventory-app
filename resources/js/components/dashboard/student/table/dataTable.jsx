@@ -20,18 +20,23 @@ import {
     TableHead,
     TableHeader,
     TableRow,
+    Pagination,
 } from "../../../ui/index";
-import {
-    DialogAddTeacher,
-    DialogAddStudent,
-    DialogImportExcel,
-} from "../dialog/index";
+import { DialogAddStudent, DialogImportExcel } from "../dialog/index";
+import { useForm } from "react-hook-form";
 
-export function DataTable({ columns, data }) {
+export function DataTable({
+    columns,
+    data,
+    pagination,
+    onPageChange,
+    onSearchChange,
+}) {
     const [sorting, setSorting] = React.useState([]);
     const [columnFilters, setColumnFilters] = React.useState([]);
     const [columnVisibility, setColumnVisibility] = React.useState({});
     const [rowSelection, setRowSelection] = React.useState({});
+    const { watch, setValue } = useForm();
 
     const table = useReactTable({
         data,
@@ -54,15 +59,18 @@ export function DataTable({ columns, data }) {
 
     return (
         <div>
-            <div className="flex items-center justify-between py-4">
+            <div className="flex items-center justify-between py-4 gap-2 max-[360px]:flex-col max-[360px]:items-end">
                 <Input
-                    placeholder="Filter Name..."
-                    value={table.getColumn("name")?.getFilterValue() ?? ""}
-                    onChange={(event) =>
-                        table
-                            .getColumn("name")
-                            ?.setFilterValue(event.target.value)
-                    }
+                    placeholder="Cari Siswa..."
+                    value={watch("search") ?? ""}
+                    onChange={(event) => {
+                        const searchValue = event.target.value;
+                        setValue("search", searchValue);
+                        // table
+                        //     .getColumn(searchBy)
+                        //     ?.setFilterValue(searchValue);
+                        onSearchChange(searchValue);
+                    }}
                     className="max-w-sm"
                 />
                 <div className="flex items-center gap-2">
@@ -150,24 +158,37 @@ export function DataTable({ columns, data }) {
                 </Table>
             </div>
 
-            <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="mt-[20px]">
+                <Pagination
+                    currentPage={pagination.currentPage}
+                    totalPages={pagination.totalPages}
+                    onPageChange={onPageChange}
+                />
+            </div>
+
+            {/* <div className="flex items-center justify-end space-x-2 py-4">
                 <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
+                    onClick={() => {
+                        onPageChange(pagination.currentPage - 1);
+                    }}
+                    disabled={pagination.currentPage === 1}
                 >
                     Previous
                 </Button>
                 <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
+                    onClick={() => {
+                        // table.nextPage();
+                        onPageChange(pagination.currentPage + 1);
+                    }}
+                    disabled={pagination.currentPage === pagination.lastPage}
                 >
                     Next
                 </Button>
-            </div>
+            </div> */}
         </div>
     );
 }

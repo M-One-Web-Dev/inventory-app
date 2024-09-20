@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Http\Controllers\Controller;
 use App\Models\Students;
 use App\Models\User;
@@ -11,38 +10,57 @@ use Illuminate\Support\Facades\Validator;
 
 class StudentsController extends Controller
 {
-    public function index()
-    {
-        try {
-            $students = Students::all();
+public function index()
+{
+    try {
+        $perPage = request()->query('perPage', 10); // Default 10 items per page
+        $search = request()->query('search', '');
 
-            // Format data for response
-            $data = $students->map(function ($student) {
-                return [
-                    "id" => $student->id,
-                    "user_id" => $student->user_id,
-                    "id_number" => $student->id_number,
-                    "name" => $student->name,
-                    "address" => $student->address,
-                    "phone_number" => $student->phone_number,
-                    "created_at" => $student->created_at,
-                    "updated_at" => $student->updated_at,
-                ];
-            });
+        $students = Students::when($search, function ($query, $search) {
+            return $query->where('name', 'like', "%{$search}%")
+                         ->orWhere('id_number', 'like', "%{$search}%")
+                         ->orWhere('address', 'like', "%{$search}%")
+                         ->orWhere('phone_number', 'like', "%{$search}%");
+        })->paginate($perPage);
 
-            return response()->json([
-                "status" => "success",
-                "message" => "Students fetched successfully",
-                "data" => $data
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                "status" => "error",
-                "message" => "An error occurred while fetching students.",
-                "error" => $e->getMessage()
-            ], 500);
-        }
+        
+        $data = $students->getCollection()->map(function ($student) {
+            return [
+                "id" => $student->id,
+                "user_id" => $student->user_id,
+                "id_number" => $student->id_number,
+                "name" => $student->name,
+                "address" => $student->address,
+                "phone_number" => $student->phone_number,
+                "created_at" => $student->created_at,
+                "updated_at" => $student->updated_at,
+            ];
+        });
+
+      
+        $students->setCollection($data);
+ $totalPages = (int) ceil($students->total() / $students->perPage());
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Students fetched successfully",
+            "data" => $students->items(),  // Data untuk halaman saat ini
+            "pagination" => [
+                "total" => $students->total(),
+                "perPage" => $students->perPage(),
+                "currentPage" => $students->currentPage(),
+                "lastPage" => $students->lastPage(),
+                 "totalPages" => $totalPages, 
+            ],
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            "status" => "error",
+            "message" => "An error occurred while fetching students.",
+            "error" => $e->getMessage()
+        ], 500);
     }
+}
 
     public function create(Request $request)
     {
@@ -66,16 +84,16 @@ class StudentsController extends Controller
             $user = User::create([
                 "username" => $request->username,
                 "password" => Hash::make($request->password),
-                "email" => $request->email,
+                "email" => null,
                 "role" => "student",
-                "status" => $request->status ?? "inactive"
+                "status" =>"inactive"
             ]);
 
             $student = Students::create([
                 "user_id" => $user->id,
-                "name" => $request->name,
-                "address" => $request->address,
-                "phone_number" => $request->phone_number,
+                "name" => $request->username,
+                "address" => null,
+                "phone_number" => null,
                 "id_number" => $request->id_number,
             ]);
 
@@ -106,10 +124,8 @@ public function import(Request $request)
     ]);
 
     if ($validators->fails()) {
-        // Mengubah pesan error menjadi lebih informatif
         $errors = [];
         foreach ($validators->errors()->getMessages() as $field => $message) {
-            // Mendapatkan index dari pesan error
             preg_match('/data\.(\d+)\./', $field, $matches);
             $index = $matches[1] ?? null;
             if ($index !== null) {
@@ -139,7 +155,6 @@ public function import(Request $request)
         }
 
         try {
-           
             $password = (string) $studentData['password'];
 
             $user = User::create([
@@ -170,9 +185,6 @@ public function import(Request $request)
 
     return response()->json(["message" => "Data imported successfully"], 201);
 }
-
-
-
 
     public function update(Request $request, $id)
     {
