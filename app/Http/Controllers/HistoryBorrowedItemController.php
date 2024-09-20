@@ -196,7 +196,7 @@ public function editStatus(Request $request)
         $historyBorrowedItem->status = $request->input('status');
 
         if ($request->input('status') === 'returned') {
-            $historyBorrowedItem->returned_at = now();
+            $historyBorrowedItem->returned_at = Carbon::now('Asia/Jakarta');
         }
 
         $historyBorrowedItem->save();
