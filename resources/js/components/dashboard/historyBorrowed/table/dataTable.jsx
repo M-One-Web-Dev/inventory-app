@@ -145,7 +145,7 @@ export function DataTable({
                                         <TableCell
                                             className={`${
                                                 cell.column.id === "name" &&
-                                                "sticky left-0 bg-white"
+                                                "z-10 sticky left-0 bg-white"
                                             }`}
                                             key={cell.id}
                                         >

@@ -57,7 +57,7 @@ export const columns = [
             const getName = row.original.username;
 
             return (
-                <div className="text-left font-medium w-[200px] overflow-hidden text-ellipsis  whitespace-nowrap">
+                <div className="text-left font-medium w-[110px] overflow-hidden text-ellipsis  whitespace-nowrap">
                     {getName}
                 </div>
             );
