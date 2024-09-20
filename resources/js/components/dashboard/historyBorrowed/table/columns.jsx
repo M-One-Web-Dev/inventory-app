@@ -271,7 +271,7 @@ export const columns = [
                 <div className="flex items-center gap-2">
                     {/* <ButtonDownloadPdf row={row.original} />
                     <DialogDetailItem row={row.original} /> */}
-                    <DialogEditTemporary row={row.original} />
+                    {/* <DialogEditTemporary row={row.original} /> */}
                     <DialogDeleteTemporary id={row.original.id} />
                 </div>
             );

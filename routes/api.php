@@ -72,7 +72,6 @@ Route::prefix("/v1")->group(function () {
     });
 
     Route::controller(TemporaryController::class)->middleware('auth:sanctum')->prefix("/temporary")->group(function () {
-        //
         Route::get("/", "index");
         Route::get("/available-dates", "availableDates");
         Route::get("/export", "exportData");

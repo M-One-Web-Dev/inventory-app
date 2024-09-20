@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Items; 
 use App\Models\HistoryBorrowedItem;
 use Illuminate\Support\Facades\Validator;
 
@@ -64,6 +65,7 @@ public function index()
 
 public function create(Request $request)
 {
+    // Validasi input
     $validator = Validator::make($request->all(), [
         'user_id' => 'required|exists:users,id',
         'item_id' => 'required|exists:items,id',
@@ -72,6 +74,7 @@ public function create(Request $request)
         'type' => 'required|in:automation,manual',
     ]);
 
+    // Jika validasi gagal
     if ($validator->fails()) {
         return response()->json([
             'status' => 'error',
@@ -80,10 +83,12 @@ public function create(Request $request)
         ], 400);
     }
 
+    // Cek apakah item saat ini sudah dipinjam oleh pengguna lain
     $isCurrentlyBorrowed = HistoryBorrowedItem::where('item_id', $request->item_id)
         ->where('status', 'borrowed')
         ->exists();
 
+    // Jika item sudah dipinjam
     if ($isCurrentlyBorrowed) {
         return response()->json([
             'status' => 'info',
@@ -91,6 +96,7 @@ public function create(Request $request)
         ], 200);
     }
 
+    // Buat riwayat peminjaman baru
     $historyBorrowedItem = HistoryBorrowedItem::create([
         'user_id' => $request->user_id,
         'item_id' => $request->item_id,
@@ -101,12 +107,18 @@ public function create(Request $request)
         'borrowed_at' => Carbon::now('Asia/Jakarta')
     ]);
 
+    // Ubah status item menjadi "not_available"
+    $item = Items::find($request->item_id);
+    $item->status = 'not_available';
+    $item->save(); // Simpan perubahan status item
+
     return response()->json([
         'status' => 'success',
-        'message' => 'History borrowed item successfully created.',
+        'message' => 'History borrowed item successfully created and item status updated to not available.',
         'data' => $historyBorrowedItem
     ], 201);
 }
+
 
     public function show($id)
     {
@@ -162,14 +174,21 @@ public function create(Request $request)
 public function editStatus(Request $request)
 {
     try {
+        // Validasi input
         $request->validate([
             'id' => 'required|integer|exists:history_borrowed_items,id',
             'status' => 'required|in:borrowed,returned',
         ]);
 
+        // Ambil data history peminjaman berdasarkan ID
         $historyBorrowedItem = HistoryBorrowedItem::findOrFail($request->input('id'));
 
+        // Ambil item yang dipinjam
+        $item = $historyBorrowedItem->item;
+
+        // Jika status diubah menjadi 'borrowed'
         if ($request->input('status') === 'borrowed') {
+            // Cek apakah item sedang dipinjam oleh orang lain
             $isCurrentlyBorrowed = HistoryBorrowedItem::where('item_id', $historyBorrowedItem->item_id)
                 ->where('status', 'borrowed')
                 ->where('id', '!=', $historyBorrowedItem->id) 
@@ -191,15 +210,26 @@ public function editStatus(Request $request)
                     ],
                 ]);
             }
+
+            // Atur waktu peminjaman ulang dan ubah status item menjadi 'not_available'
             $historyBorrowedItem->returned_at = null;
+            $item->status = 'not_available';
         }
+
+        // Update status peminjaman
         $historyBorrowedItem->status = $request->input('status');
 
+        // Jika status diubah menjadi 'returned'
         if ($request->input('status') === 'returned') {
             $historyBorrowedItem->returned_at = Carbon::now('Asia/Jakarta');
+            $item->status = 'available'; // Ubah status item menjadi 'available' ketika dikembalikan
         }
 
+        // Simpan perubahan status peminjaman
         $historyBorrowedItem->save();
+
+        // Simpan perubahan status item
+        $item->save();
 
         return response()->json([
             "status" => "success",
@@ -213,6 +243,7 @@ public function editStatus(Request $request)
                 'status' => $historyBorrowedItem->status,
                 'borrowed_at' => $historyBorrowedItem->borrowed_at,
                 'returned_at' => $historyBorrowedItem->returned_at,
+                'item_status' => $item->status, // Sertakan status item dalam respons
             ],
         ]);
     } catch (\Exception $e) {
@@ -224,16 +255,32 @@ public function editStatus(Request $request)
     }
 }
 
-    public function delete($id)
-    {
+
+  public function delete($id)
+{
+    try {
         $historyBorrowedItem = HistoryBorrowedItem::find($id);
 
         if (!$historyBorrowedItem) {
             return response()->json(['message' => 'History borrowed item not found'], 404);
         }
 
+        $item = $historyBorrowedItem->item;
+
+        if ($historyBorrowedItem->status === 'borrowed') {
+            $item->status = 'available';
+            $item->save(); 
+        }
+
         $historyBorrowedItem->delete();
 
         return response()->json(['message' => 'History borrowed item successfully deleted'], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'An error occurred while deleting the history borrowed item.',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 }

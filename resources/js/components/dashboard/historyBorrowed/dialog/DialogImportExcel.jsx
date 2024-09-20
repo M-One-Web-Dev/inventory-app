@@ -113,7 +113,7 @@ export function DialogImportExcel() {
                 <PopoverContent className="p-0 py-[10px] px-[10px] left-[-140px] max-w-max">
                     <Tabs defaultValue="import" className="">
                         <TabsList className="w-full bg-violet-100">
-                            <TabsTrigger
+                            {/* <TabsTrigger
                                 value="download"
                                 className="w-full data-[state=active]:bg-violet-400 data-[state=active]:text-white"
                             >
@@ -124,7 +124,7 @@ export function DialogImportExcel() {
                                 className="w-full data-[state=active]:bg-violet-400 data-[state=active]:text-white"
                             >
                                 Import
-                            </TabsTrigger>
+                            </TabsTrigger> */}
                             <TabsTrigger
                                 value="export"
                                 className="w-full data-[state=active]:bg-violet-400 data-[state=active]:text-white"

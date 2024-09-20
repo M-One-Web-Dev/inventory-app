@@ -256,7 +256,7 @@ export function DialogEditTemporary({ row }) {
                 <DialogTrigger className="bg-violet-500 py-[10px] px-[10px] rounded-sm">
                     <FaEdit className="text-white h-[14px] w-[14px]" />
                 </DialogTrigger>
-                <DialogContent className="overflow-visible rounded-md py-[25px] px-[23px] h-auto max-[400px]:w-[320px] max-w-[400px]">
+                <DialogContent className="rounded-md py-[25px] px-[23px] h-auto max-[400px]:w-[320px] max-w-[400px]">
                     <DialogHeader>
                         <DialogTitle className="text-center mb-[20px] text-[20px] font-semibold text-neutral-700">
                             Edit Temporary

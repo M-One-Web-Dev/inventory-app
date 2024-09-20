@@ -85,7 +85,7 @@ export function DataTable({
                     />
                 </div>
                 <div className="px-[10px] md:px-0 flex justify-end items-end gap-2 w-full">
-                    <DialogImportExcel />
+                    {/* <DialogImportExcel /> */}
                     <DialogAddTemporary />
                 </div>
             </div>

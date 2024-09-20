@@ -287,7 +287,7 @@ export function DialogAddTemporary() {
                     <FiPlus className="h-[16px] w-[16px] " />{" "}
                     <span className="mt-[3px]">Tambah</span>
                 </DialogTrigger>
-                <DialogContent className="overflow-visible rounded-md py-[25px] px-[23px] h-auto max-[400px]:w-[320px] max-w-[400px]">
+                <DialogContent className="rounded-md py-[25px] px-[23px] h-auto max-[400px]:w-[320px] max-w-[400px]">
                     <DialogHeader>
                         <DialogTitle className="text-center mb-[20px] text-[20px] font-semibold text-neutral-700">
                             Tambah Temporary
