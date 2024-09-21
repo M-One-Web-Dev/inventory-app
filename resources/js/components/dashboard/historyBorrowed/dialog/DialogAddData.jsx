@@ -94,7 +94,7 @@ const customStyles = {
     }),
 };
 
-export function DialogAddTemporary() {
+export function DialogAddData() {
     const [openModal, setOpenModal] = useState(false);
     const [imageFile, setImageFile] = useState(null);
     const [listItems, setListItems] = useState([]);

@@ -29,7 +29,7 @@ import {
     SelectValue,
     Pagination,
 } from "../../../ui/index";
-import { DialogAddTemporary, DialogImportExcel } from "../dialog/index";
+import { DialogAddData, DialogImportExcel } from "../dialog/index";
 import { useForm } from "react-hook-form";
 
 export function DataTable({
@@ -86,7 +86,7 @@ export function DataTable({
                 </div>
                 <div className="px-[10px] md:px-0 flex justify-end items-end gap-2 w-full">
                     {/* <DialogImportExcel /> */}
-                    <DialogAddTemporary />
+                    <DialogAddData />
                 </div>
             </div>
             <div className="rounded-md">
@@ -94,14 +94,14 @@ export function DataTable({
                     <TableHeader className="px-[5px]">
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
+                                {headerGroup.headers.map((header, index) => {
                                     return (
                                         <TableHead
                                             className={`${
                                                 header.id === "name" &&
                                                 "sticky left-0 bg-white"
                                             }`}
-                                            key={header.id}
+                                            key={index}
                                         >
                                             {header.isPlaceholder
                                                 ? null
@@ -134,27 +134,29 @@ export function DataTable({
                                     <h1 className="text-white">Memuat...</h1>
                                 </div>
                             )}
-                            {table.getRowModel().rows.map((row) => (
+                            {table.getRowModel().rows.map((row, index) => (
                                 <TableRow
-                                    key={row.id}
+                                    key={index}
                                     data-state={
                                         row.getIsSelected() && "selected"
                                     }
                                 >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell
-                                            className={`${
-                                                cell.column.id === "name" &&
-                                                "z-10 sticky left-0 bg-white"
-                                            }`}
-                                            key={cell.id}
-                                        >
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </TableCell>
-                                    ))}
+                                    {row
+                                        .getVisibleCells()
+                                        .map((cell, index) => (
+                                            <TableCell
+                                                className={`${
+                                                    cell.column.id === "name" &&
+                                                    "z-10 sticky left-0 bg-white"
+                                                }`}
+                                                key={index}
+                                            >
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </TableCell>
+                                        ))}
                                 </TableRow>
                             ))}
                         </TableBody>

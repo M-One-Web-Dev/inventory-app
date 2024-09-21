@@ -1,5 +1,5 @@
-export * from "./DialogDeleteTemporary";
+export * from "./DialogDeleteData";
+export * from "./DialogAddData";
 export * from "./DialogEditTemporary";
-export * from "./DialogAddTemporary";
 export * from "./DialogDetailItem";
 export * from "./DialogImportExcel";
