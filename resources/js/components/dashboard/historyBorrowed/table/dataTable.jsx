@@ -31,6 +31,7 @@ import {
 } from "../../../ui/index";
 import { DialogAddData, DialogImportExcel } from "../dialog/index";
 import { useForm } from "react-hook-form";
+import LoadingGif from "@/assets/loading.gif";
 
 export function DataTable({
     columns,
@@ -130,8 +131,12 @@ export function DataTable({
                     ) : (
                         <TableBody className="relative">
                             {loadingState && (
-                                <div className="absolute h-full w-full bg-black/40 z-10 text-center flex justify-center items-center scrollbar-none overflow-hidden">
-                                    <h1 className="text-white">Memuat...</h1>
+                                <div className="absolute h-full w-full bg-black/40 z-[100] text-center flex justify-center items-center scrollbar-none overflow-hidden">
+                                    <img
+                                        className="w-[50px] h-[50px]"
+                                        src={LoadingGif}
+                                        alt=""
+                                    />
                                 </div>
                             )}
                             {table.getRowModel().rows.map((row, index) => (

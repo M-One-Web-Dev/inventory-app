@@ -15,6 +15,8 @@ public function index()
     try {
         $perPage = request()->query('perPage', 10);
         $search = request()->query('search', '');
+        $userId = request()->query('user_id', null);  // Ambil user_id jika ada
+        $itemId = request()->query('item_id', null);  // Ambil item_id jika ada
         
         $historyBorrowedItems = HistoryBorrowedItem::with(['user', 'item'])
             ->when($search, function ($query, $search) {
@@ -23,7 +25,14 @@ public function index()
                 })->orWhereHas('item', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");
                 });
-            })->paginate($perPage);
+            })
+            ->when($userId, function ($query, $userId) {
+                return $query->where('user_id', $userId);  // Filter berdasarkan user_id
+            })
+            ->when($itemId, function ($query, $itemId) {
+                return $query->where('item_id', $itemId);  // Filter berdasarkan item_id
+            })
+            ->paginate($perPage);
 
         $formattedItems = $historyBorrowedItems->map(function ($item) {
             return [
@@ -62,6 +71,7 @@ public function index()
         ], 500);
     }
 }
+
 
 public function create(Request $request)
 {
