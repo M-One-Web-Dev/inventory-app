@@ -117,7 +117,11 @@ Route::get('/dashboard/temporary', function () {
     return Inertia::render('Dashboard/Temporary/Temporary');
 });
 
-Route::get('/dashboard/history-borrowed', function () {
+Route::get('/dashboard/manual-borrowed', function () {
+    return Inertia::render('Dashboard/HistoryBorrowed/HistoryBorrowed');
+});
+
+Route::get('/dashboard/qr-code-borrowed', function () {
     return Inertia::render('Dashboard/HistoryBorrowed/HistoryBorrowed');
 });
 
@@ -149,7 +153,7 @@ Route::get('/', function () {
     return Inertia::render('Home');
 });
 
-Route::get('/profile', function () {
+Route::get('/profile', action: function () {
     return Inertia::render('Profile');
 });
 

@@ -12,6 +12,76 @@ import { FiChevronRight, FiBox } from "react-icons/fi";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/index";
 import { PiUserCircleDashedFill } from "react-icons/pi";
 
+const menuItems = [
+    {
+        name: "Dashboard",
+        icon: <TiHome className="h-[19px] w-[19px]" />,
+        url: "/dashboard",
+    },
+    // {
+    //     name: "Notification",
+    //     icon: <IoMdNotifications className="h-[19px] w-[19px]" />,
+    //     url: "/dashboard/notification",
+    // },
+    // {
+    //     name: "Temporary",
+    //     icon: <PiUserCircleDashedFill className="h-[19px] w-[19px]" />,
+    //     url: "/dashboard/temporary",
+    // },
+    {
+        name: "Siswa",
+        icon: <FaUsers className="h-[19px] w-[19px]" />,
+        subMenu: [
+            {
+                name: "Siswa",
+                url: "/dashboard/student",
+            },
+            {
+                name: "Siswa Aktif",
+                url: "/dashboard/active-student",
+            },
+        ],
+    },
+    {
+        name: "Peminjaman",
+        icon: <FaUsers className="h-[19px] w-[19px]" />,
+        subMenu: [
+            {
+                name: "QR Code",
+                url: "/dashboard/qr-code-borrowed",
+            },
+            {
+                name: "Manual",
+                url: "/dashboard/manual-borrowed",
+            },
+        ],
+    },
+    {
+        name: "Guru",
+        icon: <FaUserAlt className="h-[19px] w-[19px]" />,
+        url: "/dashboard/teacher",
+    },
+    {
+        name: "Barang & Kategori",
+        icon: <BiSolidCategory className="h-[19px] w-[19px]" />,
+        subMenu: [
+            {
+                name: "Barang",
+                url: "/dashboard/item",
+            },
+            {
+                name: "Kategori",
+                url: "/dashboard/category",
+            },
+        ],
+    },
+    {
+        name: "QR Scan",
+        icon: <FaQrcode className="h-[19px] w-[19px]" />,
+        url: "/dashboard/qr-scan",
+    },
+];
+
 export function Sidebar() {
     const pathname = usePage();
     const [iconMode, setIconMode] = useState(false);
@@ -28,23 +98,20 @@ export function Sidebar() {
         }
     };
 
-    const HandleSubMenuWrapper = (type, firstUrl, secondUrl) => {
+    const HandleSubMenuWrapper = (type, arrayLinkUrl) => {
+        const findItem = arrayLinkUrl.find((item) => {
+            return item.url === pathname.url;
+        });
+
         switch (type) {
             case "link":
-                if (
-                    (firstUrl === pathname.url || secondUrl === pathname.url) &&
-                    !iconMode
-                ) {
+                if (findItem && !iconMode) {
                     return "text-violet-500 justify-between px-[20px] flex items-center gap-5 border-solid border-l-4 border-violet-400";
                 } else {
                     return "text-slate-500 justify-between px-[20px] flex items-center gap-5 border-solid border-l-4 border-white";
                 }
-
             case "icon":
-                if (
-                    (firstUrl === pathname.url || secondUrl === pathname.url) &&
-                    iconMode
-                ) {
+                if (findItem && iconMode) {
                     return "h-full p-[10px] bg-violet-500 text-white rounded-md";
                 } else {
                     return "h-full p-[10px] bg-slate-200 text-slate-500 rounded-md";
@@ -128,7 +195,144 @@ export function Sidebar() {
                     iconMode && "items-center"
                 }`}
             >
-                <Link
+                {menuItems.map((item, index) => {
+                    return (
+                        <React.Fragment key={index}>
+                            {item.subMenu ? (
+                                <div>
+                                    <div
+                                        onClick={() =>
+                                            HandleOpenSubMenu(item.name)
+                                        }
+                                        className={`cursor-pointer ${HandleSubMenuWrapper(
+                                            "link",
+                                            item.subMenu
+                                        )}`}
+                                    >
+                                        <div className="flex items-center gap-5">
+                                            <div
+                                                className={`${
+                                                    iconMode
+                                                        ? " bg-slate-200 rounded-md"
+                                                        : ""
+                                                }`}
+                                            >
+                                                {iconMode ? (
+                                                    <Popover>
+                                                        <PopoverTrigger
+                                                            className={`${HandleSubMenuWrapper(
+                                                                "icon",
+                                                                item.subMenu
+                                                            )}`}
+                                                        >
+                                                            {item.icon}
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="right-[-120px] top-[-44px] flex flex-col py-[5px] w-max">
+                                                            {item.subMenu.map(
+                                                                (
+                                                                    subItem,
+                                                                    index
+                                                                ) => (
+                                                                    <Link
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        href={
+                                                                            subItem.url
+                                                                        }
+                                                                        className={`${HandleActiveSubMenu(
+                                                                            subItem.url
+                                                                        )}`}
+                                                                    >
+                                                                        {
+                                                                            subItem.name
+                                                                        }
+                                                                    </Link>
+                                                                )
+                                                            )}
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                ) : (
+                                                    <>{item.icon}</>
+                                                )}
+                                            </div>
+                                            {iconMode ? (
+                                                ""
+                                            ) : (
+                                                <h1 className="mt-[4px] text-[15px]">
+                                                    {item.name}
+                                                </h1>
+                                            )}
+                                        </div>
+                                        {iconMode ? (
+                                            ""
+                                        ) : (
+                                            <FiChevronRight
+                                                className={`${
+                                                    openSubMenu.open &&
+                                                    openSubMenu.menuName ===
+                                                        item.name
+                                                        ? "rotate-[90deg]"
+                                                        : ""
+                                                } transition-all duration-300`}
+                                            />
+                                        )}
+                                    </div>
+
+                                    {iconMode ? (
+                                        ""
+                                    ) : (
+                                        <div
+                                            className={`${
+                                                openSubMenu.menuName ===
+                                                    item.name &&
+                                                openSubMenu.open
+                                                    ? "h-[65px] mt-[5px]"
+                                                    : "h-0"
+                                            } overflow-hidden transition-all duration-300 flex flex-col gap-3 ml-[60px]`}
+                                        >
+                                            {item.subMenu.map(
+                                                (subItem, index) => (
+                                                    <Link
+                                                        key={index}
+                                                        href={subItem.url}
+                                                        className={`${HandleActiveSubMenu(
+                                                            subItem.url
+                                                        )}`}
+                                                    >
+                                                        {subItem.name}
+                                                    </Link>
+                                                )
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <Link
+                                    href={item.url}
+                                    key={index}
+                                    className={`${HandleActivePath(
+                                        item.url
+                                    )} flex items-center gap-5 `}
+                                >
+                                    <div
+                                        className={`${HandleIconColor(
+                                            item.url
+                                        )}`}
+                                    >
+                                        {item.icon}
+                                    </div>
+                                    {!iconMode && (
+                                        <h1 className="mt-[4px] text-[15px]">
+                                            {item.name}
+                                        </h1>
+                                    )}
+                                </Link>
+                            )}
+                        </React.Fragment>
+                    );
+                })}
+                {/* <Link
                     href="/dashboard"
                     className={`${HandleActivePath(
                         "/dashboard"
@@ -140,24 +344,9 @@ export function Sidebar() {
                     {!iconMode && (
                         <h1 className="mt-[4px] text-[15px]">Dashboard</h1>
                     )}
-                </Link>
-                {/* <Link
-                    href="/dashboard/setting"
-                    className={`${HandleActivePath(
-                        "/dashboard/setting"
-                    )}  flex items-center gap-5 `}
-                >
-                    <div
-                        className={`${HandleIconColor("/dashboard/setting")}
-                        }`}
-                    >
-                        <IoSettingsSharp className={` h-[19px] w-[19px]`} />
-                    </div>
-                    {!iconMode && (
-                        <h1 className="mt-[4px] text-[15px]">Setting</h1>
-                    )}
                 </Link> */}
-                <Link
+
+                {/* <Link
                     href="/dashboard/notification"
                     className={`${HandleActivePath(
                         "/dashboard/notification"
@@ -193,8 +382,8 @@ export function Sidebar() {
                     {!iconMode && (
                         <h1 className="mt-[4px] text-[15px]">Temporary</h1>
                     )}
-                </Link>
-                <div>
+                </Link> */}
+                {/* <div>
                     <div
                         onClick={() => HandleOpenSubMenu("student")}
                         className={`cursor-pointer  ${HandleSubMenuWrapper(
@@ -294,114 +483,9 @@ export function Sidebar() {
                             </Link>
                         </div>
                     )}
-                </div>
-                {/* <div>
-                    <div
-                        onClick={() => HandleOpenSubMenu("student")}
-                        className={`cursor-pointer ${HandleSubMenuWrapper(
-                            "link",
-                            "/test-admin/student",
-                            "/test-admin/active-student"
-                        )}`}
-                    >
-                        <div className="flex items-center gap-5">
-                            <div
-                                className={`${
-                                    iconMode ? "bg-slate-200 rounded-md" : ""
-                                }`}
-                            >
-                                {iconMode ? (
-                                    <Popover>
-                                        <PopoverTrigger
-                                            className={`${HandleSubMenuWrapper(
-                                                "icon",
-                                                "/test-admin/student",
-                                                "/test-admin/active-student"
-                                            )}`}
-                                        >
-                                            <FaUsers
-                                                className={`h-[19px] w-[19px]`}
-                                            />
-                                        </PopoverTrigger>
-                                        <PopoverContent className="right-[-120px] top-[-44px] flex flex-col py-[5px] w-auto">
-                                            <Link
-                                                href="/test-admin/student"
-                                                className={`${HandleActiveSubMenu(
-                                                    "/test-admin/student"
-                                                )}`}
-                                            >
-                                                Data
-                                            </Link>
-                                            <Link
-                                                href="/test-admin/active-student"
-                                                className={`${HandleActiveSubMenu(
-                                                    "/test-admin/active-student"
-                                                )}`}
-                                            >
-                                                Aktif
-                                            </Link>
-                                        </PopoverContent>
-                                    </Popover>
-                                ) : (
-                                    <FaUsers
-                                        className={` ${
-                                            iconMode
-                                                ? "text-slate-500"
-                                                : "text-slate-500"
-                                        } h-[19px] w-[19px]`}
-                                    />
-                                )}
-                            </div>
-                            {iconMode ? (
-                                ""
-                            ) : (
-                                <h1 className="mt-[4px] text-[15px]">Siswa</h1>
-                            )}
-                        </div>
-                        {iconMode ? (
-                            ""
-                        ) : (
-                            <FiChevronRight
-                                className={`${
-                                    openSubMenu.open &&
-                                    openSubMenu.menuName === "student"
-                                        ? "rotate-[90deg]"
-                                        : ""
-                                } transition-all duration-300`}
-                            />
-                        )}
-                    </div>
-                    {iconMode ? (
-                        ""
-                    ) : (
-                        <div
-                            className={`${
-                                openSubMenu.menuName === "student" &&
-                                openSubMenu.open
-                                    ? "h-[65px] mt-[5px]"
-                                    : "h-0"
-                            } overflow-hidden transition-all duration-500 flex flex-col gap-3 ml-[60px]`}
-                        >
-                            <Link
-                                href="/test-admin/item"
-                                className={`${HandleActiveSubMenu(
-                                    "/test-admin/item"
-                                )}`}
-                            >
-                                Student
-                            </Link>
-                            <Link
-                                href="/test-admin/category"
-                                className={`${HandleActiveSubMenu(
-                                    "/test-admin/category"
-                                )}`}
-                            >
-                                Active Student
-                            </Link>
-                        </div>
-                    )}
                 </div> */}
-                <Link
+
+                {/* <Link
                     href="/dashboard/teacher"
                     className={`${HandleActivePath(
                         "/dashboard/teacher"
@@ -416,12 +500,12 @@ export function Sidebar() {
                     {!iconMode && (
                         <h1 className="mt-[4px] text-[15px]">Guru</h1>
                     )}
-                </Link>
-
+                </Link> */}
+                {/* 
                 <div>
                     <div
                         onClick={() => HandleOpenSubMenu("category & item")}
-                        className={`cursor-pointer ${HandleSubMenuWrapper(
+                        className={`cursor-pointer ${HandleSubMenuWrappers(
                             "link",
                             "/dashboard/item",
                             "/dashboard/category"
@@ -436,7 +520,7 @@ export function Sidebar() {
                                 {iconMode ? (
                                     <Popover>
                                         <PopoverTrigger
-                                            className={`${HandleSubMenuWrapper(
+                                            className={`${HandleSubMenuWrappers(
                                                 "icon",
                                                 "/dashboard/item",
                                                 "/dashboard/category"
@@ -522,8 +606,8 @@ export function Sidebar() {
                             </Link>
                         </div>
                     )}
-                </div>
-                <Link
+                </div> */}
+                {/* <Link
                     href="/dashboard/qr-scan"
                     className={`${HandleActivePath(
                         "/dashboard/qr-scan"
@@ -538,7 +622,7 @@ export function Sidebar() {
                     {!iconMode && (
                         <h1 className="mt-[4px] text-[15px]">QR Scan</h1>
                     )}
-                </Link>
+                </Link> */}
             </div>
         </nav>
     );
