@@ -1,3 +1,4 @@
+import { FaEdit } from "react-icons/fa";
 import React, { useState, useEffect } from "react";
 import {
     Dialog,
@@ -30,7 +31,6 @@ import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { Info } from "lucide-react";
 import { z } from "zod";
-import { FiPlus } from "react-icons/fi";
 import { useItemRefresher } from "@/lib/context/refresherItem";
 
 const formSchema = z.object({
@@ -40,76 +40,68 @@ const formSchema = z.object({
     name: z.string().min(1, {
         message: "Nama Item belum Diisi",
     }),
-    description: z.any().optional(),
+    status: z.string().min(1, {
+        message: "Status belum Diisi",
+    }),
     category: z.any().optional(),
+    description: z.any().optional(),
     image: z.any().optional(),
 });
 
-export function DialogAddItem() {
+export function DialogEditData({ row }) {
     const [openModal, setOpenModal] = useState(false);
-    const [imageFile, setImageFile] = useState(null);
     const [listCategory, setListcategory] = useState([]);
+    const [imageFile, setImageFile] = useState(null);
     const {
         register,
         handleSubmit,
-        reset,
         watch,
+        reset,
         formState: { errors },
     } = useForm();
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            number_id: "",
-            name: "",
-            description: "",
-            category: "",
-            image: "",
+            number_id: row.id_number,
+            name: row.name,
+            description: row.description,
+            status: row.status,
+            // stock: `${stock}`,
+            category: `${row.categories_id}`,
+            image: row.image,
         },
     });
     const inventoryToken = Cookies.get("inventory_token");
     const { refresh } = useItemRefresher();
 
     const onSubmit = async (data) => {
-        const { number_id, name, description, stock, category } = data;
         const formData = new FormData();
-        formData.append("id_number", number_id);
-        formData.append("name", name);
-        formData.append("description", description === "" ? null : description);
+        formData.append("id_number", data.number_id);
+        formData.append("name", data.name);
+        formData.append("description", data.description);
+        formData.append("status", data.status);
         formData.append("categories_id", data.category);
-
-        //formData.append("stock", Number(stock));
-
         if (imageFile) {
             formData.append("image", imageFile);
         }
 
         try {
-            const { data: getUser } = await axios.post(
-                "/api/v1/items/add",
+            const { data: updateItem } = await axios.post(
+                `/api/v1/items/update/${row.id}`,
                 formData,
                 {
                     headers: {
                         Authorization: `Bearer ${inventoryToken}`,
-                        "Content-Type": "multipart/form-data",
-                    }, // const response = await fetch("", {
-                    //     method: "POST",
-                    //     headers: {
-                    //         "Content-Type": "application/json",
-                    //         Accept: "application/json",
-                    //         Authorization: `Bearer ${inventoryToken}`,
-                    //     },
-                    //     body: JSON.stringify({ data: data }),
-                    // });
+                    },
                 }
             );
             setOpenModal(false);
-            form.reset();
-            toast.success("Success Add Categories", {
+            toast.success("Berhasil memperbarui Item", {
                 duration: 3000,
             });
             refresh();
         } catch (error) {
-            toast.error("Failed Add Categories", {
+            toast.error("Gagal Memperbarui Item", {
                 duration: 3000,
             });
             console.log(error);
@@ -121,13 +113,9 @@ export function DialogAddItem() {
         }
     };
 
-    const handleImageChange = (e) => {
-        setImageFile(e.target.files[0]);
-    };
-
     const getAllCategory = async () => {
         try {
-            const { data: getCategory } = await axios("/api/v1/categories", {
+            const { data: getCategory } = await axios(`/api/v1/categories`, {
                 headers: {
                     Authorization: `Bearer ${inventoryToken}`,
                 },
@@ -139,29 +127,31 @@ export function DialogAddItem() {
     };
 
     useEffect(() => {
-        getAllCategory();
-    }, []);
-
-    useEffect(() => {
-        if (!openModal) {
-            form.reset();
-            setImageFile(null);
+        if (openModal) {
+            form.reset({
+                number_id: row.id_number,
+                name: row.name,
+                description: row.description,
+                status: row.status,
+                category: `${row.categories_id}`,
+                image: row.image,
+            });
+            getAllCategory();
         }
-    }, [openModal]);
+    }, [openModal, row, reset]);
 
     return (
         <>
             <Dialog open={openModal} onOpenChange={setOpenModal}>
-                <DialogTrigger className="flex items-center gap-1 bg-violet-500 text-white py-[5px] text-[14px] px-[15px] rounded-[20px] hover:bg-violet-400">
-                    <FiPlus className="h-[16px] w-[16px] " />{" "}
-                    <span className="mt-[3px]">Tambah</span>
+                <DialogTrigger className="bg-violet-500 py-[10px] px-[10px] rounded-sm">
+                    <FaEdit className="text-white h-[14px] w-[14px]" />
                 </DialogTrigger>
                 <DialogContent className="rounded-md py-[25px] px-[23px] h-auto max-[400px]:w-[320px] max-w-[400px]">
                     <DialogHeader>
                         <DialogTitle>
-                            <h1 className="text-center mb-[20px] text-[20px] font-semibold text-neutral-700">
-                                Tambah Item
-                            </h1>
+                            <span className="flex w-full justify-center mb-[20px] text-[20px] font-semibold text-neutral-700">
+                                Edit Item
+                            </span>
                         </DialogTitle>
                     </DialogHeader>
                     <Form {...form}>
@@ -249,7 +239,7 @@ export function DialogAddItem() {
                                                         .stock &&
                                                     "outline-red-500 focus:outline-red-400"
                                                 }`}
-                                                type="text"
+                                                type="number"
                                             />
                                         </FormControl>
                                         {form.formState.errors.stock && (
@@ -261,11 +251,75 @@ export function DialogAddItem() {
                                     </FormItem>
                                 )}
                             /> */}
+
+                            <FormField
+                                control={form.control}
+                                name="status"
+                                render={({ field }) => {
+                                    return (
+                                        <FormItem className="space-y-0">
+                                            <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
+                                                Status{" "}
+                                                <span className="text-red-500">
+                                                    *
+                                                </span>
+                                            </FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                defaultValue={field.value}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger
+                                                        className={`${
+                                                            form.formState
+                                                                .errors
+                                                                .status &&
+                                                            "outline-red-500 focus:outline-red-400"
+                                                        }`}
+                                                    >
+                                                        <SelectValue
+                                                            placeholder="Select Status"
+                                                            className="text-neutral-300"
+                                                        />
+                                                    </SelectTrigger>
+                                                </FormControl>
+
+                                                <SelectContent>
+                                                    <SelectItem
+                                                        value={`available`}
+                                                    >
+                                                        Tersedia
+                                                    </SelectItem>
+                                                    <SelectItem
+                                                        value={`not_available`}
+                                                    >
+                                                        Dipinjam
+                                                    </SelectItem>
+                                                    <SelectItem
+                                                        value={`damaged`}
+                                                    >
+                                                        Rusak
+                                                    </SelectItem>
+                                                    <SelectItem value={`lost`}>
+                                                        Hilang
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </Select>
+
+                                            {form.formState.errors.status && (
+                                                <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
+                                                    <Info size={14} />
+                                                    <FormMessage className="text-[13px] mt-[3px] leading-none" />
+                                                </div>
+                                            )}
+                                        </FormItem>
+                                    );
+                                }}
+                            />
                             <FormField
                                 control={form.control}
                                 name="category"
                                 render={({ field }) => {
-                                    console.log(field);
                                     return (
                                         <FormItem className="space-y-0">
                                             <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
@@ -277,7 +331,7 @@ export function DialogAddItem() {
                                             >
                                                 <FormControl>
                                                     <SelectTrigger
-                                                        className={` [&>span]:text-neutral-400 ${
+                                                        className={`${
                                                             form.formState
                                                                 .errors
                                                                 .category &&
@@ -285,8 +339,8 @@ export function DialogAddItem() {
                                                         }`}
                                                     >
                                                         <SelectValue
-                                                            placeholder="Pilih Kategori"
-                                                            className="text-neutral-400"
+                                                            placeholder="Tambah Kategori"
+                                                            className="text-neutral-300"
                                                         />
                                                     </SelectTrigger>
                                                 </FormControl>
@@ -302,21 +356,15 @@ export function DialogAddItem() {
                                                             </SelectItem>
                                                         )
                                                     )}
-                                                    {/* <SelectItem value="active">
-                                                        Active
-                                                    </SelectItem>
-                                                    <SelectItem value="inactive">
-                                                        In ctive
-                                                    </SelectItem> */}
                                                 </SelectContent>
                                             </Select>
 
-                                            {form.formState.errors.category && (
+                                            {/* {form.formState.errors.category && (
                                                 <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
                                                     <Info size={14} />
                                                     <FormMessage className="text-[13px] mt-[3px] leading-none" />
                                                 </div>
-                                            )}
+                                            )} */}
                                         </FormItem>
                                     );
                                 }}
@@ -339,40 +387,26 @@ export function DialogAddItem() {
                                                     "outline-red-500 focus:outline-red-400"
                                                 }`}
                                             />
+                                            {/* <Input
+                                                type="text"
+                                                placeholder="Catatan. . ."
+                                                {...field}
+                                                className={`${
+                                                    form.formState.errors
+                                                        .description &&
+                                                    "outline-red-500 focus:outline-red-400"
+                                                }`}
+                                            /> */}
                                         </FormControl>
-                                        {form.formState.errors.description && (
+                                        {/* {form.formState.errors.description && (
                                             <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
                                                 <Info size={14} />
                                                 <FormMessage className="text-[13px] mt-[3px] leading-none" />
                                             </div>
-                                        )}
+                                        )} */}
                                     </FormItem>
                                 )}
                             />
-                            {/* <FormField
-                                control={form.control}
-                                name="image"
-                                render={({ field }) => (
-                                    <FormItem className="space-y-0">
-                                        <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Image
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={handleImageChange}
-                                            />
-                                        </FormControl>
-                                        {form.formState.errors.image && (
-                                            <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
-                                                <Info size={14} />
-                                                <FormMessage className="text-[13px] mt-[3px] leading-none" />
-                                            </div>
-                                        )}
-                                    </FormItem>
-                                )}
-                            /> */}
 
                             <div className="flex gap-7  w-full">
                                 <Button
@@ -388,7 +422,7 @@ export function DialogAddItem() {
                                     // disable={isLoading}
                                     type="submit"
                                 >
-                                    <span className="text-lg">Tambah</span>
+                                    <span className="text-lg">Perbarui</span>
                                 </Button>
                             </div>
                         </form>

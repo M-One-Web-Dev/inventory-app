@@ -11,7 +11,7 @@ import {
 import { IoEyeSharp } from "react-icons/io5";
 import { Link } from "@inertiajs/inertia-react";
 
-export function DialogDetailItem({ row }) {
+export function DialogDetailData({ row }) {
     return (
         <Link
             href={`/dashboard/item/${row.id}`}

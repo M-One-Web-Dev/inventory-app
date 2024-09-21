@@ -11,9 +11,9 @@ import {
 } from "../../../ui/index";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import {
-    DialogDeleteItem,
-    DialogEditItem,
-    DialogDetailItem,
+    DialogDeleteData,
+    DialogEditData,
+    DialogDetailData,
 } from "../dialog/index";
 import { FaUserAlt } from "react-icons/fa";
 import { ButtonDownloadPdf } from "../button/ButtonDownloadPdf";
@@ -120,9 +120,9 @@ export const columns = [
             return (
                 <div className="flex items-center gap-2">
                     {/* <ButtonDownloadPdf row={row.original} /> */}
-                    <DialogDetailItem row={row.original} />
-                    <DialogEditItem row={row.original} />
-                    <DialogDeleteItem id={row.original} />
+                    <DialogDetailData row={row.original} />
+                    <DialogEditData row={row.original} />
+                    <DialogDeleteData id={row.original} />
                 </div>
             );
         },

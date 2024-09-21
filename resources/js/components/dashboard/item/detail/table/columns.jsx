@@ -8,28 +8,25 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "../../../ui/index";
+} from "../../../../ui/index";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import { DialogDeleteData } from "../dialog/index";
+import {
+    DialogDeleteData,
+    DialogEditData,
+    DialogDetailBorrowedData,
+} from "../../dialog/index";
 import { FaUserAlt } from "react-icons/fa";
-import { ButtonDownloadPdf } from "../button/ButtonDownloadPdf";
-import SwitchToggle from "../switchToggle/switchToggle";
+import { ButtonDownloadPdf } from "../../button/ButtonDownloadPdf";
 import moment from "moment";
 
 export const columns = [
     {
         accessorKey: "no",
         header: () => <div className="text-center">No</div>,
-        cell: ({ row, table }) => {
-            const pageIndex = table.getState().pagination.pageIndex; // Halaman saat ini
-            const pageSize = table.getState().pagination.pageSize; // Jumlah item per halaman
-            const rowIndex = row.index;
-
-            const itemNumber = pageIndex * pageSize + rowIndex + 1;
-
+        cell: ({ row }) => {
             return (
                 <div className="flex justify-center items-center">
-                    <h1>{itemNumber}</h1>
+                    <h1>{row.index + 1}</h1>
                 </div>
             );
         },
@@ -44,17 +41,15 @@ export const columns = [
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    Nama
+                    Nama Peminjam
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: ({ row }) => {
-            const getName = row.original.username;
-
             return (
                 <div className="text-left font-medium w-[110px] overflow-hidden text-ellipsis  whitespace-nowrap">
-                    {getName}
+                    {row.original.username}
                 </div>
             );
         },
@@ -81,29 +76,6 @@ export const columns = [
         },
     },
     {
-        accessorKey: "item_name",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                >
-                    Nama Barang
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: ({ row }) => {
-            return (
-                <div className="text-center font-medium">
-                    {`${row.original.item_name}`}
-                </div>
-            );
-        },
-    },
-    {
         accessorKey: "borrowed_at",
         header: ({ column }) => {
             return (
@@ -123,13 +95,11 @@ export const columns = [
                 .locale("id")
                 .format("D MMMM YYYY [pukul] HH.mm");
 
-            const getName = row.getValue("borrowed_at");
             return (
                 <div className="text-left font-medium w-[200px]">
                     {formatDate}
                 </div>
             );
-            // return <div className="text-left font-medium">{formatDate}</div>;
         },
     },
     {
@@ -195,34 +165,12 @@ export const columns = [
         },
     },
     {
-        accessorKey: "returned_at",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                >
-                    Atur Status
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: ({ row }) => {
-            return <SwitchToggle row={row.original} />;
-        },
-    },
-    {
         id: "actions",
         header: () => <div className="text-left">Action</div>,
         cell: ({ row }) => {
             return (
                 <div className="flex items-center gap-2">
-                    {/* <ButtonDownloadPdf row={row.original} />
-                    <DialogDetailItem row={row.original} /> */}
-                    {/* <DialogEditTemporary row={row.original} /> */}
-                    <DialogDeleteData id={row.original.id} />
+                    <DialogDetailBorrowedData row={row.original} />
                 </div>
             );
         },

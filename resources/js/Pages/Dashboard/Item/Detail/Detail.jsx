@@ -17,11 +17,8 @@ function Detail() {
                     <h1 className="text-[20px]">Detail Item</h1>
                 </div>
             </div>
-            <div className="pt-[55px] sm:pt-[70px] px-[10px] md:px-[20px]">
-                <div className="pt-[0px] md:px-[50px] shadow-[5px_5px_30px_-5px_#00000024] px-[5px] rounded-md">
-                    <DetailItem />
-                </div>
-            </div>
+
+            <DetailItem />
         </div>
     );
 }

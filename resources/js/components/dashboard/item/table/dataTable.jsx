@@ -22,7 +22,7 @@ import {
     TableRow,
     Pagination,
 } from "../../../ui/index";
-import { DialogAddItem, DialogImportExcel } from "../dialog/index";
+import { DialogAddData, DialogImportExcel } from "../dialog/index";
 import { useForm } from "react-hook-form";
 
 export function DataTable({
@@ -75,7 +75,7 @@ export function DataTable({
                 />
                 <div className="flex items-center gap-2">
                     <DialogImportExcel />
-                    <DialogAddItem />
+                    <DialogAddData />
                 </div>
                 {/* <DropdownMenu>
                     <DropdownMenuTrigger asChild>
