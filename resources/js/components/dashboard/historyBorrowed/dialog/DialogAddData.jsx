@@ -180,6 +180,7 @@ export function DialogAddData() {
     };
 
     const getAllUsers = async () => {
+        setValue("loading_user", true);
         try {
             const { data: getItems } = await axios("/api/v1/list-user", {
                 headers: {
@@ -205,6 +206,8 @@ export function DialogAddData() {
             setValue("list_user", newArr);
         } catch (error) {
             console.log(error);
+        } finally {
+            setValue("loading_user", false);
         }
     };
 
@@ -328,6 +331,13 @@ export function DialogAddData() {
                                 onInputChange={(e) =>
                                     setValue("search_name", e)
                                 }
+                                isLoading={
+                                    watch("loading_user") === undefined ||
+                                    watch("loading_user") === false
+                                        ? false
+                                        : true
+                                }
+                                components={{ LoadingMessage }}
                             />
                         </div>
                         <div>
