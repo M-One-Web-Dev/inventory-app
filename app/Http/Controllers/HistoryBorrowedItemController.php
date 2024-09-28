@@ -20,10 +20,12 @@ public function index()
         
         $historyBorrowedItems = HistoryBorrowedItem::with(['user', 'item'])
             ->when($search, function ($query, $search) {
-                return $query->whereHas('user', function ($q) use ($search) {
-                    $q->where('username', 'like', "%{$search}%");
-                })->orWhereHas('item', function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
+                return $query->where(function ($q) use ($search) {
+                    $q->whereHas('user', function ($q) use ($search) {
+                        $q->where('username', 'like', "%{$search}%");
+                    })->orWhereHas('item', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
                 });
             })
             ->when($userId, function ($query, $userId) {
