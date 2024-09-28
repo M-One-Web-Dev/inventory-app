@@ -53,27 +53,27 @@ export default function TableTemporary() {
         }
     };
 
-    const fetchDates = async () => {
-        try {
-            const response = await axios.get(
-                "/api/v1/temporary/available-dates",
-                {
-                    headers: {
-                        Authorization: `Bearer ${inventoryToken}`,
-                    },
-                }
-            );
-            // if (response.data.status === "success") {
-            //     setDates(response.data.data);
-            // }
-        } catch (error) {
-            console.error("Error fetching dates:", error);
-        }
-    };
+    // const fetchDates = async () => {
+    //     try {
+    //         const response = await axios.get(
+    //             "/api/v1/temporary/available-dates",
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${inventoryToken}`,
+    //                 },
+    //             }
+    //         );
+    //         // if (response.data.status === "success") {
+    //         //     setDates(response.data.data);
+    //         // }
+    //     } catch (error) {
+    //         console.error("Error fetching dates:", error);
+    //     }
+    // };
 
-    useEffect(() => {
-        fetchDates();
-    }, []);
+    // useEffect(() => {
+    //     fetchDates();
+    // }, []);
 
     useEffect(() => {
         const handler = setTimeout(() => {

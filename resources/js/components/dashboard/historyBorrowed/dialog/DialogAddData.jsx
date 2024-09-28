@@ -242,6 +242,16 @@ export function DialogAddData() {
     };
 
     useEffect(() => {
+        setValue("search_name", null);
+        setValue("search_item", null);
+        setValue("debounce_name", null);
+        setValue("debounce_item", null);
+
+        getAllUsers();
+        getAllItems();
+    }, []);
+
+    useEffect(() => {
         const handler = setTimeout(() => {
             setValue("debounce_name", watch("search_name"));
         }, 500);
@@ -262,17 +272,22 @@ export function DialogAddData() {
     }, [watch("search_item")]);
 
     useEffect(() => {
-        getAllUsers(watch("debounce_name"));
+        if (
+            watch("debounce_name") !== null &&
+            watch("debounce_name") === watch("search_name")
+        ) {
+            getAllUsers(watch("debounce_name"));
+        }
     }, [watch("debounce_name")]);
 
     useEffect(() => {
-        getAllItems(watch("debounce_item"));
+        if (
+            watch("debounce_item") !== null &&
+            watch("debounce_item") === watch("search_item")
+        ) {
+            getAllItems(watch("debounce_item"));
+        }
     }, [watch("debounce_item")]);
-
-    useEffect(() => {
-        getAllUsers();
-        getAllItems();
-    }, []);
 
     useEffect(() => {
         if (!openModal) {
