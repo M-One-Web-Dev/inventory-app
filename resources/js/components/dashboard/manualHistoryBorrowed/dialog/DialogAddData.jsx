@@ -88,9 +88,17 @@ const LoadingMessage = (props) => {
 };
 
 const customStyles = {
-    menuPortal: (base) => ({
-        ...base,
-        zIndex: 9999,
+    control: (provided, state) => ({
+        ...provided,
+        borderColor: state.isFocused ? "black" : "gray", // Ubah warna border saat focus dan normal
+        boxShadow: state.isFocused ? "0 0 0 1px black" : "none", // Tambahkan efek shadow saat focus
+        "&:hover": {
+            borderColor: "black", // Ubah warna border saat di-hover
+        },
+    }),
+    menu: (provided) => ({
+        ...provided,
+        zIndex: 9999, // Supaya dropdown tampil di atas komponen lain
     }),
 };
 
