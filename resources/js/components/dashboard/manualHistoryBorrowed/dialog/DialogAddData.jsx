@@ -90,15 +90,15 @@ const LoadingMessage = (props) => {
 const customStyles = {
     control: (provided, state) => ({
         ...provided,
-        borderColor: state.isFocused ? "black" : "gray", // Ubah warna border saat focus dan normal
-        boxShadow: state.isFocused ? "0 0 0 1px black" : "none", // Tambahkan efek shadow saat focus
+        borderColor: state.isFocused ? "black" : "gray",
+        boxShadow: state.isFocused ? "0 0 0 1px black" : "none",
         "&:hover": {
-            borderColor: "black", // Ubah warna border saat di-hover
+            borderColor: "black",
         },
     }),
     menu: (provided) => ({
         ...provided,
-        zIndex: 9999, // Supaya dropdown tampil di atas komponen lain
+        zIndex: 9999,
     }),
 };
 
