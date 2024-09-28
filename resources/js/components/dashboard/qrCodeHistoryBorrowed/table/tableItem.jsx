@@ -32,6 +32,7 @@ export default function TableTemporary() {
                     page,
                     perPage: pagination.perPage,
                     search,
+                    type: "automation",
                 },
             });
             setTemporaryList(getItems?.data);
@@ -86,12 +87,15 @@ export default function TableTemporary() {
     }, [searchTerm]);
 
     useEffect(() => {
-        if (debouncedSearchTerm !== null && debouncedSearchTerm === searchTerm) {
-          setPagination((prev) => ({
-            ...prev,
-            currentPage: 1,
-        }));
-        getAllTemporary(1, debouncedSearchTerm);
+        if (
+            debouncedSearchTerm !== null &&
+            debouncedSearchTerm === searchTerm
+        ) {
+            setPagination((prev) => ({
+                ...prev,
+                currentPage: 1,
+            }));
+            getAllTemporary(1, debouncedSearchTerm);
         }
     }, [debouncedSearchTerm]);
 

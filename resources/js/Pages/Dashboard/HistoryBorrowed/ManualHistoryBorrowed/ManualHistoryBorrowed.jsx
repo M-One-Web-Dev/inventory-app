@@ -1,17 +1,19 @@
 import React, { useRef } from "react";
-import Layout from "../Layout";
+import Layout from "../../Layout";
 import { FiPlus } from "react-icons/fi";
-import TableItem from "@/components/dashboard/item/table/tableItem";
-import TableTemporary from "../../../components/dashboard/manualHistoryBorrowed/table/tableItem";
+import TableTemporary from "../../../../components/dashboard/manualHistoryBorrowed/table/tableItem";
 import { ItemRefresherProvider } from "@/lib/context/refresherItem";
 
-function Setting() {
+function ManualHistoryBorrowed() {
     return (
         <ItemRefresherProvider>
             <div className="relative w-full pb-[20px]">
                 <div className="absolute top-[-40px] w-full px-[10px] md:px-[20px]">
                     <div className="bg-white shadow-[3px_3px_20px_-2px_#00000024]  py-[20px] rounded-md px-[20px]">
-                        <h1 className="text-[20px]">History Borrowed</h1>
+                        <h1 className="text-[20px]">
+                            {" "}
+                            Histori Peminjaman Manual
+                        </h1>
                     </div>
                 </div>
                 <div className="pt-[55px] sm:pt-[70px] px-[10px] md:px-[20px]">
@@ -24,6 +26,8 @@ function Setting() {
     );
 }
 
-Setting.layout = (page) => <Layout children={page} title="Welcome" />;
+ManualHistoryBorrowed.layout = (page) => (
+    <Layout children={page} title="Welcome" />
+);
 
-export default Setting;
+export default ManualHistoryBorrowed;

@@ -107,7 +107,6 @@ Route::get('/dashboard/item', function () {
     return Inertia::render('Dashboard/Item/Item');
 });
 
-
 Route::get('/dashboard/item/{id}', function ($id) {
     return Inertia::render('Dashboard/Item/Detail/Detail', ['id' => $id]);
 })->name('detail');
@@ -118,11 +117,11 @@ Route::get('/dashboard/temporary', function () {
 });
 
 Route::get('/dashboard/manual-borrowed', function () {
-    return Inertia::render('Dashboard/HistoryBorrowed/HistoryBorrowed');
+    return Inertia::render('Dashboard/HistoryBorrowed/ManualHistoryBorrowed/ManualHistoryBorrowed');
 });
 
 Route::get('/dashboard/qr-code-borrowed', function () {
-    return Inertia::render('Dashboard/HistoryBorrowed/HistoryBorrowed');
+    return Inertia::render('Dashboard/HistoryBorrowed/QrCodeHistoryBorrowed/QrCodeHistoryBorrowed');
 });
 
 Route::get('/dashboard/student', function () {

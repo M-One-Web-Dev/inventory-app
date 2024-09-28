@@ -17,7 +17,8 @@ public function index()
         $search = request()->query('search', '');
         $userId = request()->query('user_id', null);  // Ambil user_id jika ada
         $itemId = request()->query('item_id', null);  // Ambil item_id jika ada
-        
+        $type = request()->query('type', null);  // Ambil type jika ada, misalnya 'automation' atau 'manual'
+
         $historyBorrowedItems = HistoryBorrowedItem::with(['user', 'item'])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
@@ -34,6 +35,9 @@ public function index()
             ->when($itemId, function ($query, $itemId) {
                 return $query->where('item_id', $itemId);  // Filter berdasarkan item_id
             })
+            ->when($type, function ($query, $type) {
+                return $query->where('type', $type);  // Filter berdasarkan type
+            })
             ->paginate($perPage);
 
         $formattedItems = $historyBorrowedItems->map(function ($item) {
@@ -48,6 +52,7 @@ public function index()
                 'status' => $item->status,
                 'borrowed_at' => $item->borrowed_at,
                 'returned_at' => $item->returned_at,
+                'type' => $item->type,  // Tambahkan field type di response
             ];
         });
 
