@@ -9,8 +9,8 @@ import { useItemRefresher } from "@/lib/context/refresherItem";
 export default function TableTemporary() {
     const inventoryToken = Cookies.get("inventory_token");
     const [temporaryList, setTemporaryList] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+    const [searchTerm, setSearchTerm] = useState(null);
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(null);
     const [pagination, setPagination] = useState({
         currentPage: 1,
         perPage: 10,
@@ -86,11 +86,13 @@ export default function TableTemporary() {
     }, [searchTerm]);
 
     useEffect(() => {
-        setPagination((prev) => ({
+        if (debouncedSearchTerm !== null && debouncedSearchTerm === searchTerm) {
+          setPagination((prev) => ({
             ...prev,
             currentPage: 1,
         }));
         getAllTemporary(1, debouncedSearchTerm);
+        }
     }, [debouncedSearchTerm]);
 
     useEffect(() => {
