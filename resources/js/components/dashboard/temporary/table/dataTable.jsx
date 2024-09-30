@@ -92,29 +92,34 @@ export function DataTable({
             <div className="rounded-md">
                 <Table>
                     <TableHeader className="px-[5px]">
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead
-                                            className={`${
-                                                header.id === "name" &&
-                                                "sticky left-0 bg-white"
-                                            }`}
-                                            key={header.id}
-                                        >
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                      header.column.columnDef
-                                                          .header,
-                                                      header.getContext()
-                                                  )}
-                                        </TableHead>
-                                    );
-                                })}
-                            </TableRow>
-                        ))}
+                        {table
+                            .getHeaderGroups()
+                            .map((headerGroup, headerGroupIndex) => (
+                                <TableRow key={headerGroupIndex}>
+                                    {headerGroup.headers.map(
+                                        (header, headerIndex) => {
+                                            return (
+                                                <TableHead
+                                                    className={`${
+                                                        header.id === "name" &&
+                                                        "sticky left-0 bg-white"
+                                                    }`}
+                                                    key={headerIndex}
+                                                >
+                                                    {header.isPlaceholder
+                                                        ? null
+                                                        : flexRender(
+                                                              header.column
+                                                                  .columnDef
+                                                                  .header,
+                                                              header.getContext()
+                                                          )}
+                                                </TableHead>
+                                            );
+                                        }
+                                    )}
+                                </TableRow>
+                            ))}
                     </TableHeader>
                     {table.getRowModel().rows.length === 0 ? (
                         <TableBody>
@@ -134,27 +139,29 @@ export function DataTable({
                                     <h1 className="text-white">Memuat...</h1>
                                 </div>
                             )}
-                            {table.getRowModel().rows.map((row) => (
+                            {table.getRowModel().rows.map((row, rowIndex) => (
                                 <TableRow
-                                    key={row.id}
+                                    key={rowIndex}
                                     data-state={
                                         row.getIsSelected() && "selected"
                                     }
                                 >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell
-                                            className={`${
-                                                cell.column.id === "name" &&
-                                                "sticky left-0 bg-white"
-                                            }`}
-                                            key={cell.id}
-                                        >
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </TableCell>
-                                    ))}
+                                    {row
+                                        .getVisibleCells()
+                                        .map((cell, cellIndex) => (
+                                            <TableCell
+                                                className={`${
+                                                    cell.column.id === "name" &&
+                                                    "sticky left-0 bg-white"
+                                                }`}
+                                                key={cellIndex}
+                                            >
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </TableCell>
+                                        ))}
                                 </TableRow>
                             ))}
                         </TableBody>
