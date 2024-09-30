@@ -15,9 +15,9 @@ public function index()
     try {
         $perPage = request()->query('perPage', 10);
         $search = request()->query('search', '');
-        $userId = request()->query('user_id', null);  // Ambil user_id jika ada
-        $itemId = request()->query('item_id', null);  // Ambil item_id jika ada
-        $type = request()->query('type', null);  // Ambil type jika ada, misalnya 'automation' atau 'manual'
+        $userId = request()->query('user_id', null);  
+        $itemId = request()->query('item_id', null);  
+        $type = request()->query('type', null); 
 
         $historyBorrowedItems = HistoryBorrowedItem::with(['user', 'item'])
             ->when($search, function ($query, $search) {

@@ -23,6 +23,76 @@ import { LuChevronsLeft, LuChevronsRight } from "react-icons/lu";
 import { FiChevronRight, FiBox } from "react-icons/fi";
 import { PiUserCircleDashedFill } from "react-icons/pi";
 
+const menuItems = [
+    {
+        name: "Dashboard",
+        icon: <TiHome className="h-[19px] w-[19px]" />,
+        url: "/dashboard",
+    },
+    // {
+    //     name: "Notification",
+    //     icon: <IoMdNotifications className="h-[19px] w-[19px]" />,
+    //     url: "/dashboard/notification",
+    // },
+    // {
+    //     name: "Temporary",
+    //     icon: <PiUserCircleDashedFill className="h-[19px] w-[19px]" />,
+    //     url: "/dashboard/temporary",
+    // },
+    {
+        name: "Siswa",
+        icon: <FaUsers className="h-[19px] w-[19px]" />,
+        subMenu: [
+            {
+                name: "Siswa",
+                url: "/dashboard/student",
+            },
+            {
+                name: "Siswa Aktif",
+                url: "/dashboard/active-student",
+            },
+        ],
+    },
+    {
+        name: "Peminjaman",
+        icon: <FaUsers className="h-[19px] w-[19px]" />,
+        subMenu: [
+            {
+                name: "QR Code",
+                url: "/dashboard/qr-code-borrowed",
+            },
+            {
+                name: "Manual",
+                url: "/dashboard/manual-borrowed",
+            },
+        ],
+    },
+    {
+        name: "Guru",
+        icon: <FaUserAlt className="h-[19px] w-[19px]" />,
+        url: "/dashboard/teacher",
+    },
+    {
+        name: "Barang & Kategori",
+        icon: <BiSolidCategory className="h-[19px] w-[19px]" />,
+        subMenu: [
+            {
+                name: "Barang",
+                url: "/dashboard/item",
+            },
+            {
+                name: "Kategori",
+                url: "/dashboard/category",
+            },
+        ],
+    },
+    {
+        name: "QR Scan",
+        icon: <FaQrcode className="h-[19px] w-[19px]" />,
+        url: "/dashboard/qr-scan",
+    },
+];
+
 export function CustomSheet() {
     const pathname = usePage();
     const [iconMode, setIconMode] = useState(false);
@@ -40,23 +110,20 @@ export function CustomSheet() {
         }
     };
 
-    const HandleSubMenuWrapper = (type, firstUrl, secondUrl) => {
+    const HandleSubMenuWrapper = (type, arrayLinkUrl) => {
+        const findItem = arrayLinkUrl.find((item) => {
+            return item.url === pathname.url;
+        });
+
         switch (type) {
             case "link":
-                if (
-                    (firstUrl === pathname.url || secondUrl === pathname.url) &&
-                    !iconMode
-                ) {
+                if (findItem && !iconMode) {
                     return "text-violet-500 justify-between px-[20px] flex items-center gap-5 border-solid border-l-4 border-violet-400";
                 } else {
                     return "text-slate-500 justify-between px-[20px] flex items-center gap-5 border-solid border-l-4 border-white";
                 }
-
             case "icon":
-                if (
-                    (firstUrl === pathname.url || secondUrl === pathname.url) &&
-                    iconMode
-                ) {
+                if (findItem && iconMode) {
                     return "h-full p-[10px] bg-violet-500 text-white rounded-md";
                 } else {
                     return "h-full p-[10px] bg-slate-200 text-slate-500 rounded-md";
@@ -104,11 +171,10 @@ export function CustomSheet() {
                 <RxHamburgerMenu className="h-[25px] w-[25px] text-white" />
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-auto">
-                {/* <h1>Halo</h1> */}
                 <nav
-                    className={`${
+                    className={` ${
                         iconMode ? "w-[100px]" : "w-[300px]"
-                    } sticky top-0 block min-[1050px]:hidden transition-all duration-300 shadow-[5px_0px_10px_-5px_#00000024] overflow-auto  h-screen pt-[20px]`}
+                    } sticky top-0 block transition-all duration-300 shadow-[5px_0px_10px_-5px_#00000024] overflow-auto h-screen pt-[20px]`}
                 >
                     <div className="flex justify-center text-violet-700 font-medium gap-1 items-center">
                         <FiBox
@@ -118,10 +184,12 @@ export function CustomSheet() {
                                     : "h-[19px] w-[19px]"
                             }`}
                         />
-                        {iconMode ? null : (
+                        {!iconMode && (
                             <h1 className="text-[18px] mt-[5px]">Inventory</h1>
                         )}
                     </div>
+
+                    {/* Icon toggle button */}
                     <div
                         className={`px-[20px] flex items-center mt-[20px] ${
                             iconMode ? "justify-center" : "justify-between"
@@ -134,7 +202,6 @@ export function CustomSheet() {
                         >
                             Dashboard
                         </h1>
-
                         <button onClick={() => setIconMode(!iconMode)}>
                             <LuChevronsLeft
                                 className={`h-[19px] w-[19px] transition-all duration-300 ${
@@ -143,374 +210,583 @@ export function CustomSheet() {
                             />
                         </button>
                     </div>
+
                     <div
                         className={`mt-[25px] flex flex-col gap-5 ${
                             iconMode && "items-center"
                         }`}
                     >
-                        <Link
-                            href="/dashboard"
-                            className={`${HandleActivePath(
-                                "/dashboard"
-                            )} flex items-center gap-5 `}
-                            onClick={() => setSheetOpen(false)}
-                        >
-                            <div className={`${HandleIconColor("/dashboard")}`}>
-                                <TiHome className={`h-[19px] w-[19px]`} />
-                            </div>
-                            {!iconMode && (
-                                <h1 className="mt-[4px] text-[15px]">
-                                    Dashboard
-                                </h1>
-                            )}
-                        </Link>
-                        {/* <Link
-                            href="/test-admin/setting"
-                            className={`${HandleActivePath(
-                                "/test-admin/setting"
-                            )}  flex items-center gap-5 `}
-                        >
-                            <div
-                                className={`${HandleIconColor(
-                                    "/test-admin/setting"
-                                )}
-                        }`}
-                            >
-                                <IoSettingsSharp
-                                    className={` h-[19px] w-[19px]`}
-                                />
-                            </div>
-                            {!iconMode && (
-                                <h1 className="mt-[4px] text-[15px]">
-                                    Setting
-                                </h1>
-                            )}
-                        </Link> */}
-                        <Link
-                            href="/dashboard/notification"
-                            className={`${HandleActivePath(
-                                "/dashboard/notification"
-                            )}  flex items-center gap-5 `}
-                            onClick={() => setSheetOpen(false)}
-                        >
-                            <div
-                                className={`${HandleIconColor(
-                                    "/dashboard/notification"
-                                )}
-                        }`}
-                            >
-                                <IoMdNotifications
-                                    className={` h-[19px] w-[19px]`}
-                                />
-                            </div>
-                            {!iconMode && (
-                                <h1 className="mt-[4px] text-[15px]">
-                                    Notification
-                                </h1>
-                            )}
-                        </Link>
-                        <Link
-                            href="/dashboard/temporary"
-                            className={`${HandleActivePath(
-                                "/dashboard/temporary"
-                            )}  flex items-center gap-5 `}
-                            onClick={() => setSheetOpen(false)}
-                        >
-                            <div
-                                className={`${HandleIconColor(
-                                    "/dashboard/temporary"
-                                )}
-                        }`}
-                            >
-                                <PiUserCircleDashedFill
-                                    className={` h-[19px] w-[19px]`}
-                                />
-                            </div>
-                            {!iconMode && (
-                                <h1 className="mt-[4px] text-[15px]">
-                                    Temporary
-                                </h1>
-                            )}
-                        </Link>
-                        <div>
-                            <div
-                                onClick={() => HandleOpenSubMenu("student")}
-                                className={`cursor-pointer  ${HandleSubMenuWrapper(
-                                    "link",
-                                    "/dashboard/student",
-                                    "/dashboard/active-student"
-                                )}`}
-                            >
-                                <div className="flex items-center gap-5">
-                                    <div
-                                        className={`${
-                                            iconMode
-                                                ? " bg-slate-200 rounded-md"
-                                                : ""
-                                        }`}
-                                    >
-                                        {iconMode ? (
-                                            <Popover>
-                                                <PopoverTrigger
-                                                    className={`${HandleSubMenuWrapper(
-                                                        "icon",
-                                                        "/dashboard/student",
-                                                        "/dashboard/active-student"
-                                                    )}`}
-                                                >
-                                                    <FaUsers
-                                                        className={`h-[19px] w-[19px]`}
+                        {menuItems.map((menu, index) => (
+                            <div key={index}>
+                                {menu.subMenu ? (
+                                    <div>
+                                        <div>
+                                            <div
+                                                onClick={() =>
+                                                    HandleOpenSubMenu(
+                                                        menu?.name
+                                                    )
+                                                }
+                                                className={`cursor-pointer  ${HandleSubMenuWrapper(
+                                                    "link",
+                                                    menu?.subMenu
+                                                )}`}
+                                            >
+                                                <div className="flex items-center gap-5">
+                                                    <div
+                                                        className={`${
+                                                            iconMode
+                                                                ? " bg-slate-200 rounded-md"
+                                                                : ""
+                                                        }`}
+                                                    >
+                                                        {iconMode ? (
+                                                            <Popover>
+                                                                <PopoverTrigger
+                                                                    className={`${HandleSubMenuWrapper(
+                                                                        "icon",
+                                                                        menu?.subMenu
+                                                                    )}`}
+                                                                >
+                                                                    <FaUsers
+                                                                        className={`h-[19px] w-[19px]`}
+                                                                    />
+                                                                </PopoverTrigger>
+                                                                <PopoverContent className="right-[-160px] top-[-44px] flex flex-col py-[5px] w-max">
+                                                                    {menu?.subMenu.map(
+                                                                        (
+                                                                            subMenuItem,
+                                                                            index
+                                                                        ) => (
+                                                                            <Link
+                                                                                key={
+                                                                                    index
+                                                                                }
+                                                                                href={
+                                                                                    subMenuItem.url
+                                                                                }
+                                                                                className={`${HandleActiveSubMenu(
+                                                                                    subMenuItem.url
+                                                                                )}`}
+                                                                                onClick={() =>
+                                                                                    setSheetOpen(
+                                                                                        false
+                                                                                    )
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    subMenuItem.name
+                                                                                }
+                                                                            </Link>
+                                                                        )
+                                                                    )}
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                        ) : (
+                                                            <FaUsers
+                                                                className={`h-[19px] w-[19px]`}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                    {iconMode ? (
+                                                        ""
+                                                    ) : (
+                                                        <h1 className="mt-[4px] text-[15px]">
+                                                            {menu?.name}
+                                                        </h1>
+                                                    )}
+                                                </div>
+                                                {iconMode ? (
+                                                    ""
+                                                ) : (
+                                                    <FiChevronRight
+                                                        className={`${
+                                                            openSubMenu.open &&
+                                                            openSubMenu.menuName ===
+                                                                menu?.name
+                                                                ? "rotate-[90deg]"
+                                                                : ""
+                                                        } transition-all duration-300`}
                                                     />
-                                                </PopoverTrigger>
-                                                <PopoverContent className="right-[-160px] top-[-44px] flex flex-col py-[5px] w-max">
-                                                    <Link
-                                                        href="/dashboard/student"
-                                                        className={`${HandleActiveSubMenu(
-                                                            "/dashboard/student"
-                                                        )}`}
-                                                        onClick={() =>
-                                                            setSheetOpen(false)
-                                                        }
-                                                    >
-                                                        Student
-                                                    </Link>
-                                                    <Link
-                                                        href="/dashboard/active-student"
-                                                        className={`${HandleActiveSubMenu(
-                                                            "/dashboard/active-student"
-                                                        )}`}
-                                                        onClick={() =>
-                                                            setSheetOpen(false)
-                                                        }
-                                                    >
-                                                        Active Student
-                                                    </Link>
-                                                </PopoverContent>
-                                            </Popover>
-                                        ) : (
-                                            <FaUsers
-                                                className={`h-[19px] w-[19px]`}
-                                            />
-                                        )}
-                                    </div>
-                                    {iconMode ? (
-                                        ""
-                                    ) : (
-                                        <h1 className="mt-[4px] text-[15px]">
-                                            Siswa
-                                        </h1>
-                                    )}
-                                </div>
-                                {iconMode ? (
-                                    ""
-                                ) : (
-                                    <FiChevronRight
-                                        className={`${
-                                            openSubMenu.open &&
-                                            openSubMenu.menuName === "student"
-                                                ? "rotate-[90deg]"
-                                                : ""
-                                        } transition-all duration-300`}
-                                    />
-                                )}
-                            </div>
+                                                )}
+                                            </div>
 
-                            {iconMode ? (
-                                ""
-                            ) : (
-                                <div
-                                    className={`${
-                                        openSubMenu.menuName === "student" &&
-                                        openSubMenu.open
-                                            ? "h-[65px] mt-[5px]"
-                                            : "h-0"
-                                    } overflow-hidden transition-all duration-300 flex flex-col gap-3 ml-[60px]`}
-                                >
-                                    <Link
-                                        href="/dashboard/student"
-                                        className={`${HandleActiveSubMenu(
-                                            "/dashboard/student"
-                                        )}`}
-                                        onClick={() => setSheetOpen(false)}
-                                    >
-                                        Student
-                                    </Link>
-                                    <Link
-                                        href="/dashboard/active-student"
-                                        className={`${HandleActiveSubMenu(
-                                            "/dashboard/active-student"
-                                        )}`}
-                                        onClick={() => setSheetOpen(false)}
-                                    >
-                                        Active Student
-                                    </Link>
-                                </div>
-                            )}
-                        </div>
-
-                        <Link
-                            href="/dashboard/teacher"
-                            className={`${HandleActivePath(
-                                "/dashboard/teacher"
-                            )}  flex items-center gap-5 `}
-                            onClick={() => setSheetOpen(false)}
-                        >
-                            <div
-                                className={`${HandleIconColor(
-                                    "/dashboard/teacher"
-                                )}
-                        }`}
-                            >
-                                <FaUserAlt className={` h-[19px] w-[19px]`} />
-                            </div>
-                            {!iconMode && (
-                                <h1 className="mt-[4px] text-[15px]">Guru</h1>
-                            )}
-                        </Link>
-
-                        <div>
-                            <div
-                                onClick={() =>
-                                    HandleOpenSubMenu("category & item")
-                                }
-                                className={`cursor-pointer ${HandleSubMenuWrapper(
-                                    "link",
-                                    "/dashboard/item",
-                                    "/dashboard/category"
-                                )}`}
-                            >
-                                <div className="flex items-center gap-5">
-                                    <div
-                                        className={`${
-                                            iconMode
-                                                ? " bg-slate-200 rounded-md"
-                                                : ""
-                                        }`}
-                                    >
-                                        {iconMode ? (
-                                            <Popover>
-                                                <PopoverTrigger
-                                                    className={`${HandleSubMenuWrapper(
-                                                        "icon",
-                                                        "/dashboard/item",
-                                                        "/dashboard/category"
-                                                    )}`}
+                                            {iconMode ? (
+                                                ""
+                                            ) : (
+                                                <div
+                                                    className={`${
+                                                        openSubMenu.menuName ===
+                                                            menu?.name &&
+                                                        openSubMenu.open
+                                                            ? "h-[65px] mt-[5px]"
+                                                            : "h-0"
+                                                    } overflow-hidden transition-all duration-300 flex flex-col gap-3 ml-[60px]`}
                                                 >
-                                                    <BiSolidCategory
-                                                        className={`h-[19px] w-[19px]`}
-                                                    />
-                                                </PopoverTrigger>
-                                                <PopoverContent className="right-[-120px] top-[-44px] flex flex-col py-[5px] w-max">
-                                                    <Link
-                                                        href="/dashboard/item"
-                                                        className={`${HandleActiveSubMenu(
-                                                            "/dashboard/item"
-                                                        )}`}
-                                                        onClick={() =>
-                                                            setSheetOpen(false)
-                                                        }
-                                                    >
-                                                        Item
-                                                    </Link>
-                                                    <Link
-                                                        href="/dashboard/category"
-                                                        className={`${HandleActiveSubMenu(
-                                                            "/dashboard/category"
-                                                        )}`}
-                                                        onClick={() =>
-                                                            setSheetOpen(false)
-                                                        }
-                                                    >
-                                                        Category
-                                                    </Link>
-                                                </PopoverContent>
-                                            </Popover>
-                                        ) : (
-                                            <BiSolidCategory
-                                                className={`h-[19px] w-[19px]`}
-                                            />
-                                        )}
+                                                    {menu?.subMenu.map(
+                                                        (
+                                                            subMenuItem,
+                                                            index
+                                                        ) => (
+                                                            <Link
+                                                                key={index}
+                                                                href={
+                                                                    subMenuItem.url
+                                                                }
+                                                                className={`${HandleActiveSubMenu(
+                                                                    subMenuItem.url
+                                                                )}`}
+                                                                onClick={() =>
+                                                                    setSheetOpen(
+                                                                        false
+                                                                    )
+                                                                }
+                                                            >
+                                                                {
+                                                                    subMenuItem.name
+                                                                }
+                                                            </Link>
+                                                        )
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                    {iconMode ? (
-                                        ""
-                                    ) : (
-                                        <h1 className="mt-[4px] text-[15px]">
-                                            Item & Category
-                                        </h1>
-                                    )}
-                                </div>
-                                {iconMode ? (
-                                    ""
                                 ) : (
-                                    <FiChevronRight
-                                        className={`${
-                                            openSubMenu.open &&
-                                            openSubMenu.menuName ===
-                                                "category & item"
-                                                ? "rotate-[90deg]"
-                                                : ""
-                                        } transition-all duration-300`}
-                                    />
-                                )}
-                            </div>
-
-                            {iconMode ? (
-                                ""
-                            ) : (
-                                <div
-                                    className={`${
-                                        openSubMenu.menuName ===
-                                            "category & item" &&
-                                        openSubMenu.open
-                                            ? "h-[65px] mt-[5px]"
-                                            : "h-0"
-                                    } overflow-hidden transition-all duration-300 flex flex-col gap-3 ml-[60px]`}
-                                >
                                     <Link
-                                        href="/dashboard/item"
-                                        className={`${HandleActiveSubMenu(
-                                            "/dashboard/item"
+                                        href={menu.url}
+                                        className={`flex items-center gap-5 px-[20px] py-[10px] ${HandleActivePath(
+                                            menu.url
                                         )}`}
                                         onClick={() => setSheetOpen(false)}
                                     >
-                                        Item
+                                        <div
+                                            className={HandleIconColor(
+                                                menu.url
+                                            )}
+                                        >
+                                            {menu.icon}
+                                        </div>
+                                        {!iconMode && <h1>{menu.name}</h1>}
                                     </Link>
-                                    <Link
-                                        href="/dashboard/category"
-                                        className={`${HandleActiveSubMenu(
-                                            "/dashboard/category"
-                                        )}`}
-                                        onClick={() => setSheetOpen(false)}
-                                    >
-                                        Category
-                                    </Link>
-                                </div>
-                            )}
-                        </div>
-                        <Link
-                            href="/dashboard/qr-scan"
-                            className={`${HandleActivePath(
-                                "/dashboard/qr-scan"
-                            )}  flex items-center gap-5 `}
-                            onClick={() => setSheetOpen(false)}
-                        >
-                            <div
-                                className={`${HandleIconColor(
-                                    "/dashboard/qr-scan"
                                 )}
-                        }`}
-                            >
-                                <FaQrcode lassName={` h-[19px] w-[19px]`} />
                             </div>
-                            {!iconMode && (
-                                <h1 className="mt-[4px] text-[15px]">
-                                    QR Scan
-                                </h1>
-                            )}
-                        </Link>
+                        ))}
                     </div>
                 </nav>
             </SheetContent>
         </Sheet>
+        // <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        //     <SheetTrigger className="max-[1050px]:block hidden">
+        //         <RxHamburgerMenu className="h-[25px] w-[25px] text-white" />
+        //     </SheetTrigger>
+        //     <SheetContent side="left" className="p-0 w-auto">
+        //         <nav
+        //             className={`${
+        //                 iconMode ? "w-[100px]" : "w-[300px]"
+        //             } sticky top-0 block min-[1050px]:hidden transition-all duration-300 shadow-[5px_0px_10px_-5px_#00000024] overflow-auto  h-screen pt-[20px]`}
+        //         >
+        //             <div className="flex justify-center text-violet-700 font-medium gap-1 items-center">
+        //                 <FiBox
+        //                     className={`${
+        //                         iconMode
+        //                             ? "h-[25px] w-[25px]"
+        //                             : "h-[19px] w-[19px]"
+        //                     }`}
+        //                 />
+        //                 {iconMode ? null : (
+        //                     <h1 className="text-[18px] mt-[5px]">Inventory</h1>
+        //                 )}
+        //             </div>
+        //             <div
+        //                 className={`px-[20px] flex items-center mt-[20px] ${
+        //                     iconMode ? "justify-center" : "justify-between"
+        //                 }`}
+        //             >
+        //                 <h1
+        //                     className={`${
+        //                         iconMode && "hidden"
+        //                     } text-slate-500 text-[15px]`}
+        //                 >
+        //                     Dashboard
+        //                 </h1>
+
+        //                 <button onClick={() => setIconMode(!iconMode)}>
+        //                     <LuChevronsLeft
+        //                         className={`h-[19px] w-[19px] transition-all duration-300 ${
+        //                             iconMode && "rotate-[180deg]"
+        //                         }`}
+        //                     />
+        //                 </button>
+        //             </div>
+        //             <div
+        //                 className={`mt-[25px] flex flex-col gap-5 ${
+        //                     iconMode && "items-center"
+        //                 }`}
+        //             >
+        //                 <Link
+        //                     href="/dashboard"
+        //                     className={`${HandleActivePath(
+        //                         "/dashboard"
+        //                     )} flex items-center gap-5 `}
+        //                     onClick={() => setSheetOpen(false)}
+        //                 >
+        //                     <div className={`${HandleIconColor("/dashboard")}`}>
+        //                         <TiHome className={`h-[19px] w-[19px]`} />
+        //                     </div>
+        //                     {!iconMode && (
+        //                         <h1 className="mt-[4px] text-[15px]">
+        //                             Dashboard
+        //                         </h1>
+        //                     )}
+        //                 </Link>
+        //                 <Link
+        //                     href="/test-admin/setting"
+        //                     className={`${HandleActivePath(
+        //                         "/test-admin/setting"
+        //                     )}  flex items-center gap-5 `}
+        //                 >
+        //                     <div
+        //                         className={`${HandleIconColor(
+        //                             "/test-admin/setting"
+        //                         )}
+        //                 }`}
+        //                     >
+        //                         <IoSettingsSharp
+        //                             className={` h-[19px] w-[19px]`}
+        //                         />
+        //                     </div>
+        //                     {!iconMode && (
+        //                         <h1 className="mt-[4px] text-[15px]">
+        //                             Setting
+        //                         </h1>
+        //                     )}
+        //                 </Link>
+        //                 <Link
+        //                     href="/dashboard/notification"
+        //                     className={`${HandleActivePath(
+        //                         "/dashboard/notification"
+        //                     )}  flex items-center gap-5 `}
+        //                     onClick={() => setSheetOpen(false)}
+        //                 >
+        //                     <div
+        //                         className={`${HandleIconColor(
+        //                             "/dashboard/notification"
+        //                         )}
+        //                 }`}
+        //                     >
+        //                         <IoMdNotifications
+        //                             className={` h-[19px] w-[19px]`}
+        //                         />
+        //                     </div>
+        //                     {!iconMode && (
+        //                         <h1 className="mt-[4px] text-[15px]">
+        //                             Notification
+        //                         </h1>
+        //                     )}
+        //                 </Link>
+        //                 <Link
+        //                     href="/dashboard/temporary"
+        //                     className={`${HandleActivePath(
+        //                         "/dashboard/temporary"
+        //                     )}  flex items-center gap-5 `}
+        //                     onClick={() => setSheetOpen(false)}
+        //                 >
+        //                     <div
+        //                         className={`${HandleIconColor(
+        //                             "/dashboard/temporary"
+        //                         )}
+        //                 }`}
+        //                     >
+        //                         <PiUserCircleDashedFill
+        //                             className={` h-[19px] w-[19px]`}
+        //                         />
+        //                     </div>
+        //                     {!iconMode && (
+        //                         <h1 className="mt-[4px] text-[15px]">
+        //                             Temporary
+        //                         </h1>
+        //                     )}
+        //                 </Link>
+        //                 <div>
+        //                     <div
+        //                         onClick={() => HandleOpenSubMenu("student")}
+        //                         className={`cursor-pointer  ${HandleSubMenuWrapper(
+        //                             "link",
+        //                             "/dashboard/student",
+        //                             "/dashboard/active-student"
+        //                         )}`}
+        //                     >
+        //                         <div className="flex items-center gap-5">
+        //                             <div
+        //                                 className={`${
+        //                                     iconMode
+        //                                         ? " bg-slate-200 rounded-md"
+        //                                         : ""
+        //                                 }`}
+        //                             >
+        //                                 {iconMode ? (
+        //                                     <Popover>
+        //                                         <PopoverTrigger
+        //                                             className={`${HandleSubMenuWrapper(
+        //                                                 "icon",
+        //                                                 "/dashboard/student",
+        //                                                 "/dashboard/active-student"
+        //                                             )}`}
+        //                                         >
+        //                                             <FaUsers
+        //                                                 className={`h-[19px] w-[19px]`}
+        //                                             />
+        //                                         </PopoverTrigger>
+        //                                         <PopoverContent className="right-[-160px] top-[-44px] flex flex-col py-[5px] w-max">
+        //                                             <Link
+        //                                                 href="/dashboard/student"
+        //                                                 className={`${HandleActiveSubMenu(
+        //                                                     "/dashboard/student"
+        //                                                 )}`}
+        //                                                 onClick={() =>
+        //                                                     setSheetOpen(false)
+        //                                                 }
+        //                                             >
+        //                                                 Student
+        //                                             </Link>
+        //                                             <Link
+        //                                                 href="/dashboard/active-student"
+        //                                                 className={`${HandleActiveSubMenu(
+        //                                                     "/dashboard/active-student"
+        //                                                 )}`}
+        //                                                 onClick={() =>
+        //                                                     setSheetOpen(false)
+        //                                                 }
+        //                                             >
+        //                                                 Active Student
+        //                                             </Link>
+        //                                         </PopoverContent>
+        //                                     </Popover>
+        //                                 ) : (
+        //                                     <FaUsers
+        //                                         className={`h-[19px] w-[19px]`}
+        //                                     />
+        //                                 )}
+        //                             </div>
+        //                             {iconMode ? (
+        //                                 ""
+        //                             ) : (
+        //                                 <h1 className="mt-[4px] text-[15px]">
+        //                                     Siswa
+        //                                 </h1>
+        //                             )}
+        //                         </div>
+        //                         {iconMode ? (
+        //                             ""
+        //                         ) : (
+        //                             <FiChevronRight
+        //                                 className={`${
+        //                                     openSubMenu.open &&
+        //                                     openSubMenu.menuName === "student"
+        //                                         ? "rotate-[90deg]"
+        //                                         : ""
+        //                                 } transition-all duration-300`}
+        //                             />
+        //                         )}
+        //                     </div>
+
+        //                     {iconMode ? (
+        //                         ""
+        //                     ) : (
+        //                         <div
+        //                             className={`${
+        //                                 openSubMenu.menuName === "student" &&
+        //                                 openSubMenu.open
+        //                                     ? "h-[65px] mt-[5px]"
+        //                                     : "h-0"
+        //                             } overflow-hidden transition-all duration-300 flex flex-col gap-3 ml-[60px]`}
+        //                         >
+        //                             <Link
+        //                                 href="/dashboard/student"
+        //                                 className={`${HandleActiveSubMenu(
+        //                                     "/dashboard/student"
+        //                                 )}`}
+        //                                 onClick={() => setSheetOpen(false)}
+        //                             >
+        //                                 Student
+        //                             </Link>
+        //                             <Link
+        //                                 href="/dashboard/active-student"
+        //                                 className={`${HandleActiveSubMenu(
+        //                                     "/dashboard/active-student"
+        //                                 )}`}
+        //                                 onClick={() => setSheetOpen(false)}
+        //                             >
+        //                                 Active Student
+        //                             </Link>
+        //                         </div>
+        //                     )}
+        //                 </div>
+
+        //                 <Link
+        //                     href="/dashboard/teacher"
+        //                     className={`${HandleActivePath(
+        //                         "/dashboard/teacher"
+        //                     )}  flex items-center gap-5 `}
+        //                     onClick={() => setSheetOpen(false)}
+        //                 >
+        //                     <div
+        //                         className={`${HandleIconColor(
+        //                             "/dashboard/teacher"
+        //                         )}
+        //                 }`}
+        //                     >
+        //                         <FaUserAlt className={` h-[19px] w-[19px]`} />
+        //                     </div>
+        //                     {!iconMode && (
+        //                         <h1 className="mt-[4px] text-[15px]">Guru</h1>
+        //                     )}
+        //                 </Link>
+
+        //                 <div>
+        //                     <div
+        //                         onClick={() =>
+        //                             HandleOpenSubMenu("category & item")
+        //                         }
+        //                         className={`cursor-pointer ${HandleSubMenuWrapper(
+        //                             "link",
+        //                             "/dashboard/item",
+        //                             "/dashboard/category"
+        //                         )}`}
+        //                     >
+        //                         <div className="flex items-center gap-5">
+        //                             <div
+        //                                 className={`${
+        //                                     iconMode
+        //                                         ? " bg-slate-200 rounded-md"
+        //                                         : ""
+        //                                 }`}
+        //                             >
+        //                                 {iconMode ? (
+        //                                     <Popover>
+        //                                         <PopoverTrigger
+        //                                             className={`${HandleSubMenuWrapper(
+        //                                                 "icon",
+        //                                                 "/dashboard/item",
+        //                                                 "/dashboard/category"
+        //                                             )}`}
+        //                                         >
+        //                                             <BiSolidCategory
+        //                                                 className={`h-[19px] w-[19px]`}
+        //                                             />
+        //                                         </PopoverTrigger>
+        //                                         <PopoverContent className="right-[-120px] top-[-44px] flex flex-col py-[5px] w-max">
+        //                                             <Link
+        //                                                 href="/dashboard/item"
+        //                                                 className={`${HandleActiveSubMenu(
+        //                                                     "/dashboard/item"
+        //                                                 )}`}
+        //                                                 onClick={() =>
+        //                                                     setSheetOpen(false)
+        //                                                 }
+        //                                             >
+        //                                                 Item
+        //                                             </Link>
+        //                                             <Link
+        //                                                 href="/dashboard/category"
+        //                                                 className={`${HandleActiveSubMenu(
+        //                                                     "/dashboard/category"
+        //                                                 )}`}
+        //                                                 onClick={() =>
+        //                                                     setSheetOpen(false)
+        //                                                 }
+        //                                             >
+        //                                                 Category
+        //                                             </Link>
+        //                                         </PopoverContent>
+        //                                     </Popover>
+        //                                 ) : (
+        //                                     <BiSolidCategory
+        //                                         className={`h-[19px] w-[19px]`}
+        //                                     />
+        //                                 )}
+        //                             </div>
+        //                             {iconMode ? (
+        //                                 ""
+        //                             ) : (
+        //                                 <h1 className="mt-[4px] text-[15px]">
+        //                                     Item & Category
+        //                                 </h1>
+        //                             )}
+        //                         </div>
+        //                         {iconMode ? (
+        //                             ""
+        //                         ) : (
+        //                             <FiChevronRight
+        //                                 className={`${
+        //                                     openSubMenu.open &&
+        //                                     openSubMenu.menuName ===
+        //                                         "category & item"
+        //                                         ? "rotate-[90deg]"
+        //                                         : ""
+        //                                 } transition-all duration-300`}
+        //                             />
+        //                         )}
+        //                     </div>
+
+        //                     {iconMode ? (
+        //                         ""
+        //                     ) : (
+        //                         <div
+        //                             className={`${
+        //                                 openSubMenu.menuName ===
+        //                                     "category & item" &&
+        //                                 openSubMenu.open
+        //                                     ? "h-[65px] mt-[5px]"
+        //                                     : "h-0"
+        //                             } overflow-hidden transition-all duration-300 flex flex-col gap-3 ml-[60px]`}
+        //                         >
+        //                             <Link
+        //                                 href="/dashboard/item"
+        //                                 className={`${HandleActiveSubMenu(
+        //                                     "/dashboard/item"
+        //                                 )}`}
+        //                                 onClick={() => setSheetOpen(false)}
+        //                             >
+        //                                 Item
+        //                             </Link>
+        //                             <Link
+        //                                 href="/dashboard/category"
+        //                                 className={`${HandleActiveSubMenu(
+        //                                     "/dashboard/category"
+        //                                 )}`}
+        //                                 onClick={() => setSheetOpen(false)}
+        //                             >
+        //                                 Category
+        //                             </Link>
+        //                         </div>
+        //                     )}
+        //                 </div>
+        //                 <Link
+        //                     href="/dashboard/qr-scan"
+        //                     className={`${HandleActivePath(
+        //                         "/dashboard/qr-scan"
+        //                     )}  flex items-center gap-5 `}
+        //                     onClick={() => setSheetOpen(false)}
+        //                 >
+        //                     <div
+        //                         className={`${HandleIconColor(
+        //                             "/dashboard/qr-scan"
+        //                         )}
+        //                 }`}
+        //                     >
+        //                         <FaQrcode lassName={` h-[19px] w-[19px]`} />
+        //                     </div>
+        //                     {!iconMode && (
+        //                         <h1 className="mt-[4px] text-[15px]">
+        //                             QR Scan
+        //                         </h1>
+        //                     )}
+        //                 </Link>
+        //             </div>
+        //         </nav>
+        //     </SheetContent>
+        // </Sheet>
     );
 }
