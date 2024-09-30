@@ -8,12 +8,7 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 import {
-    Button,
     Input,
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
     Table,
     TableBody,
     TableCell,
@@ -66,9 +61,6 @@ export function DataTable({
                     onChange={(event) => {
                         const searchValue = event.target.value;
                         setValue("search", searchValue);
-                        // table
-                        //     .getColumn(searchBy)
-                        //     ?.setFilterValue(searchValue);
                         onSearchChange(searchValue);
                     }}
                     className="max-w-sm"
@@ -173,28 +165,6 @@ export function DataTable({
                     onPageChange={onPageChange}
                 />
             </div>
-            {/* <div className="flex items-center justify-end space-x-2 py-4">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                        onPageChange(pagination.currentPage - 1);
-                    }}
-                    disabled={pagination.currentPage === 1}
-                >
-                    Previous
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                        onPageChange(pagination.currentPage + 1);
-                    }}
-                    disabled={pagination.currentPage === pagination.lastPage}
-                >
-                    Next
-                </Button>
-            </div> */}
         </div>
     );
 }

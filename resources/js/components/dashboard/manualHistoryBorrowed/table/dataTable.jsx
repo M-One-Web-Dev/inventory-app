@@ -77,9 +77,6 @@ export function DataTable({
                         onChange={(event) => {
                             const searchValue = event.target.value;
                             setValue("search", searchValue);
-                            // table
-                            //     .getColumn(searchBy)
-                            //     ?.setFilterValue(searchValue);
                             onSearchChange(searchValue);
                         }}
                         className="w-full"
