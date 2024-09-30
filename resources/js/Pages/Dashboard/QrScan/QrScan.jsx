@@ -27,6 +27,34 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import Select from "react-select";
+
+const LoadingMessage = (props) => {
+    return (
+        <div
+            {...props.innerProps}
+            style={props.getStyles("loadingMessage", props)}
+        >
+            Loading...
+        </div>
+    );
+};
+
+const customStyles = {
+    control: (provided, state) => ({
+        ...provided,
+        width: "300px",
+        borderColor: state.isFocused ? "black" : "gray",
+        boxShadow: state.isFocused ? "0 0 0 1px black" : "none",
+        "&:hover": {
+            borderColor: "black",
+        },
+    }),
+    menu: (provided) => ({
+        ...provided,
+        zIndex: 9999,
+    }),
+};
 
 function QrScan() {
     const [isScannerOpen, setIsScannerOpen] = useState(false);
@@ -47,7 +75,7 @@ function QrScan() {
             try {
                 const body = {
                     item_id: Number(data.data),
-                    user_id: watch("student_info")?.value,
+                    user_id: watch("name")?.value,
                 };
                 const { data: postData } = await axios.post(
                     "/api/v1/notification/borrow",
@@ -102,6 +130,8 @@ function QrScan() {
         console.error(err);
     }, []);
 
+    console.log(watch("name"));
+
     const initializeScanner = () => {
         if (qrScannerRef.current) {
             qrScannerRef.current.stop();
@@ -136,46 +166,53 @@ function QrScan() {
         }
     }, [isScannerOpen]);
 
-    const getAllStudent = async (search = "") => {
+    const getAllStudent = async () => {
         try {
-            const { data: getStudent } = await axios("/api/v1/students", {
+            const { data: getData } = await axios("/api/v1/list-user", {
                 headers: {
                     Authorization: `Bearer ${inventoryToken}`,
                 },
                 params: {
                     page: 1,
                     perPage: 10,
-                    search,
+                    search:
+                        watch("search_name") === undefined
+                            ? ""
+                            : watch("search_name"),
                 },
             });
-            const format = getStudent.data.map((item) => ({
-                label: item.name,
-                value: item.user_id,
-            }));
-
-            setStudentList(format);
+            const newArr = getData.data.map((item) => {
+                return {
+                    label: item.username,
+                    value: item.id,
+                    role: item.role,
+                };
+            });
+            setValue("list_user", newArr);
         } catch (error) {
             console.log(error);
             if (error.response.data.message === "Unauthenticated.") {
                 Inertia.visit("/login");
                 return;
             }
+        } finally {
+            setValue("loading_user", false);
         }
     };
 
     useEffect(() => {
         const handler = setTimeout(() => {
-            setDebouncedSearchTerm(searchTerm);
+            setValue("debounce_name", watch("search_name"));
         }, 500);
 
         return () => {
             clearTimeout(handler);
         };
-    }, [searchTerm]);
+    }, [watch("search_name")]);
 
     useEffect(() => {
-        getAllStudent(debouncedSearchTerm);
-    }, [debouncedSearchTerm]);
+        getAllStudent();
+    }, [watch("debounce_name")]);
 
     return (
         <div className="relative w-full pb-[30px]">
@@ -185,7 +222,25 @@ function QrScan() {
                 </div>
             </div>
             <div className="pt-[80px] w-full flex justify-center items-center">
-                <Popover open={open} onOpenChange={setOpen}>
+                <Select
+                    options={watch("list_user") || []}
+                    styles={customStyles}
+                    maxMenuHeight={200}
+                    isClearable={true}
+                    value={watch("name")}
+                    onChange={(value) => {
+                        setValue("name", value);
+                    }}
+                    onInputChange={(e) => setValue("search_name", e)}
+                    isLoading={
+                        watch("loading_user") === undefined ||
+                        watch("loading_user") === false
+                            ? false
+                            : true
+                    }
+                    components={{ LoadingMessage }}
+                />
+                {/* <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                         <Button
                             variant="outline"
@@ -242,7 +297,7 @@ function QrScan() {
                             </CommandList>
                         </Command>
                     </PopoverContent>
-                </Popover>
+                </Popover> */}
             </div>
 
             <div className="pt-[10px] px-[20px]">
