@@ -8,25 +8,13 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 import {
-    Button,
     Input,
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
     Table,
     TableBody,
     TableCell,
     TableHead,
     TableHeader,
     TableRow,
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
     Pagination,
 } from "../../../ui/index";
 import { DialogAddData, DialogImportExcel } from "../dialog/index";
@@ -77,9 +65,6 @@ export function DataTable({
                         onChange={(event) => {
                             const searchValue = event.target.value;
                             setValue("search", searchValue);
-                            // table
-                            //     .getColumn(searchBy)
-                            //     ?.setFilterValue(searchValue);
                             onSearchChange(searchValue);
                         }}
                         className="w-full"

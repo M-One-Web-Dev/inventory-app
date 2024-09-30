@@ -8,25 +8,13 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 import {
-    Button,
     Input,
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
     Table,
     TableBody,
     TableCell,
     TableHead,
     TableHeader,
     TableRow,
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
     Pagination,
 } from "../../../ui/index";
 import { DialogAddTemporary, DialogImportExcel } from "../dialog/index";
@@ -41,7 +29,6 @@ export function DataTable({
     loadingState,
 }) {
     const [sorting, setSorting] = React.useState([]);
-    const [searchBy, setSearchBy] = React.useState("item_name");
     const [columnFilters, setColumnFilters] = React.useState([]);
     const [columnVisibility, setColumnVisibility] = React.useState({});
     const [rowSelection, setRowSelection] = React.useState({});

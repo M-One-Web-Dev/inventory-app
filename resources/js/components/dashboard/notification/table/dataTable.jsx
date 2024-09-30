@@ -9,30 +9,15 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 import {
-    Button,
     Input,
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
     Table,
     TableBody,
     TableCell,
     TableHead,
     TableHeader,
     TableRow,
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
     Pagination,
 } from "../../../ui/index";
-import { DialogAddTeacher } from "../../teacher/dialog/index";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 export function DataTable({
@@ -43,7 +28,6 @@ export function DataTable({
     onSearchChange,
 }) {
     const [sorting, setSorting] = React.useState([]);
-    const [status, setStatus] = React.useState("");
     const [columnFilters, setColumnFilters] = React.useState([]);
     const [columnVisibility, setColumnVisibility] = React.useState({});
     const [rowSelection, setRowSelection] = React.useState({});
@@ -77,9 +61,6 @@ export function DataTable({
                     onChange={(event) => {
                         const searchValue = event.target.value;
                         setValue("search", searchValue);
-                        // table
-                        //     .getColumn(searchBy)
-                        //     ?.setFilterValue(searchValue);
                         onSearchChange(searchValue);
                     }}
                     className="max-w-sm"
@@ -169,29 +150,6 @@ export function DataTable({
                     onPageChange={onPageChange}
                 />
             </div>
-            {/* <div className="flex items-center justify-end space-x-2 py-4">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                        onPageChange(pagination.currentPage - 1);
-                    }}
-                    disabled={pagination.currentPage === 1}
-                >
-                    Previous
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                        // table.nextPage();
-                        onPageChange(pagination.currentPage + 1);
-                    }}
-                    disabled={pagination.currentPage === pagination.lastPage}
-                >
-                    Next
-                </Button>
-            </div> */}
         </div>
     );
 }

@@ -8,12 +8,7 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 import {
-    Button,
     Input,
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
     Table,
     TableBody,
     TableCell,
@@ -66,9 +61,6 @@ export function DataTable({
                     onChange={(event) => {
                         const searchValue = event.target.value;
                         setValue("search", searchValue);
-                        // table
-                        //     .getColumn(searchBy)
-                        //     ?.setFilterValue(searchValue);
                         onSearchChange(searchValue);
                     }}
                     className="max-w-sm"
@@ -77,32 +69,6 @@ export function DataTable({
                     <DialogImportExcel />
                     <DialogAddStudent />
                 </div>
-                {/* <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-auto">
-                            Columns
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {table
-                            .getAllColumns()
-                            .filter((column) => column.getCanHide())
-                            .map((column) => {
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) =>
-                                            column.toggleVisibility(!!value)
-                                        }
-                                    >
-                                        {column.id}
-                                    </DropdownMenuCheckboxItem>
-                                );
-                            })}
-                    </DropdownMenuContent>
-                </DropdownMenu> */}
             </div>
             <div className="rounded-md border">
                 <Table>
@@ -172,30 +138,6 @@ export function DataTable({
                     onPageChange={onPageChange}
                 />
             </div>
-
-            {/* <div className="flex items-center justify-end space-x-2 py-4">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                        onPageChange(pagination.currentPage - 1);
-                    }}
-                    disabled={pagination.currentPage === 1}
-                >
-                    Previous
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                        // table.nextPage();
-                        onPageChange(pagination.currentPage + 1);
-                    }}
-                    disabled={pagination.currentPage === pagination.lastPage}
-                >
-                    Next
-                </Button>
-            </div> */}
         </div>
     );
 }
