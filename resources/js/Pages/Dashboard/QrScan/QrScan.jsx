@@ -2,21 +2,9 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import Layout from "../Layout";
 
 // ui component
-import {
-    Button,
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "../../../components/ui/index";
+import { Button } from "../../../components/ui/index";
 
 // icon
-import { Check, ChevronsUpDown } from "lucide-react";
 import QrCodeIcon from "../../../../../public/img/qr-code.svg";
 
 // other library
@@ -26,7 +14,6 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import Select from "react-select";
 
 const LoadingMessage = (props) => {
@@ -62,10 +49,6 @@ function QrScan() {
     const videoRef = useRef(null);
     const qrScannerRef = useRef(null);
     const inventoryToken = Cookies.get("inventory_token");
-    const [open, setOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [studentList, setStudentList] = useState([]);
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
     const handleScan = useCallback(async (data) => {
         if (data) {
@@ -129,8 +112,6 @@ function QrScan() {
     const handleError = useCallback((err) => {
         console.error(err);
     }, []);
-
-    console.log(watch("name"));
 
     const initializeScanner = () => {
         if (qrScannerRef.current) {
