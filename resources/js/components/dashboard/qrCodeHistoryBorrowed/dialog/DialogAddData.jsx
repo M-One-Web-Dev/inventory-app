@@ -2,45 +2,18 @@ import React, { useState, useEffect } from "react";
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-    Input,
     Button,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
 } from "../../../ui";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Inertia } from "@inertiajs/inertia";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
-import { Info } from "lucide-react";
-import { z } from "zod";
 import { FiPlus } from "react-icons/fi";
 import { useItemRefresher } from "@/lib/context/refresherItem";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
 import Select from "react-select";
 
 const dummyListLevel = [
@@ -57,24 +30,6 @@ const dummyListUserFrom = [
     { label: "PPLG 3", value: "PPLG 3" },
     { label: "PPLG", value: "PPLG" },
 ];
-
-const formSchema = z.object({
-    item_id: z.string().min(1, {
-        message: "Nama Item belum Diisi",
-    }),
-    name: z.string().min(1, {
-        message: "Nama Peminjam belum Diisi",
-    }),
-    student_class: z.string().min(1, {
-        message: "Kelas belum Diisi",
-    }),
-    level: z.string().min(1, {
-        message: "Level belum Diisi",
-    }),
-    borrowing_name: z.string(1, {
-        message: "Nama Peminjam belum Diisi",
-    }),
-});
 
 const LoadingMessage = (props) => {
     return (
@@ -97,30 +52,9 @@ const customStyles = {
 export function DialogAddData() {
     const [openModal, setOpenModal] = useState(false);
     const [imageFile, setImageFile] = useState(null);
-    const [listItems, setListItems] = useState([]);
-    const {
-        reset,
-        watch,
-        setValue,
-        formState: { errors },
-    } = useForm();
-    const form = useForm({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            item_id: "",
-            number_id: "",
-            name: "",
-            phone: "",
-            student_class: "",
-            level: "",
-            borrowing_name: "",
-        },
-    });
-    const [searchTerm, setSearchTerm] = useState("");
-    const [studentList, setStudentList] = useState([]);
+    const { reset, watch, setValue } = useForm();
     const inventoryToken = Cookies.get("inventory_token");
     const { refresh } = useItemRefresher();
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -195,7 +129,6 @@ export function DialogAddData() {
                             : watch("search_name"),
                 },
             });
-            setListItems(getItems?.data);
             const newArr = getItems.data.map((item) => {
                 return {
                     label: item.username,
