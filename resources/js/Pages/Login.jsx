@@ -103,25 +103,28 @@ export default function Login() {
         setIsVerifyLoading(true);
 
         try {
-            const { data: getUser } = await axios("/api/user", {
+            const { data: getUser } = await axios("/api/v1/verify", {
                 headers: {
                     Authorization: `Bearer ${inventoryToken}`,
                 },
             });
 
-            const role = getUser.role;
+            const role = getUser.data.role;
             setCheckRole(true);
-            if (role === "student" || role === "teacher") {
+            if (role === "admin") {
+                Inertia.visit("/dashboard");
+                setIsLoading(false);
+            } else {
                 setIsLoading(false);
                 Inertia.visit("/");
-            } else if (role === "admin") {
-                setIsLoading(false);
-                Inertia.visit("/dashboard");
             }
         } catch (error) {
             setCheckRole(true);
             console.log(error);
-            if (error.response.data.message === "Unauthenticated.") {
+            if (
+                error.response.data.status === "unauthenticated" ||
+                error.response.data.status === "forbidden"
+            ) {
                 if (checkRole) {
                     Inertia.visit("/login");
                 }
