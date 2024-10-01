@@ -114,12 +114,12 @@ public function login(Request $request)
 
     if (!$user) {
         // Error handler ketika username tidak ditemukan
-        return response()->json(['message' => 'Username or password is incorrect'], 401);
+        return response()->json(['status' => 'unauthorized','message' => 'Username or password is incorrect'], 401);
     }
 
     // Error handler ketika user tidak aktif
     if ($user->status !== 'active') {
-        return response()->json(['message' => 'User is not active'], 403);
+        return response()->json(['status' => 'forbidden','message' => 'User is not active'], 403);
     }
 
     // Cek apakah kredensial cocok menggunakan Auth::attempt
@@ -134,7 +134,7 @@ public function login(Request $request)
         ], 200);
     } else {
         // Error handler ketika password salah
-        return response()->json(['message' => 'Username or password is incorrect'], 401);
+        return response()->json(['status' => 'unauthorized','message' => 'Username or password is in'], 401);
     }
 }
 

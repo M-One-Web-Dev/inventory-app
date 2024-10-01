@@ -16,14 +16,14 @@ export default function Layout({ children }) {
     const checkingRole = async () => {
         setIsLoading(true);
         try {
-            const { data: getUser } = await axios.get("/api/user", {
+            const { data: getData } = await axios.get("/api/v1/verify", {
                 headers: {
                     Authorization: `Bearer ${inventoryToken}`,
                 },
             });
 
-            const role = getUser.role;
-            if (role === "student") {
+            const role = getData.data.role;
+            if (role !== "admin") {
                 setIsLoading(false);
                 Inertia.visit("/");
                 return;
@@ -46,24 +46,24 @@ export default function Layout({ children }) {
         checkingRole();
     }, []);
 
-    useEffect(() => {
-        const handleBeforeInstallPrompt = (e) => {
-            e.preventDefault();
-            setShowInstallPopup(true);
-        };
+    // useEffect(() => {
+    //     const handleBeforeInstallPrompt = (e) => {
+    //         e.preventDefault();
+    //         setShowInstallPopup(true);
+    //     };
 
-        window.addEventListener(
-            "beforeinstallprompt",
-            handleBeforeInstallPrompt
-        );
+    //     window.addEventListener(
+    //         "beforeinstallprompt",
+    //         handleBeforeInstallPrompt
+    //     );
 
-        return () => {
-            window.removeEventListener(
-                "beforeinstallprompt",
-                handleBeforeInstallPrompt
-            );
-        };
-    }, []);
+    //     return () => {
+    //         window.removeEventListener(
+    //             "beforeinstallprompt",
+    //             handleBeforeInstallPrompt
+    //         );
+    //     };
+    // }, []);
 
     const handleClosePopup = () => {
         setShowInstallPopup(false);

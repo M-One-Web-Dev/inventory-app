@@ -15,7 +15,7 @@ export default function Layout({ children }) {
     const checkingRole = async () => {
         setIsLoading(true);
         try {
-            const { data: getUser } = await axios.get("/api/user", {
+            const { data: getData } = await axios.get("/api/v1/verify", {
                 headers: {
                     Authorization: `Bearer ${inventoryToken}`,
                 },

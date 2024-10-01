@@ -15,6 +15,7 @@ use App\Http\Controllers\UserImportController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TestUserController;
 use App\Http\Controllers\HistoryBorrowedItemController;
+use App\Http\Controllers\VerifyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestingUploadController;
@@ -39,7 +40,9 @@ Route::post('/test', function (Request $request) {
 
 
 Route::prefix("/v1")->group(function () {
-   Route::controller(ActiveStudentsController::class)->middleware('auth:sanctum')->prefix("/active-students")->group(function () {
+  Route::get('/verify', [VerifyController::class, 'verify'])->middleware('auth:sanctum');
+
+    Route::controller(ActiveStudentsController::class)->middleware('auth:sanctum')->prefix("/active-students")->group(function () {
         Route::get("/", "index");
         Route::post("/add", "create");
         Route::post("/delete", "delete");

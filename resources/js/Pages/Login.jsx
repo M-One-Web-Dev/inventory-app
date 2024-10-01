@@ -85,11 +85,13 @@ export default function Login() {
             }
         } catch (error) {
             setIsLoading(false);
-            if (
-                error.response.data.errors !== undefined ||
-                error.response.data.status === "error"
-            ) {
-                toast.error("Your Username Or Password is Wrong", {
+
+            if (error.response.data.status === "unauthorized") {
+                toast.error("Username atau Password salah", {
+                    duration: 3000,
+                });
+            } else if (error.response.data.status === "forbidden") {
+                toast.error("Kamu belum menjadi Aktif User", {
                     duration: 3000,
                 });
             }
