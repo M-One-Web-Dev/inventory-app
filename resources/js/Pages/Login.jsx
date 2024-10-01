@@ -44,13 +44,13 @@ export default function Login() {
     });
 
     const [isLoading, setIsLoading] = useState(false);
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false); // State untuk mengelola tampilan password
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [verifyLoading, setIsVerifyLoading] = useState(true);
     const [checkRole, setCheckRole] = useState(false);
     const inventoryToken = Cookies.get("inventory_token");
 
     const togglePasswordVisibility = () => {
-        setIsPasswordVisible((prev) => !prev); // Toggle antara true dan false
+        setIsPasswordVisible((prev) => !prev);
     };
 
     const onSubmit = async (data) => {
