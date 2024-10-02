@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActiveStudents;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ActiveUser; 
 use App\Models\User;
+use App\Models\Students;
+use App\Models\Teachers;
 
 class VerifyController extends Controller
 {
@@ -20,19 +23,78 @@ class VerifyController extends Controller
 
         $user = Auth::user();
 
-        $activeUser = ActiveUser::where('user_id', $user->id)->first();
-
-        if (!$activeUser) {
+        if (!$user->status) {
             return response()->json([
                 'status' => 'forbidden',
-                'message' => 'User is not an active user.'
+                'message' => 'User is not active.'
             ], 403);
+        }
+
+        $responseData = [
+            'id' => $user->id,
+            'username' => $user->username, 
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'status' => $user->status,
+        ];
+
+        if ($user->role == 'student') {
+            $student = Students::where('user_id', $user->id)->first();
+            if ($student) {
+                $activeStudent = ActiveStudents::where('student_id', $student->id)->first();
+                if ($activeStudent) {
+                    $responseData = [
+                        'user_id' => $user->id,
+                        'username' => $user->username, 
+                        'user_from' => $activeStudent->class, 
+                        'user_level' => $activeStudent->generation,
+                        'role' => 'student'
+                    ];
+                } else {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Active student details not found.'
+                    ], 404);
+                }
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Student not found.'
+                ], 404);
+            }
+        } elseif ($user->role == 'teacher') {
+            $teacher = Teachers::where('user_id', $user->id)->first();
+            if ($teacher) {
+                $userFrom = $teacher->class ?? null; 
+                $userLevel = $teacher->subject ?? null; 
+                $responseData = [
+                    'user_id' => $user->id,
+                    'username' => $user->username, 
+                    'user_from' => $userFrom, 
+                    'user_level' => $userLevel, 
+                    'role' => 'teacher'
+                ];
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Teacher details not found.'
+                ], 404);
+            }
+        } elseif ($user->role == 'admin') {
+            $responseData = [
+                'user_id' => $user->id,
+                'username' => $user->username, 
+                'user_from' => 'Admin',
+                'user_level' => 'Admin',
+                'role' => 'admin'
+            ];
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'success fetched',
-            'data' => array_merge($activeUser->toArray(), ['role' => $user->role]) 
-        ], 200); 
+            'message' => 'Successfully fetched user details.',
+            'data' => $responseData
+        ], 200);
     }
 }

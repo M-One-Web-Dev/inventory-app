@@ -42,6 +42,8 @@ Route::post('/test', function (Request $request) {
 Route::prefix("/v1")->group(function () {
   Route::get('/verify', [VerifyController::class, 'verify'])->middleware(middleware: 'auth:sanctum');
 
+   Route::get('/verify-second', [VerifyController::class, 'verifySecond'])->middleware(middleware: 'auth:sanctum');
+
     Route::controller(ActiveStudentsController::class)->middleware('auth:sanctum')->prefix("/active-students")->group(function () {
         Route::get("/", "index");
         Route::post("/add", "create");
