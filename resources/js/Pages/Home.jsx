@@ -43,27 +43,28 @@ const Home = () => {
     const qrScannerRef = useRef(null);
     const inventoryToken = Cookies.get("inventory_token");
     const [userId, setUserId] = useState(null);
-    const [userRole, setUserRole] = useState(null);
+    const [userData, setUserData] = useState(null);
     const userIdRef = useRef(userId);
     const { isHomeRendered, renderHome } = useRendered();
 
     const getData = async () => {
         setIsLoading(true);
         try {
-            const { data: getUserId } = await axios("/api/user", {
+            const { data: getData } = await axios("/api/v1/verify", {
                 headers: {
                     Authorization: `Bearer ${inventoryToken}`,
                 },
             });
 
-            setUserId(getUserId.id);
-            setUserRole(getUserId.role);
+            // setUserId(getUserId.id);
+            // setUserRole(getUserId.role);
+            setUserData(getData.data);
             setIsLoading(false);
             renderHome();
-            sessionStorage.setItem(
-                "homeInformation",
-                JSON.stringify({ id: getUserId.id, role: getUserId.role })
-            );
+            // sessionStorage.setItem(
+            //     "homeInformation",
+            //     JSON.stringify({ id: getUserId.id, role: getUserId.role })
+            // );
         } catch (error) {
             console.log(error);
             if (error.response.data.message === "Unauthenticated.") {
@@ -141,14 +142,12 @@ const Home = () => {
         sessionStorage.setItem("previousUrl", url);
         const homeInformation = sessionStorage.getItem("homeInformation");
 
-        const parseObject = JSON.parse(homeInformation);
+        // const parseObject = JSON.parse(homeInformation);
+        // if (previousUrl !== "/") {
+        //     getData();
+        // }
 
-        if (previousUrl !== "/") {
-            getData();
-        } else {
-            setUserId(parseObject.id);
-            setUserRole(parseObject.role);
-        }
+        getData();
     }, [url]);
 
     const handleError = useCallback((err) => {
