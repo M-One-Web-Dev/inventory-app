@@ -44,13 +44,7 @@ const Home = () => {
     const inventoryToken = Cookies.get("inventory_token");
     const [userId, setUserId] = useState(null);
     const [userRole, setUserRole] = useState(null);
-    const [message, setMessage] = useState("");
     const userIdRef = useRef(userId);
-    const [open, setOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [studentList, setStudentList] = useState([]);
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-
     const { isHomeRendered, renderHome } = useRendered();
 
     const getData = async () => {
@@ -219,47 +213,6 @@ const Home = () => {
             console.error("Error getting preferred camera:", error);
         }
     };
-
-    const getAllStudent = async (search = "") => {
-        try {
-            const { data: getStudent } = await axios("/api/v1/students", {
-                headers: {
-                    Authorization: `Bearer ${inventoryToken}`,
-                },
-                params: {
-                    page: 1,
-                    perPage: 10,
-                    search,
-                },
-            });
-            const format = getStudent.data.map((item) => ({
-                label: item.name,
-                value: item.user_id,
-            }));
-
-            setStudentList(format);
-        } catch (error) {
-            console.log(error);
-            if (error.response.data.message === "Unauthenticated.") {
-                Inertia.visit("/login");
-                return;
-            }
-        }
-    };
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedSearchTerm(searchTerm);
-        }, 500);
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [searchTerm]);
-
-    useEffect(() => {
-        getAllStudent(debouncedSearchTerm);
-    }, [debouncedSearchTerm]);
 
     return (
         <>
