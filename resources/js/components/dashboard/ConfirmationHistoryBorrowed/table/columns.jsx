@@ -104,35 +104,6 @@ export const columns = [
         },
     },
     {
-        accessorKey: "borrowed_at",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                >
-                    Waktu Peminjaman
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: ({ row }) => {
-            const formatDate = moment(row.original.borrowed_at)
-                .locale("id")
-                .format("D MMMM YYYY [pukul] HH.mm");
-
-            const getName = row.getValue("borrowed_at");
-            return (
-                <div className="text-left font-medium w-[200px]">
-                    {formatDate}
-                </div>
-            );
-            // return <div className="text-left font-medium">{formatDate}</div>;
-        },
-    },
-    {
         accessorKey: "returned_at",
         header: ({ column }) => {
             return (
@@ -142,16 +113,16 @@ export const columns = [
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    Waktu Pengembalian
+                    Waktu Permintaan Konfirmasi
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: ({ row }) => {
             const formatDate =
-                row.original.returned_at === null
+                row.original.confirmed_at === null
                     ? "-"
-                    : moment(row.original.returned_at)
+                    : moment(row.original.confirmed_at)
                           .locale("id")
                           .format("D MMMM YYYY [pukul] HH.mm");
 
@@ -163,56 +134,6 @@ export const columns = [
             );
         },
     },
-    {
-        accessorKey: "returned_at",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                >
-                    Status
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: ({ row }) => {
-            return (
-                <div
-                    className={`w-max py-[10px] px-[15px] rounded-[50px] ${
-                        row.original.status === "borrowed"
-                            ? "bg-red-600 text-white"
-                            : "bg-violet-500 text-white"
-                    }`}
-                >
-                    {row.original.status === "borrowed"
-                        ? "Masih Dipinjam"
-                        : "Sudah Dikembalikan"}
-                </div>
-            );
-        },
-    },
-    // {
-    //     accessorKey: "returned_at",
-    //     header: ({ column }) => {
-    //         return (
-    //             <Button
-    //                 variant="ghost"
-    //                 onClick={() =>
-    //                     column.toggleSorting(column.getIsSorted() === "asc")
-    //                 }
-    //             >
-    //                 Atur Status
-    //                 <ArrowUpDown className="ml-2 h-4 w-4" />
-    //             </Button>
-    //         );
-    //     },
-    //     cell: ({ row }) => {
-    //         return <SwitchToggle row={row.original} />;
-    //     },
-    // },
     {
         id: "actions",
         header: () => <div className="text-left">Action</div>,
