@@ -111,6 +111,9 @@ function History() {
                     <TabsList>
                         <TabsTrigger value="borrowed">Dipinjam</TabsTrigger>
                         <TabsTrigger value="returned">Dikembalikan</TabsTrigger>
+                        <TabsTrigger value="confirmation">
+                            Konfirmasi
+                        </TabsTrigger>
                     </TabsList>
                     <TabsContent className="w-full" value="borrowed">
                         <div className="w-full flex flex-col gap-4 px-[20px] pb-[0] max-h-[60vh] overflow-auto">
