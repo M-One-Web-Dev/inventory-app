@@ -67,6 +67,7 @@ const Home = () => {
     const [scanStatus, setScanStatus] = useState(null);
     const userRef = useRef(userData);
     const { isHomeRendered, renderHome } = useRendered();
+    const scanStatusRef = useRef(null);
 
     const getData = async () => {
         setIsLoading(true);
@@ -115,63 +116,117 @@ const Home = () => {
             qrScannerRef.current?.stop();
             setIsScannerOpen(false);
             setResult(data);
-            try {
-                const body = {
-                    item_id: data.data,
-                    user_id: userRef.current?.user_id,
-                    borrowed_user_from: userRef.current?.user_from,
-                    borrowed_level: userRef.current?.user_level,
-                    type: "automation",
-                };
-                const { data: postData } = await axios.post(
-                    "/api/v1/history-borrowed/add",
-                    body,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${inventoryToken}`,
-                        },
+            if (scanStatusRef?.current?.value === "borrowed") {
+                try {
+                    const body = {
+                        item_id: data.data,
+                        user_id: userRef.current?.user_id,
+                        borrowed_user_from: userRef.current?.user_from,
+                        borrowed_level: userRef.current?.user_level,
+                        type: "automation",
+                    };
+                    const { data: postData } = await axios.post(
+                        "/api/v1/history-borrowed/add",
+                        body,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${inventoryToken}`,
+                            },
+                        }
+                    );
+                    if (
+                        postData.message.includes(
+                            "You have already borrowed this item."
+                        )
+                    ) {
+                        toast.info("Kamu masih meminjam barang ini");
+                        return;
                     }
-                );
-                if (
-                    postData.message.includes(
-                        "You have already borrowed this item."
-                    )
-                ) {
-                    toast.info("Kamu masih meminjam barang ini");
-                    return;
+                    toast.success("Berhasil pinjam barang");
+                } catch (error) {
+                    if (
+                        error?.response?.data?.message?.includes(
+                            "Item is not available for borrowing"
+                        )
+                    ) {
+                        toast.info("Barang sedang Dipinjam oleh Orang Lain");
+                    } else if (
+                        error?.response?.data?.message?.includes(
+                            "User has already borrowed this item"
+                        )
+                    ) {
+                        toast.info("Kamu sudah Meminjam Barang ini");
+                    } else if (
+                        error?.response?.data?.message?.includes(
+                            "The item id field is required."
+                        )
+                    ) {
+                        toast.info("Kode QR Tidak Sesuai");
+                    } else if (
+                        error?.response?.data?.message?.includes(
+                            "The selected user id is invalid."
+                        )
+                    ) {
+                        toast.warning("User Tidak Sesuai");
+                    } else {
+                        toast.error("Gagal meminjam Barang");
+                    }
+                    console.log(error);
                 }
-                toast.success("Berhasil pinjam barang");
-            } catch (error) {
-                if (
-                    error?.response?.data?.message?.includes(
-                        "Item is not available for borrowing"
-                    )
-                ) {
-                    toast.info("Barang sedang Dipinjam oleh Orang Lain");
-                } else if (
-                    error?.response?.data?.message?.includes(
-                        "User has already borrowed this item"
-                    )
-                ) {
-                    toast.info("Kamu sudah Meminjam Barang ini");
-                } else if (
-                    error?.response?.data?.message?.includes(
-                        "The item id field is required."
-                    )
-                ) {
-                    toast.info("Kode QR Tidak Sesuai");
-                } else if (
-                    error?.response?.data?.message?.includes(
-                        "The selected user id is invalid."
-                    )
-                ) {
-                    toast.warning("User Tidak Sesuai");
-                } else {
-                    toast.error("Gagal meminjam Barang");
+            } else {
+                try {
+                    const body = {
+                        id: data.data,
+                    };
+                    const { data: postData } = await axios.post(
+                        "/api/v1/history-borrowed/add",
+                        body,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${inventoryToken}`,
+                            },
+                        }
+                    );
+                    if (
+                        postData.message.includes(
+                            "You have already borrowed this item."
+                        )
+                    ) {
+                        toast.info("Kamu masih meminjam barang ini");
+                        return;
+                    }
+                    toast.success("Berhasil pinjam barang");
+                } catch (error) {
+                    if (
+                        error?.response?.data?.message?.includes(
+                            "Item is not available for borrowing"
+                        )
+                    ) {
+                        toast.info("Barang sedang Dipinjam oleh Orang Lain");
+                    } else if (
+                        error?.response?.data?.message?.includes(
+                            "User has already borrowed this item"
+                        )
+                    ) {
+                        toast.info("Kamu sudah Meminjam Barang ini");
+                    } else if (
+                        error?.response?.data?.message?.includes(
+                            "The item id field is required."
+                        )
+                    ) {
+                        toast.info("Kode QR Tidak Sesuai");
+                    } else if (
+                        error?.response?.data?.message?.includes(
+                            "The selected user id is invalid."
+                        )
+                    ) {
+                        toast.warning("User Tidak Sesuai");
+                    } else {
+                        toast.error("Gagal meminjam Barang");
+                    }
+                    console.log(error);
                 }
-                console.log(error);
             }
-            console.log(data);
         }
     }, []);
 
@@ -259,14 +314,11 @@ const Home = () => {
                             options={dummyListStatus}
                             styles={customStyles}
                             maxMenuHeight={200}
-                            //   isClearable={true}
                             value={scanStatus}
                             onChange={(value) => {
                                 setScanStatus(value);
+                                scanStatusRef.current = value;
                             }}
-                            // onInputChange={(e) => {
-                            //     console.log(e);
-                            // }}
                         />
                     </div>
                     {isScannerOpen ? (

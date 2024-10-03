@@ -69,8 +69,11 @@ Route::prefix("/v1")->group(function () {
         Route::post("/add", "create");
         Route::post("/update/{id}", "update");
         Route::post("/update-status", "editStatus");
+         Route::post("/confirm-return", "confirmReturn");
+         Route::post("/reject-confirm", "revertToBorrowed");
         Route::post("/delete/{id}", "delete");
     });
+    //editStatusToConfirmation
 
      Route::controller(UserController::class)->middleware('auth:sanctum')->prefix("/list-user")->group(function () {
         Route::get("/", "listUsernames");

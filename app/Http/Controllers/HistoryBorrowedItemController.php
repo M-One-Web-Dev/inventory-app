@@ -318,4 +318,101 @@ public function editStatus(Request $request)
     }
 }
 
+public function confirmReturn(Request $request)
+{
+    // Validasi request
+    $validator = Validator::make($request->all(), [
+        'user_id' => 'required|exists:users,id',
+        'item_id' => 'required|exists:items,id',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Validation error.',
+            'errors' => $validator->errors()
+        ], 400);
+    }
+
+    // Cari data peminjaman berdasarkan user_id, item_id, dan status borrowed
+    $borrowedItem = HistoryBorrowedItem::where('user_id', $request->user_id)
+        ->where('item_id', $request->item_id)
+        ->where('status', 'borrowed') // Memastikan status peminjaman adalah 'borrowed'
+        ->first();
+
+    // Cek apakah item ditemukan
+    if (!$borrowedItem) {
+        return response()->json([
+            'status' => 'not found',
+            'message' => 'No borrowed item found for the provided user and item IDs or the item is not currently borrowed.'
+        ], 404);
+    }
+
+    // Update status menjadi 'confirmation'
+    $borrowedItem->status = 'confirmation';
+    $borrowedItem->confirmed_at = Carbon::now(timezone: 'Asia/Jakarta');
+    $borrowedItem->save();
+
+    // Update status item menjadi 'available' di tabel items
+    $item = Items::find($request->item_id);
+    $item->status = 'not_available';
+    $item->save();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Item return confirmed, and item status updated to available.',
+        'data' => $borrowedItem
+    ], 200);
+}
+
+public function revertToBorrowed(Request $request)
+    {
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'history_borrowed_id' => 'required|exists:history_borrowed_items,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation error.',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+
+        // Mendapatkan record history borrowed berdasarkan id
+        $historyBorrowedItem = HistoryBorrowedItem::find($request->history_borrowed_id);
+
+        if (!$historyBorrowedItem) {
+            return response()->json([
+                'status' => 'not found',
+                'message' => 'History Borrowed Item not found.'
+            ], 404);
+        }
+
+        // Cek apakah status sudah borrowed
+        if ($historyBorrowedItem->status === 'borrowed') {
+            return response()->json([
+                'status' => 'info',
+                'message' => 'The item is already in borrowed status.'
+            ], 200);
+        }
+
+        // Mengubah status menjadi borrowed dan menyimpan waktu
+        $historyBorrowedItem->status = 'borrowed';
+        $historyBorrowedItem->save();
+
+        // Update status item kembali ke available jika diperlukan
+        $item = Items::find($historyBorrowedItem->item_id);
+        if ($item) {
+            $item->status = 'not_available';
+            $item->save();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Item status reverted to borrowed and history updated.',
+            'data' => $historyBorrowedItem
+        ], 200);
+    }
 }
