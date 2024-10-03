@@ -128,8 +128,6 @@ function History() {
         }
     };
 
-    useEffect(() => {}, [url]);
-
     const loadMoreBorrowed = () => {
         setIsLoadingBorrowed(true);
         const nextPage = borrowedPage + 1;
@@ -150,8 +148,6 @@ function History() {
         setConfirmationPage(nextPage);
         fetchHistoryData("confirmation", nextPage);
     };
-
-    console.log(borrowedData);
 
     useEffect(() => {
         const previousUrl = sessionStorage.getItem("previousUrl");
@@ -204,7 +200,7 @@ function History() {
                                             status={item.status}
                                         />
                                     ))}
-                                    {isLoadingBorrowed && <p>Loading...</p>}
+                                    {/* {isLoadingBorrowed && <p>Loading...</p>} */}
                                     {borrowedData.data.length >= 10 &&
                                         borrowedData.pagination.lastPage !==
                                             borrowedData.pagination
@@ -263,36 +259,41 @@ function History() {
                     </TabsContent>
                     <TabsContent className="w-full" value="confirmation">
                         <div className="w-full flex flex-col gap-4 px-[20px] pb-[0] max-h-[66vh] overflow-auto">
-                            {confirmationList.length === 0 ? (
+                            {confirmationData.data.length === 0 ? (
                                 <EmptyHistory />
                             ) : (
                                 <>
-                                    {confirmationList.map((item, index) => (
-                                        <HistoryCard
-                                            key={index}
-                                            id={item.item_id}
-                                            name={item.item_name}
-                                            loan_date={item.loan_date}
-                                            return_date={item.return_date}
-                                            status={item.status}
-                                        />
-                                    ))}
+                                    {confirmationData.data.map(
+                                        (item, index) => (
+                                            <HistoryCard
+                                                key={index}
+                                                id={item.item_id}
+                                                name={item.item_name}
+                                                loan_date={item.loan_date}
+                                                return_date={item.return_date}
+                                                status={item.status}
+                                            />
+                                        )
+                                    )}
                                     {/* {isLoadingReturned && <p>Loading...</p>} */}
-                                    <div className="w-full flex justify-center items-center">
-                                        <Button
-                                            onClick={loadMoreConfirmation}
-                                            className={`text-white rounded w-max ${
-                                                confirmationPage === lastPage
-                                                    ? "hidden"
-                                                    : ""
-                                            }`}
-                                            disabled={isLoadingReturned}
-                                        >
-                                            {isLoadingReturned
-                                                ? "Loading..."
-                                                : "Load More"}
-                                        </Button>
-                                    </div>
+                                    {confirmationData.data.length >= 10 &&
+                                        confirmationData.pagination.lastPage !==
+                                            confirmationData.pagination
+                                                .currentPage && (
+                                            <div className="w-full flex justify-center items-center">
+                                                <Button
+                                                    onClick={
+                                                        loadMoreConfirmation
+                                                    }
+                                                    className={`text-white rounded w-max`}
+                                                    disabled={isLoadingReturned}
+                                                >
+                                                    {isLoadingReturned
+                                                        ? "Loading..."
+                                                        : "Load More"}
+                                                </Button>
+                                            </div>
+                                        )}
                                 </>
                             )}
                         </div>
