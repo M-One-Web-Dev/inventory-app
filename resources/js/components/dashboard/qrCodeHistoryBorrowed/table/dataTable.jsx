@@ -8,6 +8,7 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 import {
+    Button,
     Input,
     Table,
     TableBody,
@@ -20,6 +21,7 @@ import {
 import { DialogAddData, DialogImportExcel } from "../dialog/index";
 import { useForm } from "react-hook-form";
 import LoadingGif from "@/assets/loading.gif";
+import { MdFilterListAlt } from "react-icons/md";
 
 export function DataTable({
     columns,
@@ -72,7 +74,10 @@ export function DataTable({
                 </div>
                 <div className="px-[10px] md:px-0 flex justify-end items-end gap-2 w-full">
                     {/* <DialogImportExcel /> */}
-                    <DialogAddData />
+                    <Button className="flex items-center gap-1">
+                        <MdFilterListAlt className="text-white" />
+                        <span className="pt-[4px]">Filter</span>
+                    </Button>
                 </div>
             </div>
             <div className="rounded-md">
