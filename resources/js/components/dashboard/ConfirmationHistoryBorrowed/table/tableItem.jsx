@@ -6,7 +6,7 @@ import { Inertia } from "@inertiajs/inertia";
 import Cookies from "js-cookie";
 import { useItemRefresher } from "@/lib/context/refresherItem";
 
-export default function TableTemporary() {
+export default function TableConfirmation() {
     const inventoryToken = Cookies.get("inventory_token");
     const [temporaryList, setTemporaryList] = useState([]);
     const [searchTerm, setSearchTerm] = useState(null);
@@ -32,7 +32,7 @@ export default function TableTemporary() {
                     page,
                     perPage: pagination.perPage,
                     search,
-                    status: "",
+                    status: "confirmation",
                     type: "automation",
                 },
             });

@@ -17,7 +17,8 @@ public function index()
         $search = request()->query('search', '');
         $userId = request()->query('user_id', null);  
         $itemId = request()->query('item_id', null);  
-        $type = request()->query('type', null); 
+        $type = request()->query('type', null);  
+        $status = request()->query('status', '');  // Tambahkan filter status
 
         $historyBorrowedItems = HistoryBorrowedItem::with(['user', 'item'])
             ->when($search, function ($query, $search) {
@@ -38,6 +39,9 @@ public function index()
             ->when($type, function ($query, $type) {
                 return $query->where('type', $type);  // Filter berdasarkan type
             })
+            ->when($status, function ($query, $status) {  // Tambahkan filter berdasarkan status
+                return $query->where('status', 'like', "%{$status}%");
+            })
             ->paginate($perPage);
 
         $formattedItems = $historyBorrowedItems->map(function ($item) {
@@ -49,10 +53,10 @@ public function index()
                 "item_id" => $item->item->id,
                 'borrowed_user_from' => $item->borrowed_user_from,
                 'borrowed_level' => $item->borrowed_level,
-                'status' => $item->status,
+                'status' => $item->status,  // Tambahkan field status di response
                 'borrowed_at' => $item->borrowed_at,
                 'returned_at' => $item->returned_at,
-                'type' => $item->type,  // Tambahkan field type di response
+                'type' => $item->type,
             ];
         });
 
@@ -79,18 +83,17 @@ public function index()
     }
 }
 
+
 public function create(Request $request)
 {
-    // Validasi input
     $validator = Validator::make($request->all(), [
         'user_id' => 'required|exists:users,id',
-        'item_id' => 'required|exists:items,id',
+        'item_id' => 'required',
         'borrowed_user_from' => 'nullable|string',
         'borrowed_level' => 'nullable|string',
         'type' => 'required|in:automation,manual',
     ]);
 
-    // Jika validasi gagal
     if ($validator->fails()) {
         return response()->json([
             'status' => 'error',
@@ -99,12 +102,31 @@ public function create(Request $request)
         ], 400);
     }
 
-    // Cek apakah item saat ini sudah dipinjam oleh pengguna lain
+    $item = Items::find($request->item_id);
+
+    if (!$item) {
+        return response()->json([
+            'status' => 'not found',
+            'message' => 'The item with the provided ID is not registered in the list.'
+        ], 404);
+    }
+
+    $userAlreadyBorrowed = HistoryBorrowedItem::where('user_id', $request->user_id)
+        ->where('item_id', $request->item_id)
+        ->where('status', 'borrowed')
+        ->exists();
+
+    if ($userAlreadyBorrowed) {
+        return response()->json([
+            'status' => 'info',
+            'message' => 'You have already borrowed this item.'
+        ], 200);
+    }
+
     $isCurrentlyBorrowed = HistoryBorrowedItem::where('item_id', $request->item_id)
         ->where('status', 'borrowed')
         ->exists();
 
-    // Jika item sudah dipinjam
     if ($isCurrentlyBorrowed) {
         return response()->json([
             'status' => 'info',
@@ -112,7 +134,6 @@ public function create(Request $request)
         ], 200);
     }
 
-    // Buat riwayat peminjaman baru
     $historyBorrowedItem = HistoryBorrowedItem::create([
         'user_id' => $request->user_id,
         'item_id' => $request->item_id,
@@ -120,13 +141,11 @@ public function create(Request $request)
         'borrowed_level' => $request->borrowed_level,
         'status' => 'borrowed',
         'type' => $request->type,
-        'borrowed_at' => Carbon::now('Asia/Jakarta')
+        'borrowed_at' => Carbon::now(timezone: 'Asia/Jakarta')
     ]);
 
-    // Ubah status item menjadi "not_available"
-    $item = Items::find($request->item_id);
     $item->status = 'not_available';
-    $item->save(); // Simpan perubahan status item
+    $item->save(); 
 
     return response()->json([
         'status' => 'success',

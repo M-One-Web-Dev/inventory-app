@@ -44,7 +44,7 @@ const Home = () => {
     const inventoryToken = Cookies.get("inventory_token");
     const [userId, setUserId] = useState(null);
     const [userData, setUserData] = useState(null);
-    const userIdRef = useRef(userId);
+    const userRef = useRef(userData);
     const { isHomeRendered, renderHome } = useRendered();
 
     const getData = async () => {
@@ -75,6 +75,19 @@ const Home = () => {
         }
     };
 
+    useEffect(() => {
+        const previousUrl = sessionStorage.getItem("previousUrl");
+        sessionStorage.setItem("previousUrl", url);
+        const homeInformation = sessionStorage.getItem("homeInformation");
+
+        // const parseObject = JSON.parse(homeInformation);
+        // if (previousUrl !== "/") {
+        //     getData();
+        // }
+
+        getData();
+    }, [url]);
+
     const handleScan = useCallback(async (data) => {
         if (data) {
             setAlertOpen(true);
@@ -83,14 +96,14 @@ const Home = () => {
             setResult(data);
             try {
                 const body = {
-                    item_id: Number(data.data),
-                    user_id:
-                        watch("student_info") !== undefined
-                            ? watch("student_info").value
-                            : userIdRef.current,
+                    item_id: data.data,
+                    user_id: userRef.current?.user_id,
+                    borrowed_user_from: userRef.current?.user_from,
+                    borrowed_level: userRef.current?.user_level,
+                    type: "automation",
                 };
                 const { data: postData } = await axios.post(
-                    "/api/v1/notification/borrow",
+                    "/api/v1/history-borrowed/add",
                     body,
                     {
                         headers: {
@@ -98,6 +111,14 @@ const Home = () => {
                         },
                     }
                 );
+                if (
+                    postData.message.includes(
+                        "You have already borrowed this item."
+                    )
+                ) {
+                    toast.info("Kamu masih meminjam barang ini");
+                    return;
+                }
                 toast.success("Berhasil pinjam barang");
             } catch (error) {
                 if (
@@ -134,21 +155,8 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
-        userIdRef.current = userId;
-    }, [userId]);
-
-    useEffect(() => {
-        const previousUrl = sessionStorage.getItem("previousUrl");
-        sessionStorage.setItem("previousUrl", url);
-        const homeInformation = sessionStorage.getItem("homeInformation");
-
-        // const parseObject = JSON.parse(homeInformation);
-        // if (previousUrl !== "/") {
-        //     getData();
-        // }
-
-        getData();
-    }, [url]);
+        userRef.current = userData;
+    }, [userData]);
 
     const handleError = useCallback((err) => {
         console.error(err);
