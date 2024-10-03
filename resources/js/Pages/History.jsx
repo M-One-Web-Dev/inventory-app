@@ -18,7 +18,6 @@ import { useRendered } from "@/lib/context/renderedHome";
 
 function History() {
     const { url } = usePage();
-    const [isVerifyUser, setIsVerifyUser] = useState(true);
     const inventoryToken = Cookies.get("inventory_token");
     const [borrowedData, setBorrowedData] = useState({
         data: [],
@@ -50,20 +49,12 @@ function History() {
             totalPages: 0,
         },
     });
-    // const [returnedData, setReturnedData] = useState(null);
-    // const [confirmationData, setConfirmationData] = useState(null);
-    const [lastPage, setLastPage] = useState(1);
-    const [borrowedList, setBorrowedList] = useState([]);
-    const [returnedList, setReturnedList] = useState([]);
-    const [confirmationList, setConfirmationList] = useState([]);
     const [borrowedPage, setBorrowedPage] = useState(1);
     const [returnedPage, setReturnedPage] = useState(1);
     const [confirmationPage, setConfirmationPage] = useState(1);
     const [isLoadingBorrowed, setIsLoadingBorrowed] = useState(false);
     const [isLoadingReturned, setIsLoadingReturned] = useState(false);
     const [isLoadingConfirmation, setIsLoadingConfirmation] = useState(false);
-
-    const { isHistoryRendered, renderHistory } = useRendered();
 
     const fetchHistoryData = async (status, page) => {
         try {
@@ -122,7 +113,7 @@ function History() {
             console.log(error);
             if (error.response.data.message === "Unauthenticated.") {
                 Inertia.visit("/login");
-                setIsVerifyUser(false);
+                // setIsVerifyUser(false);
                 return;
             }
         }
@@ -150,13 +141,13 @@ function History() {
     };
 
     useEffect(() => {
-        const previousUrl = sessionStorage.getItem("previousUrl");
-        sessionStorage.setItem("previousUrl", url);
-        const storedBorrowedHistory = sessionStorage.getItem("historyBorrowed");
-        const storedReturnedHistory = sessionStorage.getItem("historyReturned");
-        const storedConfirmationHistory = sessionStorage.getItem(
-            "historyConfirmation"
-        );
+        // const previousUrl = sessionStorage.getItem("previousUrl");
+        // sessionStorage.setItem("previousUrl", url);
+        // const storedBorrowedHistory = sessionStorage.getItem("historyBorrowed");
+        // const storedReturnedHistory = sessionStorage.getItem("historyReturned");
+        // const storedConfirmationHistory = sessionStorage.getItem(
+        //     "historyConfirmation"
+        // );
 
         //    if (previousUrl !== "/history") {
         fetchHistoryData("borrowed", borrowedPage);
@@ -207,11 +198,7 @@ function History() {
                                                 .currentPage && (
                                             <Button
                                                 onClick={loadMoreBorrowed}
-                                                className={`text-white rounded w-max ${
-                                                    borrowedPage === lastPage
-                                                        ? "hidden"
-                                                        : ""
-                                                }`}
+                                                className={`text-white rounded w-max `}
                                             >
                                                 Load More
                                             </Button>
