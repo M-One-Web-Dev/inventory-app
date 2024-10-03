@@ -17,7 +17,6 @@ import {
     TableRow,
     Pagination,
 } from "../../../ui/index";
-import { DialogAddData, DialogImportExcel } from "../dialog/index";
 import { useForm } from "react-hook-form";
 import LoadingGif from "@/assets/loading.gif";
 
@@ -30,7 +29,6 @@ export function DataTable({
     loadingState,
 }) {
     const [sorting, setSorting] = React.useState([]);
-    const [searchBy, setSearchBy] = React.useState("item_name");
     const [columnFilters, setColumnFilters] = React.useState([]);
     const [columnVisibility, setColumnVisibility] = React.useState({});
     const [rowSelection, setRowSelection] = React.useState({});
@@ -71,8 +69,7 @@ export function DataTable({
                     />
                 </div>
                 <div className="px-[10px] md:px-0 flex justify-end items-end gap-2 w-full">
-                    {/* <DialogImportExcel /> */}
-                    {/* <DialogAddData /> */}
+                    {/* for action */}
                 </div>
             </div>
             <div className="rounded-md">

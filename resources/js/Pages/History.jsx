@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-    Navigation,
     Tabs,
     Button,
     TabsContent,
@@ -14,7 +13,6 @@ import { Header, HistoryCard } from "../components/section/index";
 import { History as HistoryIcon } from "lucide-react";
 import Layout from "./Layout";
 import { usePage } from "@inertiajs/inertia-react";
-import { useRendered } from "@/lib/context/renderedHome";
 
 function History() {
     const { url } = usePage();

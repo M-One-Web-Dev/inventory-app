@@ -1,23 +1,10 @@
 import React from "react";
+import { Button } from "../../../ui/index";
+import { ArrowUpDown } from "lucide-react";
 import {
-    Checkbox,
-    Button,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "../../../ui/index";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import {
-    DialogDeleteData,
     DialogAcceptConfirmation,
     DialogRejectConfirmation,
 } from "../dialog/index";
-import { FaUserAlt } from "react-icons/fa";
-import { ButtonDownloadPdf } from "../button/ButtonDownloadPdf";
-import SwitchToggle from "../switchToggle/switchToggle";
 import moment from "moment";
 
 export const columns = [

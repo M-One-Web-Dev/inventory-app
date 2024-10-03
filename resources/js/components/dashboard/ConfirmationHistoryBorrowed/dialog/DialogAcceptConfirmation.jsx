@@ -8,10 +8,8 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "../../../ui";
-import { FaTrash } from "react-icons/fa";
 import { FaCheck } from "react-icons/fa6";
 import axios from "axios";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Inertia } from "@inertiajs/inertia";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
