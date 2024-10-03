@@ -20,44 +20,103 @@ function History() {
     const { url } = usePage();
     const [isVerifyUser, setIsVerifyUser] = useState(true);
     const inventoryToken = Cookies.get("inventory_token");
+    const [borrowedData, setBorrowedData] = useState({
+        data: [],
+        pagination: {
+            total: 0,
+            perPage: 0,
+            currentPage: 0,
+            lastPage: 0,
+            totalPages: 0,
+        },
+    });
+    const [returnedData, setReturnedData] = useState({
+        data: [],
+        pagination: {
+            total: 0,
+            perPage: 0,
+            currentPage: 0,
+            lastPage: 0,
+            totalPages: 0,
+        },
+    });
+    const [confirmationData, setConfirmationData] = useState({
+        data: [],
+        pagination: {
+            total: 0,
+            perPage: 0,
+            currentPage: 0,
+            lastPage: 0,
+            totalPages: 0,
+        },
+    });
+    // const [returnedData, setReturnedData] = useState(null);
+    // const [confirmationData, setConfirmationData] = useState(null);
     const [lastPage, setLastPage] = useState(1);
     const [borrowedList, setBorrowedList] = useState([]);
     const [returnedList, setReturnedList] = useState([]);
+    const [confirmationList, setConfirmationList] = useState([]);
     const [borrowedPage, setBorrowedPage] = useState(1);
     const [returnedPage, setReturnedPage] = useState(1);
+    const [confirmationPage, setConfirmationPage] = useState(1);
     const [isLoadingBorrowed, setIsLoadingBorrowed] = useState(false);
     const [isLoadingReturned, setIsLoadingReturned] = useState(false);
+    const [isLoadingConfirmation, setIsLoadingConfirmation] = useState(false);
+
     const { isHistoryRendered, renderHistory } = useRendered();
 
     const fetchHistoryData = async (status, page) => {
         try {
-            const { data: getUser } = await axios.get("/api/v1/history", {
-                headers: {
-                    Authorization: `Bearer ${inventoryToken}`,
-                },
-                params: {
-                    status: status,
-                    page: page,
-                    per_page: 10,
-                },
-            });
-
-            setLastPage(getUser?.pagination?.last_page);
+            const { data: getUser } = await axios.get(
+                "/api/v1/history-borrowed",
+                {
+                    headers: {
+                        Authorization: `Bearer ${inventoryToken}`,
+                    },
+                    params: {
+                        status: status,
+                        page: page,
+                        per_page: 10,
+                    },
+                }
+            );
 
             if (status === "borrowed") {
-                setBorrowedList((prev) => [...prev, ...getUser.data]);
+                setBorrowedData((prev) => ({
+                    data: [...prev.data, ...getUser.data],
+                    pagination: {
+                        total: getUser.pagination.total,
+                        perPage: getUser.pagination.perPage,
+                        currentPage: getUser.pagination.currentPage,
+                        lastPage: getUser.pagination.lastPage,
+                        totalPages: getUser.pagination.totalPages,
+                    },
+                }));
                 setIsLoadingBorrowed(false);
-                sessionStorage.setItem(
-                    "historyBorrowed",
-                    JSON.stringify(getUser.data)
-                );
             } else if (status === "returned") {
-                setReturnedList((prev) => [...prev, ...getUser.data]);
+                setReturnedData((prev) => ({
+                    data: [...prev.data, ...getUser.data],
+                    pagination: {
+                        total: getUser.pagination.total,
+                        perPage: getUser.pagination.perPage,
+                        currentPage: getUser.pagination.currentPage,
+                        lastPage: getUser.pagination.lastPage,
+                        totalPages: getUser.pagination.totalPages,
+                    },
+                }));
                 setIsLoadingReturned(false);
-                sessionStorage.setItem(
-                    "historyReturned",
-                    JSON.stringify(getUser.data)
-                );
+            } else if (status === "confirmation") {
+                setConfirmationData((prev) => ({
+                    data: [...prev.data, ...getUser.data],
+                    pagination: {
+                        total: getUser.pagination.total,
+                        perPage: getUser.pagination.perPage,
+                        currentPage: getUser.pagination.currentPage,
+                        lastPage: getUser.pagination.lastPage,
+                        totalPages: getUser.pagination.totalPages,
+                    },
+                }));
+                setIsLoadingConfirmation(false);
             }
         } catch (error) {
             console.log(error);
@@ -85,19 +144,33 @@ function History() {
         fetchHistoryData("returned", nextPage);
     };
 
+    const loadMoreConfirmation = () => {
+        setIsLoadingConfirmation(true);
+        const nextPage = returnedPage + 1;
+        setConfirmationPage(nextPage);
+        fetchHistoryData("confirmation", nextPage);
+    };
+
+    console.log(borrowedData);
+
     useEffect(() => {
         const previousUrl = sessionStorage.getItem("previousUrl");
         sessionStorage.setItem("previousUrl", url);
         const storedBorrowedHistory = sessionStorage.getItem("historyBorrowed");
         const storedReturnedHistory = sessionStorage.getItem("historyReturned");
+        const storedConfirmationHistory = sessionStorage.getItem(
+            "historyConfirmation"
+        );
 
-        if (previousUrl !== "/history") {
-            fetchHistoryData("borrowed", borrowedPage);
-            fetchHistoryData("returned", returnedPage);
-        } else {
-            setBorrowedList(JSON.parse(storedBorrowedHistory));
-            setReturnedList(JSON.parse(storedReturnedHistory));
-        }
+        //    if (previousUrl !== "/history") {
+        fetchHistoryData("borrowed", borrowedPage);
+        fetchHistoryData("returned", returnedPage);
+        fetchHistoryData("confirmation", confirmationPage);
+        // } else {
+        //     setBorrowedList(JSON.parse(storedBorrowedHistory));
+        //     setReturnedList(JSON.parse(storedReturnedHistory));
+        //     setReturnedList(JSON.parse(storedConfirmationHistory));
+        // }
     }, [url]);
 
     return (
@@ -117,11 +190,11 @@ function History() {
                     </TabsList>
                     <TabsContent className="w-full" value="borrowed">
                         <div className="w-full flex flex-col gap-4 px-[20px] pb-[0] max-h-[60vh] overflow-auto">
-                            {borrowedList.length === 0 ? (
+                            {borrowedData.data.length === 0 ? (
                                 <EmptyHistory />
                             ) : (
                                 <>
-                                    {borrowedList.map((item, index) => (
+                                    {borrowedData.data.map((item, index) => (
                                         <HistoryCard
                                             key={index}
                                             id={item.item_id}
@@ -132,27 +205,69 @@ function History() {
                                         />
                                     ))}
                                     {isLoadingBorrowed && <p>Loading...</p>}
-                                    <Button
-                                        onClick={loadMoreBorrowed}
-                                        className={`text-white rounded w-max ${
-                                            borrowedPage === lastPage
-                                                ? "hidden"
-                                                : ""
-                                        }`}
-                                    >
-                                        Load More
-                                    </Button>
+                                    {borrowedData.data.length >= 10 &&
+                                        borrowedData.pagination.lastPage !==
+                                            borrowedData.pagination
+                                                .currentPage && (
+                                            <Button
+                                                onClick={loadMoreBorrowed}
+                                                className={`text-white rounded w-max ${
+                                                    borrowedPage === lastPage
+                                                        ? "hidden"
+                                                        : ""
+                                                }`}
+                                            >
+                                                Load More
+                                            </Button>
+                                        )}
                                 </>
                             )}
                         </div>
                     </TabsContent>
                     <TabsContent className="w-full" value="returned">
                         <div className="w-full flex flex-col gap-4 px-[20px] pb-[0] max-h-[66vh] overflow-auto">
-                            {returnedList.length === 0 ? (
+                            {returnedData.data.length === 0 ? (
                                 <EmptyHistory />
                             ) : (
                                 <>
-                                    {returnedList.map((item, index) => (
+                                    {returnedData.data.map((item, index) => (
+                                        <HistoryCard
+                                            key={index}
+                                            id={item.item_id}
+                                            name={item.item_name}
+                                            loan_date={item.loan_date}
+                                            return_date={item.return_date}
+                                            status={item.status}
+                                        />
+                                    ))}
+                                    {/* {isLoadingReturned && <p>Loading...</p>} */}
+                                    {returnedData.data.length >= 10 &&
+                                        returnedData.pagination.lastPage !==
+                                            returnedData.pagination
+                                                .currentPage && (
+                                            <div className="w-full flex justify-center items-center">
+                                                <Button
+                                                    onClick={loadMoreReturned}
+                                                    className={`text-white rounded w-max`}
+                                                    disabled={isLoadingReturned}
+                                                >
+                                                    {isLoadingReturned
+                                                        ? "Loading..."
+                                                        : "Load More"}
+                                                </Button>
+                                            </div>
+                                        )}
+                                </>
+                            )}
+                        </div>
+                    </TabsContent>
+                    <TabsContent className="w-full" value="confirmation">
+                        <div className="w-full flex flex-col gap-4 px-[20px] pb-[0] max-h-[66vh] overflow-auto">
+                            {confirmationList.length === 0 ? (
+                                <EmptyHistory />
+                            ) : (
+                                <>
+                                    {confirmationList.map((item, index) => (
                                         <HistoryCard
                                             key={index}
                                             id={item.item_id}
@@ -165,9 +280,9 @@ function History() {
                                     {/* {isLoadingReturned && <p>Loading...</p>} */}
                                     <div className="w-full flex justify-center items-center">
                                         <Button
-                                            onClick={loadMoreReturned}
+                                            onClick={loadMoreConfirmation}
                                             className={`text-white rounded w-max ${
-                                                returnedPage === lastPage
+                                                confirmationPage === lastPage
                                                     ? "hidden"
                                                     : ""
                                             }`}

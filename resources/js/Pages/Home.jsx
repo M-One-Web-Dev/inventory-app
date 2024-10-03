@@ -177,7 +177,7 @@ const Home = () => {
                 try {
                     const body = {
                         user_id: userRef.current?.user_id,
-                        item_id: data.data,
+                        item_id: Number(data.data),
                     };
                     const { data: postData } = await axios.post(
                         "/api/v1/history-borrowed/confirm-return",
