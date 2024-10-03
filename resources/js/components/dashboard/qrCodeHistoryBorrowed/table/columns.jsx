@@ -184,11 +184,15 @@ export const columns = [
                     className={`w-max py-[10px] px-[15px] rounded-[50px] ${
                         row.original.status === "borrowed"
                             ? "bg-red-600 text-white"
+                            : row.original.status === "confirmation"
+                            ? "bg-blue-600 text-white"
                             : "bg-violet-500 text-white"
                     }`}
                 >
                     {row.original.status === "borrowed"
                         ? "Masih Dipinjam"
+                        : row.original.status === "confirmation"
+                        ? "Proses Konfirmasi"
                         : "Sudah Dikembalikan"}
                 </div>
             );

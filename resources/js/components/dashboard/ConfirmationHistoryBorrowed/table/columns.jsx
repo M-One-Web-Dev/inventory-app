@@ -10,7 +10,11 @@ import {
     DropdownMenuTrigger,
 } from "../../../ui/index";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import { DialogDeleteData } from "../dialog/index";
+import {
+    DialogDeleteData,
+    DialogAcceptConfirmation,
+    DialogRejectConfirmation,
+} from "../dialog/index";
 import { FaUserAlt } from "react-icons/fa";
 import { ButtonDownloadPdf } from "../button/ButtonDownloadPdf";
 import SwitchToggle from "../switchToggle/switchToggle";
@@ -143,7 +147,8 @@ export const columns = [
                     {/* <ButtonDownloadPdf row={row.original} />
                     <DialogDetailItem row={row.original} /> */}
                     {/* <DialogEditTemporary row={row.original} /> */}
-                    <DialogDeleteData id={row.original.id} />
+                    <DialogRejectConfirmation id={row.original.id} />
+                    <DialogAcceptConfirmation id={row.original.id} />
                 </div>
             );
         },

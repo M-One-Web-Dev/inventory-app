@@ -176,10 +176,11 @@ const Home = () => {
             } else {
                 try {
                     const body = {
-                        id: data.data,
+                        user_id: userRef.current?.user_id,
+                        item_id: data.data,
                     };
                     const { data: postData } = await axios.post(
-                        "/api/v1/history-borrowed/add",
+                        "/api/v1/history-borrowed/confirm-return",
                         body,
                         {
                             headers: {
