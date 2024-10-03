@@ -1,18 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import {
-    Button,
-    Card,
-    Navigation,
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "../components/ui/index";
+import { Button } from "../components/ui/index";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { CircleUserRound } from "lucide-react";
 import QrReader from "react-qr-scanner";
@@ -30,6 +17,39 @@ import { useRendered } from "@/lib/context/renderedHome";
 import Layout from "./Layout";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import Select from "react-select";
+
+const dummyListStatus = [
+    { label: "Peminjaman", value: "borrowed" },
+    { label: "Pengembalian", value: "returned" },
+];
+
+const LoadingMessage = (props) => {
+    return (
+        <div
+            {...props.innerProps}
+            style={props.getStyles("loadingMessage", props)}
+        >
+            Loading...
+        </div>
+    );
+};
+
+const customStyles = {
+    control: (provided, state) => ({
+        ...provided,
+        height: "5px",
+        borderColor: state.isFocused ? "black" : "gray",
+        boxShadow: state.isFocused ? "0 0 0 1px black" : "none",
+        "&:hover": {
+            borderColor: "black",
+        },
+    }),
+    menu: (provided) => ({
+        ...provided,
+        zIndex: 9999,
+    }),
+};
 
 const Home = () => {
     const { props, url } = usePage();
@@ -44,6 +64,7 @@ const Home = () => {
     const inventoryToken = Cookies.get("inventory_token");
     const [userId, setUserId] = useState(null);
     const [userData, setUserData] = useState(null);
+    const [scanStatus, setScanStatus] = useState(null);
     const userRef = useRef(userData);
     const { isHomeRendered, renderHome } = useRendered();
 
@@ -229,17 +250,32 @@ const Home = () => {
                 <div
                     className={`${
                         isScannerOpen
-                            ? "w-[346px] h-[466px] justify-between px-[20px]"
-                            : "w-[320px] h-[330px] px-[30px]"
+                            ? "w-[346px] h-[566px] justify-between px-[20px]"
+                            : "w-[320px] h-[400px] px-[30px]"
                     } mt-[50px] mx-auto transition-all duration-150 flex flex-col items-center  rounded-[10px] py-[20px] bg-[#F7F4FF]`}
                 >
+                    <div className="w-full flex justify-end mb-[30px]">
+                        <Select
+                            options={dummyListStatus}
+                            styles={customStyles}
+                            maxMenuHeight={200}
+                            //   isClearable={true}
+                            value={scanStatus}
+                            onChange={(value) => {
+                                setScanStatus(value);
+                            }}
+                            // onInputChange={(e) => {
+                            //     console.log(e);
+                            // }}
+                        />
+                    </div>
                     {isScannerOpen ? (
                         <>
                             <div className="w-full">
                                 <video
                                     ref={videoRef}
                                     style={{
-                                        height: "360px",
+                                        height: "390px",
                                         width: "100%",
                                         objectFit: "cover",
                                         borderRadius: "10px",
@@ -269,6 +305,7 @@ const Home = () => {
                             </p>
 
                             <Button
+                                disabled={scanStatus === null}
                                 className="w-full bg-[#bda5ff] hover:bg-[#a788fd] mt-[17px] font-semibold"
                                 onClick={toggleScanner}
                             >
