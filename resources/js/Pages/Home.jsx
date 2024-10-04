@@ -18,6 +18,7 @@ import Layout from "./Layout";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import Select from "react-select";
+import { GlobalProvider, useGlobalState } from "@/lib/context/userData";
 
 const dummyListStatus = [
     { label: "Peminjaman", value: "borrowed" },
@@ -52,6 +53,7 @@ const customStyles = {
 };
 
 const Home = () => {
+    const { globalUserData, setGlobalUserData } = useGlobalState();
     const { props, url } = usePage();
     const [result, setResult] = useState("");
     const [isScannerOpen, setIsScannerOpen] = useState(false);
