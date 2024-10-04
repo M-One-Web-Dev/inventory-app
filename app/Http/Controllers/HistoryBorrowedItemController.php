@@ -53,7 +53,7 @@ public function index()
                 "item_id" => $item->item->id,
                 'borrowed_user_from' => $item->borrowed_user_from,
                 'borrowed_level' => $item->borrowed_level,
-                'status' => $item->status,  // Tambahkan field status di response
+                'status' => $item->status,
                 'borrowed_at' => $item->borrowed_at,
                 'returned_at' => $item->returned_at,
                 'type' => $item->type,

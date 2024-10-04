@@ -17,6 +17,7 @@ use App\Http\Controllers\TestUserController;
 use App\Http\Controllers\HistoryBorrowedItemController;
 use App\Http\Controllers\ActiveUserController;
 use App\Http\Controllers\VerifyController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestingUploadController;
@@ -43,6 +44,8 @@ Route::prefix("/v1")->group(function () {
   Route::get('/verify', [VerifyController::class, 'verify'])->middleware(middleware: 'auth:sanctum');
 
    Route::get('/verify-second', [VerifyController::class, 'verifySecond'])->middleware(middleware: 'auth:sanctum');
+
+    Route::get('/dashboard-data', [DashboardController::class, 'index'])->middleware(middleware: 'auth:sanctum');
 
     Route::controller(ActiveStudentsController::class)->middleware('auth:sanctum')->prefix("/active-students")->group(function () {
         Route::get("/", "index");

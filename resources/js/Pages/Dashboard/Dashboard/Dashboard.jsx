@@ -11,57 +11,17 @@ function Dashboard() {
     const [totalActiveStudent, setTotalActiveStudent] = useState(0);
     const [totalTeacher, setTotalTeacher] = useState(0);
 
-    const getAllTeacher = async () => {
+    const getAllData = async () => {
         try {
-            const { data: getTeacher } = await axios("/api/v1/teachers", {
+            const { data: getData } = await axios("/api/v1/dashboard-data", {
                 headers: {
                     Authorization: `Bearer ${inventoryToken}`,
                 },
             });
 
-            const total = getTeacher?.pagination?.total;
-            setTotalTeacher(total);
-        } catch (error) {
-            console.log(error);
-            if (error.response.data.message === "Unauthenticated.") {
-                Inertia.visit("/login");
-                return;
-            }
-        }
-    };
-
-    const getAllStudent = async () => {
-        try {
-            const { data: getStudent } = await axios("/api/v1/students", {
-                headers: {
-                    Authorization: `Bearer ${inventoryToken}`,
-                },
-            });
-
-            const total = getStudent?.pagination?.total;
-            setTotalStudent(total);
-        } catch (error) {
-            console.log(error);
-            if (error.response.data.message === "Unauthenticated.") {
-                Inertia.visit("/login");
-                return;
-            }
-        }
-    };
-
-    const getAllActiveStudent = async () => {
-        try {
-            const { data: getActiveStudent } = await axios(
-                "/api/v1/active-students",
-                {
-                    headers: {
-                        Authorization: `Bearer ${inventoryToken}`,
-                    },
-                }
-            );
-
-            const total = getActiveStudent?.pagination?.total;
-            setTotalActiveStudent(total);
+            setTotalTeacher(getData.data.total_teachers);
+            setTotalStudent(getData.data.total_students);
+            setTotalActiveStudent(getData.data.total_active_students);
         } catch (error) {
             console.log(error);
             if (error.response.data.message === "Unauthenticated.") {
@@ -72,9 +32,7 @@ function Dashboard() {
     };
 
     useEffect(() => {
-        getAllStudent();
-        getAllTeacher();
-        getAllActiveStudent();
+        getAllData();
     }, []);
 
     return (
@@ -82,7 +40,6 @@ function Dashboard() {
             <div className="absolute top-[-40px] w-full px-[20px]">
                 <div className="bg-white shadow-[3px_3px_20px_-2px_#00000024]  py-[20px] rounded-md px-[20px]">
                     <h1 className="text-[20px]">Dashboard</h1>
-                    {/* <UserImport /> */}
                 </div>
             </div>
 
