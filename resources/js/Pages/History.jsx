@@ -13,8 +13,10 @@ import { Header, HistoryCard } from "../components/section/index";
 import { History as HistoryIcon } from "lucide-react";
 import Layout from "./Layout";
 import { usePage } from "@inertiajs/inertia-react";
+import { GlobalProvider, useGlobalState } from "@/lib/context/userData";
 
 function History() {
+    const { globalUserData, setGlobalUserData } = useGlobalState();
     const { url } = usePage();
     const inventoryToken = Cookies.get("inventory_token");
     const [borrowedData, setBorrowedData] = useState({
@@ -63,6 +65,7 @@ function History() {
                         Authorization: `Bearer ${inventoryToken}`,
                     },
                     params: {
+                        user_id: globalUserData?.user_id,
                         status: status,
                         page: page,
                         per_page: 10,
@@ -148,15 +151,17 @@ function History() {
         // );
 
         //    if (previousUrl !== "/history") {
-        fetchHistoryData("borrowed", borrowedPage);
-        fetchHistoryData("returned", returnedPage);
-        fetchHistoryData("confirmation", confirmationPage);
+        if (globalUserData !== null) {
+            fetchHistoryData("borrowed", borrowedPage);
+            fetchHistoryData("returned", returnedPage);
+            fetchHistoryData("confirmation", confirmationPage);
+        }
         // } else {
         //     setBorrowedList(JSON.parse(storedBorrowedHistory));
         //     setReturnedList(JSON.parse(storedReturnedHistory));
         //     setReturnedList(JSON.parse(storedConfirmationHistory));
         // }
-    }, [url]);
+    }, [globalUserData]);
 
     return (
         <>

@@ -198,25 +198,25 @@ export const columns = [
             );
         },
     },
-    // {
-    //     accessorKey: "returned_at",
-    //     header: ({ column }) => {
-    //         return (
-    //             <Button
-    //                 variant="ghost"
-    //                 onClick={() =>
-    //                     column.toggleSorting(column.getIsSorted() === "asc")
-    //                 }
-    //             >
-    //                 Atur Status
-    //                 <ArrowUpDown className="ml-2 h-4 w-4" />
-    //             </Button>
-    //         );
-    //     },
-    //     cell: ({ row }) => {
-    //         return <SwitchToggle row={row.original} />;
-    //     },
-    // },
+    {
+        accessorKey: "returned_at",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }
+                >
+                    Atur Status
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
+        cell: ({ row }) => {
+            return <SwitchToggle row={row.original} />;
+        },
+    },
     {
         id: "actions",
         header: () => <div className="text-left">Action</div>,

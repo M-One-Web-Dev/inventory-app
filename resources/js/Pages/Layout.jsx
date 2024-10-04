@@ -48,7 +48,6 @@ export default function Layout({ children }) {
                 <RenderedProvider>
                     <Toaster richColors position="top-center" />
 
-                    {/* Panggil useGlobalState di dalam JSX setelah GlobalProvider */}
                     <main className="flex">
                         <MainContent props={userData}>{children}</MainContent>
                     </main>
@@ -61,9 +60,9 @@ export default function Layout({ children }) {
 }
 
 function MainContent({ children, props }) {
-    const { setGlobalUserData } = useGlobalState(); // Panggilan aman setelah GlobalProvider
+    const { setGlobalUserData } = useGlobalState();
     useEffect(() => {
-        setGlobalUserData(props); // Contoh penggunaan
+        setGlobalUserData(props);
     }, []);
 
     return <>{children}</>;

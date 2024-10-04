@@ -10,7 +10,8 @@ import {
 } from "@react-pdf/renderer";
 import axios from "axios";
 import Cookies from "js-cookie";
-import QRCode from "qrcode";
+// import QRCode from "qrcode";
+import { QRCode } from "react-qrcode-logo";
 
 const styles = StyleSheet.create({
     page: {
@@ -130,6 +131,13 @@ function PreviewAllItemsPDF() {
     };
 
     return (
+        // <div>
+        //     <QRCode
+        //         value="https://github.com/gcoro/react-qrcode-logo"
+        //         logoImage="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTaUYBb12ClHCzGeuHXjhHy47f-nHpknbpsXQ&s"
+        //         logoWidth="100px"
+        //     />
+        // </div>
         <PDFViewer style={styles.viewer}>
             <MyDocument />
         </PDFViewer>
