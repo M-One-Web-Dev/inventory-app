@@ -39,16 +39,7 @@ function History() {
             totalPages: 0,
         },
     });
-    const [confirmationData, setConfirmationData] = useState({
-        data: [],
-        pagination: {
-            total: 0,
-            perPage: 0,
-            currentPage: 0,
-            lastPage: 0,
-            totalPages: 0,
-        },
-    });
+
     const [borrowedPage, setBorrowedPage] = useState(1);
     const [returnedPage, setReturnedPage] = useState(1);
     const [confirmationPage, setConfirmationPage] = useState(1);
@@ -97,19 +88,20 @@ function History() {
                     },
                 }));
                 setIsLoadingReturned(false);
-            } else if (status === "confirmation") {
-                setConfirmationData((prev) => ({
-                    data: [...prev.data, ...getUser.data],
-                    pagination: {
-                        total: getUser.pagination.total,
-                        perPage: getUser.pagination.perPage,
-                        currentPage: getUser.pagination.currentPage,
-                        lastPage: getUser.pagination.lastPage,
-                        totalPages: getUser.pagination.totalPages,
-                    },
-                }));
-                setIsLoadingConfirmation(false);
             }
+            // else if (status === "confirmation") {
+            //     setConfirmationData((prev) => ({
+            //         data: [...prev.data, ...getUser.data],
+            //         pagination: {
+            //             total: getUser.pagination.total,
+            //             perPage: getUser.pagination.perPage,
+            //             currentPage: getUser.pagination.currentPage,
+            //             lastPage: getUser.pagination.lastPage,
+            //             totalPages: getUser.pagination.totalPages,
+            //         },
+            //     }));
+            //     setIsLoadingConfirmation(false);
+            // }
         } catch (error) {
             console.log(error);
             if (error.response.data.message === "Unauthenticated.") {
@@ -154,7 +146,7 @@ function History() {
         if (globalUserData !== null) {
             fetchHistoryData("borrowed", borrowedPage);
             fetchHistoryData("returned", returnedPage);
-            fetchHistoryData("confirmation", confirmationPage);
+            // fetchHistoryData("confirmation", confirmationPage);
         }
         // } else {
         //     setBorrowedList(JSON.parse(storedBorrowedHistory));
@@ -174,9 +166,9 @@ function History() {
                     <TabsList>
                         <TabsTrigger value="borrowed">Dipinjam</TabsTrigger>
                         <TabsTrigger value="returned">Dikembalikan</TabsTrigger>
-                        <TabsTrigger value="confirmation">
+                        {/* <TabsTrigger value="confirmation">
                             Konfirmasi
-                        </TabsTrigger>
+                        </TabsTrigger> */}
                     </TabsList>
                     <TabsContent className="w-full" value="borrowed">
                         <div className="w-full flex flex-col gap-4 px-[20px] pb-[0] max-h-[60vh] overflow-auto">
@@ -247,7 +239,7 @@ function History() {
                             )}
                         </div>
                     </TabsContent>
-                    <TabsContent className="w-full" value="confirmation">
+                    {/* <TabsContent className="w-full" value="confirmation">
                         <div className="w-full flex flex-col gap-4 px-[20px] pb-[0] max-h-[66vh] overflow-auto">
                             {confirmationData.data.length === 0 ? (
                                 <EmptyHistory />
@@ -265,7 +257,7 @@ function History() {
                                             />
                                         )
                                     )}
-                                    {/* {isLoadingReturned && <p>Loading...</p>} */}
+
                                     {confirmationData.data.length >= 10 &&
                                         confirmationData.pagination.lastPage !==
                                             confirmationData.pagination
@@ -287,7 +279,7 @@ function History() {
                                 </>
                             )}
                         </div>
-                    </TabsContent>
+                    </TabsContent> */}
                 </Tabs>
             </div>
         </>
