@@ -54,14 +54,16 @@ function QrScan() {
         if (data) {
             qrScannerRef.current?.stop();
             setIsScannerOpen(false);
-
             try {
                 const body = {
-                    item_id: Number(data.data),
+                    item_id: data.data,
                     user_id: watch("name")?.value,
+                    borrowed_user_from: watch("name")?.user_from,
+                    borrowed_level: watch("name")?.user_level,
+                    type: "automation",
                 };
                 const { data: postData } = await axios.post(
-                    "/api/v1/notification/borrow",
+                    "/api/v1/history-borrowed/add",
                     body,
                     {
                         headers: {
@@ -69,6 +71,14 @@ function QrScan() {
                         },
                     }
                 );
+                if (
+                    postData.message.includes(
+                        "You have already borrowed this item."
+                    )
+                ) {
+                    toast.info("Kamu masih meminjam barang ini");
+                    return;
+                }
                 toast.success("Berhasil pinjam barang");
             } catch (error) {
                 if (
@@ -95,17 +105,62 @@ function QrScan() {
                     )
                 ) {
                     toast.warning("User Tidak Sesuai");
-                } else if (
-                    error?.response?.data?.message?.includes(
-                        "The user id field is required."
-                    )
-                ) {
-                    toast.error("Pilih User Terlebih Dahulu");
                 } else {
                     toast.error("Gagal meminjam Barang");
                 }
                 console.log(error);
             }
+            // try {
+            //     const body = {
+            //         item_id: Number(data.data),
+            //         user_id: watch("name")?.value,
+            //     };
+            //     const { data: postData } = await axios.post(
+            //         "/api/v1/notification/borrow",
+            //         body,
+            //         {
+            //             headers: {
+            //                 Authorization: `Bearer ${inventoryToken}`,
+            //             },
+            //         }
+            //     );
+            //     toast.success("Berhasil pinjam barang");
+            // } catch (error) {
+            //     if (
+            //         error?.response?.data?.message?.includes(
+            //             "Item is not available for borrowing"
+            //         )
+            //     ) {
+            //         toast.info("Barang sedang Dipinjam oleh Orang Lain");
+            //     } else if (
+            //         error?.response?.data?.message?.includes(
+            //             "User has already borrowed this item"
+            //         )
+            //     ) {
+            //         toast.info("Kamu sudah Meminjam Barang ini");
+            //     } else if (
+            //         error?.response?.data?.message?.includes(
+            //             "The item id field is required."
+            //         )
+            //     ) {
+            //         toast.info("Kode QR Tidak Sesuai");
+            //     } else if (
+            //         error?.response?.data?.message?.includes(
+            //             "The selected user id is invalid."
+            //         )
+            //     ) {
+            //         toast.warning("User Tidak Sesuai");
+            //     } else if (
+            //         error?.response?.data?.message?.includes(
+            //             "The user id field is required."
+            //         )
+            //     ) {
+            //         toast.error("Pilih User Terlebih Dahulu");
+            //     } else {
+            //         toast.error("Gagal meminjam Barang");
+            //     }
+            //     console.log(error);
+            // }
         }
     }, []);
 
@@ -167,6 +222,8 @@ function QrScan() {
                     label: item.username,
                     value: item.id,
                     role: item.role,
+                    user_from: item.user_from,
+                    user_level: item.user_level,
                 };
             });
             setValue("list_user", newArr);
@@ -323,6 +380,10 @@ function QrScan() {
 
                             <Button
                                 className="w-full bg-[#bda5ff] hover:bg-[#a788fd] mt-[17px] font-semibold"
+                                disabled={
+                                    watch("name") === undefined ||
+                                    watch("name") === null
+                                }
                                 onClick={toggleScanner}
                             >
                                 Scan
