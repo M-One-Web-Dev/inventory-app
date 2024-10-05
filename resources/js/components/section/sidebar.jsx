@@ -46,10 +46,10 @@ const menuItems = [
         name: "Peminjaman",
         icon: <FaUsers className="h-[19px] w-[19px]" />,
         subMenu: [
-            {
-                name: "Konfirmasi",
-                url: "/dashboard/confirmation-borrowed",
-            },
+            // {
+            //     name: "Konfirmasi",
+            //     url: "/dashboard/confirmation-borrowed",
+            // },
             {
                 name: "QR Code",
                 url: "/dashboard/qr-code-borrowed",
@@ -291,7 +291,7 @@ export function Sidebar() {
                                                 openSubMenu.menuName ===
                                                     item.name &&
                                                 openSubMenu.open
-                                                    ? "h-[100%] mt-[5px]"
+                                                    ? "h-[65px] mt-[5px]"
                                                     : "h-0"
                                             } overflow-hidden transition-all duration-300 flex flex-col gap-3 ml-[60px]`}
                                         >
