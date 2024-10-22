@@ -87,7 +87,7 @@ export function DataTable({
                     <DialogAddData />
                 </div>
             </div>
-            <div className="rounded-md">
+            <div className="rounded-md border">
                 <Table>
                     <TableHeader className="px-[5px]">
                         {table
