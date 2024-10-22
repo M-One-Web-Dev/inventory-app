@@ -1,6 +1,7 @@
 import { FaEdit } from "react-icons/fa";
 import React from "react";
 import {
+    Button,
     Dialog,
     DialogContent,
     DialogDescription,
@@ -10,6 +11,7 @@ import {
 } from "../../../ui";
 import { IoEyeSharp } from "react-icons/io5";
 import moment from "moment";
+import { X } from "lucide-react";
 
 export function DialogDetailBorrowed({ row }) {
     const formatDate = (date) => {
@@ -25,10 +27,18 @@ export function DialogDetailBorrowed({ row }) {
                 <IoEyeSharp className="text-white h-[14px] w-[14px]" />
             </DialogTrigger>
             <DialogContent className="rounded-md py-[25px] px-[23px] h-auto max-[400px]:w-[320px] max-w-[430px]">
-                <DialogHeader>
+                <DialogHeader
+                    className={"flex justify-between flex-row items-center"}
+                >
                     <DialogTitle className="text-center text-[20px]">
                         Detail Peminjaman
                     </DialogTitle>
+                    <Button
+                        className="bg-red-500 h-max p-0"
+                        onClick={() => setOpenModal(false)}
+                    >
+                        <X />
+                    </Button>
                 </DialogHeader>
 
                 <div className="mt-[20px] grid grid-cols-2 gap-6">
