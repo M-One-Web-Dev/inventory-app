@@ -13,6 +13,7 @@ import moment from "moment";
 import { X } from "lucide-react";
 
 export function DialogDetailBorrowed({ row }) {
+    const [openModal, setOpenModal] = React.useState(false);
     const formatDate = (date) => {
         return date === null
             ? "-"
@@ -20,9 +21,8 @@ export function DialogDetailBorrowed({ row }) {
     };
 
     return (
-        <Dialog>
+        <Dialog open={openModal} onOpenChange={setOpenModal}>
             <DialogTrigger className="bg-violet-500 py-[10px] px-[10px] rounded-sm">
-                {" "}
                 <IoEyeSharp className="text-white h-[14px] w-[14px]" />
             </DialogTrigger>
             <DialogContent className="rounded-md py-[25px] px-[23px] h-auto max-[400px]:w-[320px] max-w-[430px]">
