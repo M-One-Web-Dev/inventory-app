@@ -33,7 +33,7 @@ export function DialogDetailBorrowed({ row }) {
                         Detail Peminjaman
                     </DialogTitle>
                     <Button
-                        className="bg-red-500 h-max p-0"
+                        className="bg-red-500 flex items-center justify-center hover:bg-red-400 h-max p-0"
                         onClick={() => setOpenModal(false)}
                     >
                         <X />
