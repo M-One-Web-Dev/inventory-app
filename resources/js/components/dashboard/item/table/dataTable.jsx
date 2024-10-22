@@ -49,7 +49,14 @@ export function DataTable({
             columnFilters,
             columnVisibility,
             rowSelection,
+            pagination: {
+                pageSize: 20,
+                pageIndex: 0,
+            },
         },
+        // onPaginationChange: (newPage) => {
+        //     onPageChange(newPage.pageIndex + 1); // panggil fungsi page change
+        // },
     });
 
     return (

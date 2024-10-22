@@ -71,6 +71,8 @@ export default function TableItem() {
         getAllItems(newPage, debouncedSearchTerm);
     };
 
+    console.log(itemsList);
+
     return (
         <div className="mx-auto max-w-[900px] py-[15px] md:py-10">
             <DataTable
