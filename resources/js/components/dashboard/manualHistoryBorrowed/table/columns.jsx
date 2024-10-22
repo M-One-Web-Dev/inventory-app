@@ -53,7 +53,7 @@ export const columns = [
             const getName = row.original.username;
 
             return (
-                <div className="text-left font-medium w-[110px] overflow-hidden text-ellipsis  whitespace-nowrap">
+                <div className="text-left font-medium w-[150px] overflow-hidden break-all">
                     {getName}
                 </div>
             );
