@@ -20,3 +20,4 @@ export * from "./switch";
 export * from "./command";
 export * from "./scroll-area";
 export * from "./chip";
+export * from "./card";

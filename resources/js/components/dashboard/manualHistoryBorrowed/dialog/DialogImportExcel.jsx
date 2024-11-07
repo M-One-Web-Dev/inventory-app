@@ -51,7 +51,6 @@ export function DialogImportExcel() {
     const [isImporting, setIsImporting] = useState(false);
 
     const downloadTemplate = () => {
-        // Data template dengan header dan gaya bold
         const rowHeader = [
             [
                 { v: "number_id", s: { font: { bold: true } } },
@@ -60,30 +59,25 @@ export function DialogImportExcel() {
             ["INV/PPLG/L/001", "Laptop 001"],
         ];
 
-        // Membuat worksheet dari data
         const worksheet = XLSX.utils.aoa_to_sheet(rowHeader);
 
-        // Mengatur format kolom A sebagai teks
         const range = XLSX.utils.decode_range(worksheet["!ref"]);
         for (let row = range.s.r + 1; row <= range.e.r; row++) {
             const cellAddress = XLSX.utils.encode_cell({ r: row, c: 0 });
             if (!worksheet[cellAddress]) {
-                worksheet[cellAddress] = { t: "s" }; // Menambahkan cell kosong sebagai teks
+                worksheet[cellAddress] = { t: "s" }; //
             }
             worksheet[cellAddress].z = "@";
         }
 
-        // Membuat workbook dan menambahkan worksheet
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
 
-        // Menulis workbook ke buffer
         const excelBuffer = XLSX.write(workbook, {
             bookType: "xlsx",
             type: "array",
         });
 
-        // Membuat blob dari buffer dan mengunduhnya
         const blobData = new Blob([excelBuffer], {
             type: "application/octet-stream",
         });
@@ -113,18 +107,6 @@ export function DialogImportExcel() {
                 <PopoverContent className="p-0 py-[10px] px-[10px] left-[-140px] max-w-max">
                     <Tabs defaultValue="import" className="">
                         <TabsList className="w-full bg-violet-100">
-                            {/* <TabsTrigger
-                                value="download"
-                                className="w-full data-[state=active]:bg-violet-400 data-[state=active]:text-white"
-                            >
-                                Unduh
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="import"
-                                className="w-full data-[state=active]:bg-violet-400 data-[state=active]:text-white"
-                            >
-                                Import
-                            </TabsTrigger> */}
                             <TabsTrigger
                                 value="export"
                                 className="w-full data-[state=active]:bg-violet-400 data-[state=active]:text-white"

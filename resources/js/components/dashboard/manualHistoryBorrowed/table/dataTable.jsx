@@ -69,7 +69,7 @@ export function DataTable({
 
     return (
         <div>
-            <div className="flex flex-col sm:flex-row items-center justify-between py-4 gap-[10px] md:gap-0">
+            {/* <div className="flex flex-col sm:flex-row items-center justify-between py-4 gap-[10px] md:gap-0">
                 <div className="w-full flex items-center px-[10px] md:px-0 gap-2">
                     <Input
                         placeholder="Search..."
@@ -83,10 +83,10 @@ export function DataTable({
                     />
                 </div>
                 <div className="px-[10px] md:px-0 flex justify-end items-end gap-2 w-full">
-                    {/* <DialogImportExcel /> */}
+                    <DialogImportExcel />
                     <DialogAddData />
                 </div>
-            </div>
+            </div> */}
             <div className="rounded-md border">
                 <Table>
                     <TableHeader className="px-[5px]">
