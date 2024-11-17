@@ -19,6 +19,7 @@ import {
     CardContent,
     CardFooter,
 } from "@/components/ui";
+import { DialogAddData } from "../dialog/DialogAddData";
 
 export default function TableTemporary() {
     const inventoryToken = Cookies.get("inventory_token");
@@ -117,6 +118,7 @@ export default function TableTemporary() {
     }, [debouncedSearchTerm]);
 
     useEffect(() => {
+        setValue("search", "");
         getAllTemporary(pagination.currentPage, "");
     }, [refreshKey]);
 
@@ -129,7 +131,7 @@ export default function TableTemporary() {
     };
 
     return (
-        <div className="mx-auto max-w-[800px] sm:py-10 ">
+        <div className="mx-auto w-full sm:py-10 ">
             <div className="flex flex-col sm:flex-row items-center justify-between py-4 gap-[10px] md:gap-0">
                 <div className="w-full flex items-center px-[10px] md:px-0 gap-2">
                     <Input
@@ -144,13 +146,13 @@ export default function TableTemporary() {
                 </div>
                 <div className="px-[10px] md:px-0 flex justify-end items-end gap-2 w-full">
                     {/* <DialogImportExcel /> */}
-                    {/* <DialogAddData /> */}
-                    <Button
+                    <DialogAddData />
+                    {/* <Button
                         className="px-[10px] rounded-md py-[5px] h-auto "
                         onClick={() => setIsFilter(!isFilter)}
                     >
                         Filter
-                    </Button>
+                    </Button> */}
                 </div>
             </div>
             {isFilter && (

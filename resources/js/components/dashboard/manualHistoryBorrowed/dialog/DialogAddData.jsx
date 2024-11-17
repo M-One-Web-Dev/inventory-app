@@ -93,9 +93,9 @@ export function DialogAddData() {
                 }
             );
             setOpenModal(false);
-            form.reset();
+            reset();
             if (response.status === "info") {
-                toast.success("Masih ada Yang Meminjam Barang Ini", {
+                toast.info("Masih ada Yang Meminjam Barang Ini", {
                     duration: 3000,
                 });
             } else {
