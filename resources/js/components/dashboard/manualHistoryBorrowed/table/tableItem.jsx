@@ -20,6 +20,8 @@ import {
     CardFooter,
 } from "@/components/ui";
 import { DialogAddData } from "../dialog/DialogAddData";
+import { manualHistoryBorrowedStore } from "@/lib/context/refresherManualHistoryBorrowed";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function TableTemporary() {
     const inventoryToken = Cookies.get("inventory_token");

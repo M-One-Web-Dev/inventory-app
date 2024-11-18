@@ -1,6 +1,7 @@
 import React from "react";
 import { createInertiaApp } from "@inertiajs/inertia-react";
 import { createRoot } from "react-dom/client";
+import ReactQueryProvider from "./components/provider/ReactQueryProvider";
 
 createInertiaApp({
     resolve: (name) => {
@@ -8,7 +9,11 @@ createInertiaApp({
         return pages[`./Pages/${name}.jsx`];
     },
     setup({ el, App, props }) {
-        createRoot(el).render(<App {...props} />);
+        createRoot(el).render(
+            <ReactQueryProvider>
+                <App {...props} />
+            </ReactQueryProvider>
+        );
     },
     // onError: (error) => {
     //     if (error.response && error.response.status === 401) {
