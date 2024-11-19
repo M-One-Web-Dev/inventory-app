@@ -11,6 +11,7 @@ import { LuChevronsLeft, LuChevronsRight } from "react-icons/lu";
 import { FiChevronRight, FiBox } from "react-icons/fi";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/index";
 import { PiUserCircleDashedFill } from "react-icons/pi";
+import { sidebarGlobalState } from "@/lib/globalState/sidebar-global-state";
 
 const menuItems = [
     {
@@ -88,7 +89,9 @@ const menuItems = [
 
 export function Sidebar() {
     const pathname = usePage();
-    const [iconMode, setIconMode] = useState(false);
+    const iconMode = sidebarGlobalState((state) => state.iconMode);
+    const setIconMode = sidebarGlobalState((state) => state.setIconMode);
+    //  const [iconMode, setIconMode] = useState(false);
     const [openSubMenu, setOpenSubMenu] = useState({
         open: false,
         menuName: "",
@@ -160,8 +163,8 @@ export function Sidebar() {
     return (
         <nav
             className={`${
-                iconMode ? "w-[100px]" : "w-[300px]"
-            } sticky top-0 hidden min-[1050px]:block transition-all duration-300 shadow-[5px_0px_10px_-5px_#00000024] overflow-auto h-screen pt-[20px]`}
+                iconMode ? "w-[80px]" : "w-[250px]"
+            } fixed top-0 hidden min-[1050px]:block transition-all duration-300 shadow-[5px_0px_10px_-5px_#00000024] overflow-auto h-screen pt-[20px] z-50 bg-white`}
         >
             <div className="flex justify-center text-violet-700 font-medium gap-1 items-center">
                 <FiBox

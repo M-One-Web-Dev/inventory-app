@@ -70,7 +70,7 @@ export default function SwitchToggle({ row }) {
     };
 
     return (
-        <div className="w-full flex justify-center">
+        <div className="w-max flex justify-center">
             <Switch
                 id={`switch-${row.id}`}
                 checked={status}

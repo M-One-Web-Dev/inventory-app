@@ -39,6 +39,24 @@ export default function TableTemporary() {
     const [isFilter, setIsFilter] = useState(false);
     const { refreshKey } = useItemRefresher();
     const { watch, setValue } = useForm();
+    const { isPending, isError, data, error } = useQuery({
+        queryKey: ["todos"],
+        queryFn: async () => {
+            const response = await axios.get("/api/v1/history-borrowed", {
+                headers: {
+                    Authorization: `Bearer ${inventoryToken}`,
+                },
+                params: {
+                    page: 1,
+                    perPage: 10,
+                    search: searchTerm,
+                    status: watch("status") === "" ? "" : watch("status"),
+                    type: "manual",
+                },
+            });
+            return response.data.data;
+        },
+    });
 
     const getAllTemporary = async (page = 1, search = "") => {
         setLoading(true);

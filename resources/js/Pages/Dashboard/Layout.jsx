@@ -4,6 +4,7 @@ import { Inertia } from "@inertiajs/inertia";
 import axios from "axios";
 import Cookies from "js-cookie";
 import InstallPopup from "../../components/section/installPopup";
+import { sidebarGlobalState } from "@/lib/globalState/sidebar-global-state";
 import { Toaster } from "sonner";
 
 export default function Layout({ children }) {
@@ -12,6 +13,7 @@ export default function Layout({ children }) {
     const [showInstallPopup, setShowInstallPopup] = useState(false);
     const [checkRole, setCheckRole] = useState(false);
     const inventoryToken = Cookies.get("inventory_token");
+    const iconMode = sidebarGlobalState((state) => state.iconMode);
 
     const checkingRole = async () => {
         setIsLoading(true);
@@ -76,16 +78,22 @@ export default function Layout({ children }) {
                     <h1>Loading...</h1>
                 </main>
             ) : (
-                <main className="flex">
+                <main className="">
                     <Toaster richColors position="top-center" />
                     <Sidebar />
-                    <div className="w-full">
+                    <div
+                        className={` ${
+                            iconMode
+                                ? "min-[1050px]:ml-[80px]"
+                                : "min-[1050px]:ml-[250px]"
+                        }`}
+                    >
                         <DashboardHeader />
                         {children}
                     </div>
-                    {showInstallPopup && (
+                    {/* {showInstallPopup && (
                         <InstallPopup onClose={handleClosePopup} />
-                    )}
+                    )} */}
                 </main>
             )}
         </>

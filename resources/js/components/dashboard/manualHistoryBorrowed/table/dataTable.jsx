@@ -32,6 +32,7 @@ import {
 import { DialogAddData, DialogImportExcel } from "../dialog/index";
 import { useForm } from "react-hook-form";
 import LoadingGif from "@/assets/loading.gif";
+import { cn } from "@/lib/utils";
 
 export function DataTable({
     columns,
@@ -99,8 +100,11 @@ export function DataTable({
                                             return (
                                                 <TableHead
                                                     className={`${
-                                                        header.id === "name" &&
-                                                        "sticky left-0 bg-white"
+                                                        (header.id === "name" &&
+                                                            "sticky left-0 bg-white",
+                                                        header.id ===
+                                                            "item_name" &&
+                                                            "flex justify-center items-center")
                                                     }`}
                                                     key={headerIndex}
                                                 >
@@ -152,10 +156,13 @@ export function DataTable({
                                         .getVisibleCells()
                                         .map((cell, cellIndex) => (
                                             <TableCell
-                                                className={`${
+                                                className={cn(
                                                     cell.column.id === "name" &&
-                                                    "z-10 sticky left-0 bg-white"
-                                                }`}
+                                                        "z-10 sticky left-0 bg-white",
+                                                    cell.column.id ===
+                                                        "returned_at" &&
+                                                        "flex justify-center items-center w-[150px]"
+                                                )}
                                                 key={cellIndex}
                                             >
                                                 {flexRender(

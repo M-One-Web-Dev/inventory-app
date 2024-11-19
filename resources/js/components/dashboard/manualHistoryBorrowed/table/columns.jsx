@@ -53,7 +53,7 @@ export const columns = [
             const getName = row.original.username;
 
             return (
-                <div className="text-left font-medium w-[150px] overflow-hidden break-all">
+                <div className="text-left font-medium w-[150px] overflow-hidden ">
                     {getName}
                 </div>
             );
@@ -163,37 +163,37 @@ export const columns = [
     //         );
     //     },
     // },
-    {
-        accessorKey: "returned_at",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                >
-                    Status
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: ({ row }) => {
-            return (
-                <div
-                    className={`w-max py-[10px] px-[15px] rounded-[50px] ${
-                        row.original.status === "borrowed"
-                            ? "bg-red-600 text-white"
-                            : "bg-violet-500 text-white"
-                    }`}
-                >
-                    {row.original.status === "borrowed"
-                        ? "Masih Dipinjam"
-                        : "Sudah Dikembalikan"}
-                </div>
-            );
-        },
-    },
+    // {
+    //     accessorKey: "returned_at",
+    //     header: ({ column }) => {
+    //         return (
+    //             <Button
+    //                 variant="ghost"
+    //                 onClick={() =>
+    //                     column.toggleSorting(column.getIsSorted() === "asc")
+    //                 }
+    //             >
+    //                 Status
+    //                 <ArrowUpDown className="ml-2 h-4 w-4" />
+    //             </Button>
+    //         );
+    //     },
+    //     cell: ({ row }) => {
+    //         return (
+    //             <div
+    //                 className={`w-max py-[10px] px-[15px] rounded-[50px] ${
+    //                     row.original.status === "borrowed"
+    //                         ? "bg-red-600 text-white"
+    //                         : "bg-violet-500 text-white"
+    //                 }`}
+    //             >
+    //                 {row.original.status === "borrowed"
+    //                     ? "Masih Dipinjam"
+    //                     : "Sudah Dikembalikan"}
+    //             </div>
+    //         );
+    //     },
+    // },
     {
         accessorKey: "returned_at",
         header: ({ column }) => {
