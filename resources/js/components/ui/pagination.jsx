@@ -47,7 +47,7 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     const paginationItems = generatePagination();
 
     return (
-        <div className="flex items-center justify-center space-x-2 py-4">
+        <div className="flex items-center justify-center space-x-2">
             <Button
                 size="sm"
                 className={`${

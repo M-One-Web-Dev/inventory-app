@@ -19,8 +19,8 @@ import {
     CardContent,
     CardFooter,
 } from "@/components/ui";
-import { DialogAddData } from "../dialog/DialogAddData";
-import { manualHistoryBorrowedStore } from "@/lib/context/refresherManualHistoryBorrowed";
+import { DialogAddData, DialogFilter } from "../dialog";
+import { manualHistoryBorrowedStore } from "../../../../lib/globalState/refresherManualHistoryBorrowed";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function TableTemporary() {
@@ -39,24 +39,43 @@ export default function TableTemporary() {
     const [isFilter, setIsFilter] = useState(false);
     const { refreshKey } = useItemRefresher();
     const { watch, setValue } = useForm();
+    const searchGlobalState = manualHistoryBorrowedStore(
+        (state) => state.search
+    );
+    const statusGlobalState = manualHistoryBorrowedStore(
+        (state) => state.status
+    );
     const { isPending, isError, data, error } = useQuery({
-        queryKey: ["todos"],
+        queryKey: [
+            "history-borrowed",
+            searchGlobalState,
+            statusGlobalState,
+            pagination,
+        ],
         queryFn: async () => {
             const response = await axios.get("/api/v1/history-borrowed", {
                 headers: {
                     Authorization: `Bearer ${inventoryToken}`,
                 },
                 params: {
-                    page: 1,
-                    perPage: 10,
-                    search: searchTerm,
-                    status: watch("status") === "" ? "" : watch("status"),
+                    page: pagination.currentPage,
+                    perPage: pagination.perPage,
+                    search: searchGlobalState,
+                    status: statusGlobalState,
                     type: "manual",
                 },
             });
+            setPagination((prev) => ({
+                ...prev,
+                total: response.data.pagination.total,
+                lastPage: response.data.pagination.lastPage,
+                totalPages: response.data.pagination.totalPages,
+            }));
             return response.data.data;
         },
     });
+
+    console.log(data);
 
     const getAllTemporary = async (page = 1, search = "") => {
         setLoading(true);
@@ -125,6 +144,13 @@ export default function TableTemporary() {
     }, [watch("search")]);
 
     useEffect(() => {
+        setPagination((prev) => ({
+            ...prev,
+            currentPage: 1,
+        }));
+    }, [searchGlobalState, statusGlobalState]);
+
+    useEffect(() => {
         if (
             debouncedSearchTerm !== null &&
             debouncedSearchTerm === watch("search")
@@ -152,9 +178,10 @@ export default function TableTemporary() {
 
     return (
         <div className="mx-auto w-full sm:py-10 ">
-            <div className="flex flex-col sm:flex-row items-center justify-between py-4 gap-[10px] md:gap-0">
+            <div className="flex flex-col sm:flex-row items-center justify-between pb-4 gap-[10px] md:gap-0">
                 <div className="w-full flex items-center px-[10px] md:px-0 gap-2">
-                    <Input
+                    <h1 className="text-[20px]">List Peminjaman</h1>
+                    {/* <Input
                         placeholder="Search..."
                         value={watch("search") ?? ""}
                         onChange={(event) => {
@@ -162,10 +189,11 @@ export default function TableTemporary() {
                             setValue("search", searchValue);
                         }}
                         className="w-full"
-                    />
+                    /> */}
                 </div>
                 <div className="px-[10px] md:px-0 flex justify-end items-end gap-2 w-full">
                     {/* <DialogImportExcel /> */}
+                    <DialogFilter />
                     <DialogAddData />
                     {/* <Button
                         className="px-[10px] rounded-md py-[5px] h-auto "
@@ -215,7 +243,7 @@ export default function TableTemporary() {
             )}
             <DataTable
                 columns={columns}
-                data={temporaryList}
+                data={data ?? []}
                 pagination={pagination}
                 onPageChange={handlePageChange}
                 onSearchChange={setSearchTerm}
