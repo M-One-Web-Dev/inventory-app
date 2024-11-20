@@ -114,8 +114,10 @@ export function Sidebar() {
             case "link":
                 if (findItem && !iconMode) {
                     return "text-violet-500 justify-between px-[20px] flex items-center gap-5 border-solid border-l-4 border-violet-400";
-                } else {
+                } else if (!findItem && !iconMode) {
                     return "text-slate-500 justify-between px-[20px] flex items-center gap-5 border-solid border-l-4 border-white";
+                } else {
+                    return "text-slate-500 justify-between px-[10px] flex items-center gap-5 border-solid border-l-4 border-white";
                 }
             case "icon":
                 if (findItem && iconMode) {
