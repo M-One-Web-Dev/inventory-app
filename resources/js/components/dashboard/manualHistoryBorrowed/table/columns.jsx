@@ -89,6 +89,7 @@ export const columns = [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
+                    className="w-full"
                 >
                     Nama Barang
                     <ArrowUpDown className="ml-2 h-4 w-4" />

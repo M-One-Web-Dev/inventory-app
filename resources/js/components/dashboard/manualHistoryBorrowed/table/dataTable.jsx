@@ -99,13 +99,11 @@ export function DataTable({
                                         (header, headerIndex) => {
                                             return (
                                                 <TableHead
-                                                    className={`${
-                                                        (header.id === "name" &&
-                                                            "sticky left-0 bg-white",
-                                                        header.id ===
-                                                            "item_name" &&
-                                                            "flex justify-center items-center")
-                                                    }`}
+                                                    className={cn(
+                                                        header.id === "name" &&
+                                                            "sticky !text-left left-0 bg-white",
+                                                        "text-center justify-center items-center"
+                                                    )}
                                                     key={headerIndex}
                                                 >
                                                     {header.isPlaceholder

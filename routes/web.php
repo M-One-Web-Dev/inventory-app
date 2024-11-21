@@ -99,9 +99,9 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard/Dashboard/Dashboard');
 });
 
-// Route::get('/dashboard/setting', function () {
-//     return Inertia::render('Dashboard/Setting/Setting');
-// });
+Route::get('/dashboard/setting', function () {
+    return Inertia::render('Dashboard/Setting/Setting');
+});
 
 Route::get('/dashboard/item', function () {
     return Inertia::render('Dashboard/Item/Item');
@@ -126,6 +126,14 @@ Route::get('/dashboard/qr-code-borrowed', function () {
 
 Route::get('/dashboard/confirmation-borrowed', function () {
     return Inertia::render('Dashboard/HistoryBorrowed/ConfirmationHistoryBorrowed/ConfirmationHistoryBorrowed');
+});
+
+Route::get('/dashboard/borrowed-information/level', function () {
+    return Inertia::render('Dashboard/BorrowedInformation/Level');
+});
+
+Route::get('/dashboard/borrowed-information/origin', function () {
+    return Inertia::render('Dashboard/BorrowedInformation/Origin');
 });
 
 Route::get('/dashboard/student', function () {

@@ -8,6 +8,9 @@ import { BiSolidCategory } from "react-icons/bi";
 import { FaQrcode } from "react-icons/fa6";
 import { useState } from "react";
 import { LuChevronsLeft, LuChevronsRight } from "react-icons/lu";
+import { BsArchiveFill } from "react-icons/bs";
+import { AiFillInfoCircle } from "react-icons/ai";
+// import { IoSettingsSharp } from "react-icons/io5";
 import { FiChevronRight, FiBox } from "react-icons/fi";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/index";
 import { PiUserCircleDashedFill } from "react-icons/pi";
@@ -18,6 +21,11 @@ const menuItems = [
         name: "Dashboard",
         icon: <TiHome className="h-[19px] w-[19px]" />,
         url: "/dashboard",
+    },
+    {
+        name: "Setting",
+        icon: <IoSettingsSharp className="h-[19px] w-[19px]" />,
+        url: "/dashboard/setting",
     },
     // {
     //     name: "Notification",
@@ -44,8 +52,22 @@ const menuItems = [
         ],
     },
     {
+        name: "Informasi Peminjam",
+        icon: <AiFillInfoCircle className="h-[19px] w-[19px]" />,
+        subMenu: [
+            {
+                name: "Tingkat",
+                url: "/dashboard/borrowed-information/level",
+            },
+            {
+                name: "Asal",
+                url: "/dashboard/borrowed-information/origin",
+            },
+        ],
+    },
+    {
         name: "Peminjaman",
-        icon: <FaUsers className="h-[19px] w-[19px]" />,
+        icon: <BsArchiveFill className="h-[19px] w-[19px]" />,
         subMenu: [
             // {
             //     name: "Konfirmasi",
