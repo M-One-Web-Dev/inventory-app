@@ -65,6 +65,7 @@ const customStyles = {
 };
 
 export function DialogFilter() {
+    const [activeFilters, setActiveFilters] = useState(0);
     const [openModal, setOpenModal] = useState(false);
     const [imageFile, setImageFile] = useState(null);
     const { reset, watch, setValue } = useForm();
@@ -100,10 +101,25 @@ export function DialogFilter() {
         }
     }, [openModal]);
 
+    useEffect(() => {
+        const filters = [watch("search"), watch("status")];
+        const activeCount = filters.filter(
+            (filter) => filter && filter !== ""
+        ).length;
+        setActiveFilters(activeCount);
+    }, [watch("search"), watch("status")]);
+
     return (
         <>
             <Dialog open={openModal} onOpenChange={setOpenModal}>
-                <DialogTrigger className="flex items-center gap-1 bg-violet-500 text-white py-[5px] text-[14px] px-[15px] rounded-[20px] hover:bg-violet-400">
+                <DialogTrigger className="flex items-center gap-1 bg-violet-500 text-white py-[5px] text-[14px] px-[15px] rounded-[20px] hover:bg-violet-400 relative">
+                    {activeFilters > 0 && ( // Hanya tampilkan jumlah jika ada filter aktif
+                        <div className="absolute bg-red-500 text-white flex items-center justify-center rounded-full h-[16px] w-[16px] top-[-8px] right-[-2px]">
+                            <p className="font-bold m-0 p-0 text-[10px]">
+                                {activeFilters}
+                            </p>
+                        </div>
+                    )}
                     <Filter className="h-[16px] w-[16px] " />{" "}
                     <span className="mt-[3px]">Filter</span>
                 </DialogTrigger>
