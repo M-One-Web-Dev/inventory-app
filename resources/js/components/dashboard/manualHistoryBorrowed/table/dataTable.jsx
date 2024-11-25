@@ -31,8 +31,9 @@ import {
 } from "../../../ui/index";
 import { DialogAddData, DialogImportExcel } from "../dialog/index";
 import { useForm } from "react-hook-form";
-import LoadingGif from "@/assets/loading.gif";
+import LoadingGif from "@/assets/loading.svg";
 import { cn } from "@/lib/utils";
+import LoadingIcon from "@/components/ui/loadingIcon";
 
 export function DataTable({
     columns,
@@ -88,7 +89,12 @@ export function DataTable({
                     <DialogAddData />
                 </div>
             </div> */}
-            <div className="rounded-md border">
+            <div
+                className={cn(
+                    "rounded-md border",
+                    loadingState && "[&>div]:!overflow-x-hidden"
+                )}
+            >
                 <Table>
                     <TableHeader className="px-[5px]">
                         {table
@@ -121,7 +127,7 @@ export function DataTable({
                                 </TableRow>
                             ))}
                     </TableHeader>
-                    {table.getRowModel().rows.length === 0 ? (
+                    {table.getRowModel().rows.length === 0 && !loadingState ? (
                         <TableBody>
                             <TableRow>
                                 <TableCell
@@ -133,45 +139,50 @@ export function DataTable({
                             </TableRow>
                         </TableBody>
                     ) : (
-                        <TableBody className="relative">
+                        <>
                             {loadingState && (
                                 <div className="absolute h-full w-full bg-black/40 z-[100] text-center flex justify-center items-center scrollbar-none overflow-hidden">
-                                    <img
-                                        className="w-[50px] h-[50px]"
-                                        src={LoadingGif}
-                                        alt=""
-                                    />
+                                    <div className="relative">
+                                        <LoadingIcon color={"#8b5cf6"} />
+                                    </div>
                                 </div>
                             )}
-                            {table.getRowModel().rows.map((row, rowIndex) => (
-                                <TableRow
-                                    key={rowIndex}
-                                    data-state={
-                                        row.getIsSelected() && "selected"
-                                    }
-                                >
-                                    {row
-                                        .getVisibleCells()
-                                        .map((cell, cellIndex) => (
-                                            <TableCell
-                                                className={cn(
-                                                    cell.column.id === "name" &&
-                                                        "z-10 sticky left-0 bg-white",
-                                                    cell.column.id ===
-                                                        "returned_at" &&
-                                                        "flex justify-center items-center w-[150px]"
-                                                )}
-                                                key={cellIndex}
-                                            >
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext()
-                                                )}
-                                            </TableCell>
-                                        ))}
-                                </TableRow>
-                            ))}
-                        </TableBody>
+                            <TableBody className="relative ">
+                                {table
+                                    .getRowModel()
+                                    .rows.map((row, rowIndex) => (
+                                        <TableRow
+                                            key={rowIndex}
+                                            data-state={
+                                                row.getIsSelected() &&
+                                                "selected"
+                                            }
+                                        >
+                                            {row
+                                                .getVisibleCells()
+                                                .map((cell, cellIndex) => (
+                                                    <TableCell
+                                                        className={cn(
+                                                            cell.column.id ===
+                                                                "name" &&
+                                                                "z-10 sticky left-0 bg-white",
+                                                            cell.column.id ===
+                                                                "returned_at" &&
+                                                                "flex justify-center items-center w-[150px]"
+                                                        )}
+                                                        key={cellIndex}
+                                                    >
+                                                        {flexRender(
+                                                            cell.column
+                                                                .columnDef.cell,
+                                                            cell.getContext()
+                                                        )}
+                                                    </TableCell>
+                                                ))}
+                                        </TableRow>
+                                    ))}
+                            </TableBody>
+                        </>
                     )}
                 </Table>
             </div>

@@ -177,7 +177,7 @@ export default function TableTemporary() {
     };
 
     return (
-        <div className="mx-auto w-full sm:py-10 ">
+        <div className="mx-auto w-full py-[10px] sm:py-10 ">
             <div className="flex flex-col sm:flex-row items-center justify-between pb-4 gap-[10px] md:gap-0">
                 <div className="w-full flex items-center px-[10px] md:px-0 gap-2">
                     <h1 className="text-[20px]">List Peminjaman</h1>

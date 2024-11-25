@@ -102,12 +102,12 @@ export function DialogFilter() {
     }, [openModal]);
 
     useEffect(() => {
-        const filters = [watch("search"), watch("status")];
+        const filters = [searchGlobalState, statusGlobalState];
         const activeCount = filters.filter(
             (filter) => filter && filter !== ""
         ).length;
         setActiveFilters(activeCount);
-    }, [watch("search"), watch("status")]);
+    }, [searchGlobalState, statusGlobalState]);
 
     return (
         <>
