@@ -14,6 +14,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserImportController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TestUserController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\HistoryBorrowedItemController;
 use App\Http\Controllers\ActiveUserController;
 use App\Http\Controllers\VerifyController;
@@ -112,6 +113,11 @@ Route::prefix("/v1")->group(function () {
         Route::get("/detail/{id}", "show");
         Route::post("/update/{id}", "update");
         Route::post("/delete/{id}", "delete");
+    });
+
+        Route::controller(SettingController::class)->middleware('auth:sanctum')->prefix("/setting")->group(function () {
+        Route::get("/", "index");
+        Route::post("/shool-year/update", "updateSchoolYear");
     });
 
     Route::controller(ItemsController::class)->middleware('auth:sanctum')->prefix("/items")->group(function () {
