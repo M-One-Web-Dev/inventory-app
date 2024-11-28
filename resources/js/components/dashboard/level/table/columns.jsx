@@ -82,7 +82,7 @@ export const columns = [
         cell: ({ row }) => {
             const getName = row.getValue("description");
             return (
-                <div className="text-left font-medium w-[200px] overflow-hidden text-ellipsis  whitespace-nowrap">
+                <div className="text-left font-medium w-[200px]">
                     {handleNullValue(row.original.description)}
                 </div>
             );
@@ -99,7 +99,7 @@ export const columns = [
                         name={row.original.name}
                         description={row.original.description}
                     />
-                    <DialogDeleteCategory id={row.original.id} />
+                    <DialogDeleteCategory row={row.original} />
                 </div>
             );
         },
