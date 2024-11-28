@@ -14,6 +14,20 @@ import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { DialogDeleteCategory, DialogEditCategory } from "../dialog/index";
 import { FaUserAlt } from "react-icons/fa";
 
+const handleNullValue = (value) => {
+    if (
+        value === null ||
+        value === undefined ||
+        value === "" ||
+        value === "undefined" ||
+        value === "null"
+    ) {
+        return "-";
+    } else {
+        return value;
+    }
+};
+
 export const columns = [
     {
         accessorKey: "no",
@@ -69,7 +83,7 @@ export const columns = [
             const getName = row.getValue("description");
             return (
                 <div className="text-left font-medium w-[200px] overflow-hidden text-ellipsis  whitespace-nowrap">
-                    {getName}
+                    {handleNullValue(row.original.description)}
                 </div>
             );
         },

@@ -54,6 +54,7 @@ export default function DialogAddCategory() {
     const onSubmit = async (data) => {
         const body = {
             name: data.name,
+            description: data.description,
         };
 
         try {
