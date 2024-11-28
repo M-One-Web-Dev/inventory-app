@@ -9,19 +9,41 @@ import {
     QueryClient,
     QueryClientProvider,
 } from "@tanstack/react-query";
+import { Input } from "../../ui/index";
 import Cookies from "js-cookie";
+import { useForm } from "react-hook-form";
 
 function SettingPageComponent() {
     const inventoryToken = Cookies.get("inventory_token");
 
     const { data, isPending, isError, error } = useQuery({
-        queryKey: ["todos"],
+        queryKey: ["inventory-setting"],
         queryFn: async () => {
-            return await axios("/api/v1/setting", {
+            const { data: response } = await axios("/api/v1/setting", {
                 headers: {
                     Authorization: `Bearer ${inventoryToken}`,
                 },
             });
+            setValue("school_year", response?.data?.school_year);
+            return response;
+        },
+    });
+    const { watch, setValue } = useForm();
+
+    console.log(data?.data);
+    useEffect(() => {}, []);
+
+    const updateSchoolYear = useMutation({
+        mutationFn: async (data) => {
+            return await axios.post(
+                "/api/v1/setting/update-school-year",
+                data,
+                {
+                    headers: {
+                        Authorization: `Bearer ${inventoryToken}`,
+                    },
+                }
+            );
         },
     });
 
@@ -45,15 +67,27 @@ function SettingPageComponent() {
                                 <span className="text-red-500">*</span>
                             </p>
 
-                            <input
+                            <Input
                                 className="rounded-sm border-gray-300 py-[5px] border-[1px] border-solid flex-grow"
                                 type="text"
+                                onChange={(e) => {
+                                    setValue("school_year", e.target.value);
+                                }}
+                                value={watch("school_year") || ""}
                             />
                             <span className="text-[11px]">EX: 2022/2023</span>
                         </div>
 
                         <div className="w-full flex justify-end text-white mt-[30px]">
-                            <button className="bg-violet-600 text-[13px] py-[7px] px-[13px] rounded-md font-semibold">
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    updateSchoolYear.mutate({
+                                        school_year: watch("school_year") ?? "",
+                                    });
+                                }}
+                                className="bg-violet-600 text-[13px] py-[7px] px-[13px] rounded-md font-semibold"
+                            >
                                 Update
                             </button>
                         </div>

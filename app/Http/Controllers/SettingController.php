@@ -11,12 +11,12 @@ class SettingController extends Controller
     {
         $setting = Settings::first();
 
-        if (!$setting) {
-            return response()->json([
-                'message' => 'No settings found.',
-                'data' => null,
-            ], 404);
-        }
+        // if (!$setting) {
+        //     return response()->json([
+        //         'message' => 'No settings found.',
+        //         'data' => null,
+        //     ], 404);
+        // }
 
         return response()->json([
             'message' => 'Settings retrieved successfully.',

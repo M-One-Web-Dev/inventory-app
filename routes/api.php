@@ -117,7 +117,7 @@ Route::prefix("/v1")->group(function () {
 
         Route::controller(SettingController::class)->middleware('auth:sanctum')->prefix("/setting")->group(function () {
         Route::get("/", "index");
-        Route::post("/shool-year/update", "updateSchoolYear");
+        Route::post("/update-school-year", "updateSchoolYear");
     });
 
     Route::controller(ItemsController::class)->middleware('auth:sanctum')->prefix("/items")->group(function () {
