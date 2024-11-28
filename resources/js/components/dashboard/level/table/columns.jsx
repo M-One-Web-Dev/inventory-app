@@ -51,6 +51,30 @@ export const columns = [
         },
     },
     {
+        accessorKey: "description",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }
+                >
+                    Deskripsi
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
+        cell: ({ row }) => {
+            const getName = row.getValue("description");
+            return (
+                <div className="text-left font-medium w-[200px] overflow-hidden text-ellipsis  whitespace-nowrap">
+                    {getName}
+                </div>
+            );
+        },
+    },
+    {
         id: "actions",
         header: () => <div className="text-left">Action</div>,
         cell: ({ row }) => {
@@ -59,6 +83,7 @@ export const columns = [
                     <DialogEditCategory
                         id={row.original.id}
                         name={row.original.name}
+                        description={row.original.description}
                     />
                     <DialogDeleteCategory id={row.original.id} />
                 </div>

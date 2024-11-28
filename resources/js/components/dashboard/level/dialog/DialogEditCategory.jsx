@@ -36,9 +36,12 @@ const formSchema = z.object({
     name: z.string().min(1, {
         message: "Name is Empty",
     }),
+    description: z.string().min(1, {
+        message: "Description is Empty",
+    }),
 });
 
-export default function DialogEditCategory({ id, name }) {
+export default function DialogEditCategory({ id, name, description }) {
     const [openModal, setOpenModal] = useState(false);
     const {
         register,
@@ -50,19 +53,22 @@ export default function DialogEditCategory({ id, name }) {
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: name,
+            description: description,
         },
     });
     const inventoryToken = Cookies.get("inventory_token");
     const { refresh } = useCategoryRefresher();
+    console.log(description);
 
     const onSubmit = async (data) => {
         const body = {
             name: data.name,
+            description: data.description,
         };
 
         try {
             const { data: updateCategory } = await axios.post(
-                `/api/v1/categories/update/${id}`,
+                `/api/v1/level/update/${id}`,
                 body,
                 {
                     headers: {
@@ -71,12 +77,12 @@ export default function DialogEditCategory({ id, name }) {
                 }
             );
             setOpenModal(false);
-            toast.success("Success Update Categories", {
+            toast.success("Berhasil Update Tingkat", {
                 duration: 3000,
             });
             refresh();
         } catch (error) {
-            toast.error("Failed Update Categories", {
+            toast.error("Gagal Update Tingkat", {
                 duration: 3000,
             });
             console.log(error);
@@ -99,7 +105,7 @@ export default function DialogEditCategory({ id, name }) {
                     <DialogHeader>
                         <DialogTitle>
                             <h1 className="text-center mb-[20px] text-[20px] font-semibold text-neutral-700">
-                                Edit Category
+                                Edit Tingkat
                             </h1>
                         </DialogTitle>
                     </DialogHeader>
@@ -118,7 +124,7 @@ export default function DialogEditCategory({ id, name }) {
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="Name. . ."
+                                                placeholder="Nama Tingkat. . ."
                                                 {...field}
                                                 className={`${
                                                     form.formState.errors
@@ -128,6 +134,34 @@ export default function DialogEditCategory({ id, name }) {
                                             />
                                         </FormControl>
                                         {form.formState.errors.name && (
+                                            <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
+                                                <Info size={14} />
+                                                <FormMessage className="text-[13px] mt-[3px] leading-none" />
+                                            </div>
+                                        )}
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem className="space-y-0">
+                                        <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
+                                            Deskripsi
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="Deskripsi Tingkat. . ."
+                                                {...field}
+                                                className={`${
+                                                    form.formState.errors
+                                                        .description &&
+                                                    "outline-red-500 focus:outline-red-400"
+                                                }`}
+                                            />
+                                        </FormControl>
+                                        {form.formState.errors.description && (
                                             <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
                                                 <Info size={14} />
                                                 <FormMessage className="text-[13px] mt-[3px] leading-none" />

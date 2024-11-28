@@ -13,7 +13,6 @@ class LevelController extends Controller
             $perPage = $request->query('perPage', 10); 
             $search = $request->query('search', ''); 
 
-            // Pastikan $search adalah string yang valid
             $search = is_string($search) ? $search : '';
             
             $levelsQuery = Level::when($search !== '', function ($query) use ($search) {
