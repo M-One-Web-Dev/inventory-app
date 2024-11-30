@@ -14,6 +14,7 @@ class UserFrom extends Model
      *
      * @var array<int, string>
      */
+     protected $table = "user_from";
     protected $fillable = [
         'name',
         'description',

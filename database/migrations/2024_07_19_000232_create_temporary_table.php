@@ -23,6 +23,7 @@ class CreateTemporaryTable extends Migration
             $table->string('item_name')->nullable();
             $table->string('item_id')->nullable();
             $table->string('item_number_id')->nullable();
+            $table->boolean('status')->default(false); 
             $table->timestamps();
         });
     }

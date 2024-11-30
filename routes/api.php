@@ -12,6 +12,7 @@ use App\Http\Controllers\LevelController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\TemporaryController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\UserFromController;
 use App\Http\Controllers\UserImportController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TestUserController;
@@ -117,6 +118,14 @@ Route::prefix("/v1")->group(function () {
     });
 
       Route::controller(LevelController::class)->middleware('auth:sanctum')->prefix("/level")->group(function () {
+        Route::get("/", "index");
+        Route::post("/add", "create");
+        Route::get("/detail/{id}", "show");
+        Route::post("/update/{id}", "update");
+        Route::post("/delete/{id}", "delete");
+    });
+
+       Route::controller(UserFromController::class)->middleware('auth:sanctum')->prefix("/user-from")->group(function () {
         Route::get("/", "index");
         Route::post("/add", "create");
         Route::get("/detail/{id}", "show");

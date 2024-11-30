@@ -14,6 +14,7 @@ class Level extends Model
      *
      * @var array<int, string>
      */
+     protected $table = "level";
     protected $fillable = [
         'name',
         'description',

@@ -6,7 +6,7 @@ import { Inertia } from "@inertiajs/inertia";
 import Cookies from "js-cookie";
 import { useCategoryRefresher } from "@/lib/context/refresherCategory";
 
-export default function TableCategory() {
+export default function TableUserFrom() {
     const inventoryToken = Cookies.get("inventory_token");
     const [categoryList, setCategoryList] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -22,7 +22,7 @@ export default function TableCategory() {
 
     const getAllCategory = async (page = 1, search = "") => {
         try {
-            const { data: getCategory } = await axios("/api/v1/categories", {
+            const { data: getCategory } = await axios("/api/v1/user-from", {
                 headers: {
                     Authorization: `Bearer ${inventoryToken}`,
                 },

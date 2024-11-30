@@ -24,7 +24,7 @@ export default function DialogDeleteCategory({ row }) {
     const DeleteCategory = async () => {
         try {
             const { data: deleteCategory } = await axios.post(
-                `/api/v1/categories/delete/${row?.id}`,
+                `/api/v1/user-from/delete/${row?.id}`,
                 {},
                 {
                     headers: {
@@ -33,13 +33,13 @@ export default function DialogDeleteCategory({ row }) {
                 }
             );
             setOpenModal(false);
-            toast.success("Success Delete Categories", {
+            toast.success("Berhasil Hapus Tingkat", {
                 duration: 3000,
             });
             refresh();
         } catch (error) {
             console.log(error);
-            toast.error("Failed Delete Categories", {
+            toast.error("Gagal Hapus Asal User", {
                 duration: 3000,
             });
             if (error.response?.data?.message === "Unauthenticated.") {
@@ -59,7 +59,7 @@ export default function DialogDeleteCategory({ row }) {
                 <DialogContent className="rounded-md w-[240px] py-[20px] px-[25px]">
                     <DialogHeader>
                         <DialogTitle className="text-center font-medium">
-                            Hapus Category ini?
+                            Hapus Asal User ini?
                         </DialogTitle>
                     </DialogHeader>
                     <div className="flex items-center justify-center gap-3 mt-[10px]">

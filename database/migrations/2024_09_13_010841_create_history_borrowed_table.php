@@ -25,7 +25,8 @@ class CreateHistoryBorrowedTable extends Migration
       
            $table->string('status'); 
             $table->enum('type', ['automation', 'manual'])->default('manual'); 
-            $table->timestamp('borrowed_at')->default(DB::raw('CURRENT_TIMESTAMP')); 
+            $table->timestamp('borrowed_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('confirmed_at')->nullable();
             $table->timestamp('returned_at')->nullable(); 
            
             

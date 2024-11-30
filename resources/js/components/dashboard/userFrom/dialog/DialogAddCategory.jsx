@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Dialog,
     DialogContent,
@@ -29,6 +29,9 @@ const formSchema = z.object({
     name: z.string().min(1, {
         message: "Name is Empty",
     }),
+    description: z.string().min(1, {
+        message: "Description is Empty",
+    }),
 });
 
 export default function DialogAddCategory() {
@@ -51,11 +54,12 @@ export default function DialogAddCategory() {
     const onSubmit = async (data) => {
         const body = {
             name: data.name,
+            description: data.description,
         };
 
         try {
-            const { data: postCategory } = await axios.post(
-                "/api/v1/categories/add",
+            const { data: postLevel } = await axios.post(
+                "/api/v1/user-from/add",
                 body,
                 {
                     headers: {
@@ -63,13 +67,14 @@ export default function DialogAddCategory() {
                     },
                 }
             );
-            toast.success("Success Add Categories", {
+            toast.success("Berhasil Tambah Asal Peminjam Baru", {
                 duration: 3000,
             });
             setOpenModal(false);
+
             refresh();
         } catch (error) {
-            toast.error("Failed Add Categories", {
+            toast.error("Gagal menambahkan Asal Peminjam Baru", {
                 duration: 3000,
             });
             console.log(error);
@@ -87,6 +92,12 @@ export default function DialogAddCategory() {
     //     });
     // }, []);
 
+    useEffect(() => {
+        if (!openModal) {
+            form.reset();
+        }
+    }, [openModal]);
+
     return (
         <>
             <Toaster richColors position="top-center" />
@@ -99,7 +110,7 @@ export default function DialogAddCategory() {
                     <DialogHeader>
                         <DialogTitle>
                             <h1 className="text-center mb-[20px] text-[20px] font-semibold text-neutral-700">
-                                Add Category
+                                Tambah Asal User
                             </h1>
                         </DialogTitle>
                     </DialogHeader>
@@ -114,11 +125,11 @@ export default function DialogAddCategory() {
                                 render={({ field }) => (
                                     <FormItem className="space-y-0">
                                         <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
-                                            Name
+                                            Nama Asal Peminjam
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="Name. . ."
+                                                placeholder="PPLG"
                                                 {...field}
                                                 className={`${
                                                     form.formState.errors
@@ -136,6 +147,34 @@ export default function DialogAddCategory() {
                                     </FormItem>
                                 )}
                             />
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem className="space-y-0">
+                                        <FormLabel className="text-[16px] text-neutral-800 leading-3 mb-[6px]">
+                                            Deskripsi Asal
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="Peminjam berasal dari jurusan PPLG"
+                                                {...field}
+                                                className={`${
+                                                    form.formState.errors
+                                                        .description &&
+                                                    "outline-red-500 focus:outline-red-400"
+                                                }`}
+                                            />
+                                        </FormControl>
+                                        {form.formState.errors.description && (
+                                            <div className=" pt-[5px] text-red-500 leading-none flex items-center gap-1">
+                                                <Info size={14} />
+                                                <FormMessage className="text-[13px] mt-[3px] leading-none" />
+                                            </div>
+                                        )}
+                                    </FormItem>
+                                )}
+                            />
 
                             <div className="flex gap-7  w-full">
                                 <Button
@@ -144,14 +183,14 @@ export default function DialogAddCategory() {
                                     type="button"
                                     onClick={() => setOpenModal(false)}
                                 >
-                                    <span className="text-lg">Cancel</span>
+                                    <span className="text-lg">Batal</span>
                                 </Button>
                                 <Button
                                     className="w-full bg-[#A27FFE] mt-[50px] hover:bg-[#b295fb]"
                                     // disable={isLoading}
                                     type="submit"
                                 >
-                                    <span className="text-lg">Add</span>
+                                    <span className="text-lg">Tambah</span>
                                 </Button>
                             </div>
                         </form>

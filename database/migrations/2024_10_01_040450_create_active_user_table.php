@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('user_from')->nullable(); 
             $table->string('user_level')->nullable(); 
             $table->string('school_year')->nullable(); 
+            $table->string('role')->nullable();
             $table->timestamps();
         });
     }

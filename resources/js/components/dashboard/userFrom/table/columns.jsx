@@ -14,6 +14,20 @@ import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { DialogDeleteCategory, DialogEditCategory } from "../dialog/index";
 import { FaUserAlt } from "react-icons/fa";
 
+const handleNullValue = (value) => {
+    if (
+        value === null ||
+        value === undefined ||
+        value === "" ||
+        value === "undefined" ||
+        value === "null"
+    ) {
+        return "-";
+    } else {
+        return value;
+    }
+};
+
 export const columns = [
     {
         accessorKey: "no",
@@ -51,6 +65,30 @@ export const columns = [
         },
     },
     {
+        accessorKey: "description",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }
+                >
+                    Deskripsi
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
+        cell: ({ row }) => {
+            const getName = row.getValue("description");
+            return (
+                <div className="text-left font-medium w-[200px]">
+                    {handleNullValue(row.original.description)}
+                </div>
+            );
+        },
+    },
+    {
         id: "actions",
         header: () => <div className="text-left">Action</div>,
         cell: ({ row }) => {
@@ -59,8 +97,9 @@ export const columns = [
                     <DialogEditCategory
                         id={row.original.id}
                         name={row.original.name}
+                        description={row.original.description}
                     />
-                    <DialogDeleteCategory id={row.original.id} />
+                    <DialogDeleteCategory row={row.original} />
                 </div>
             );
         },

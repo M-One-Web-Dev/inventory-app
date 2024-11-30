@@ -120,7 +120,7 @@ export default function Login() {
             }
         } catch (error) {
             setCheckRole(true);
-            console.log(error);
+            console.log(error.response.data.status);
             if (
                 error.response.data.status === "unauthenticated" ||
                 error.response.data.status === "forbidden"
@@ -128,9 +128,10 @@ export default function Login() {
                 if (checkRole) {
                     Inertia.visit("/login");
                 }
-                setIsVerifyLoading(false);
                 return;
             }
+        } finally {
+            setIsVerifyLoading(false);
         }
     };
 
@@ -143,6 +144,7 @@ export default function Login() {
         }
     }, []);
 
+    console.log(verifyLoading);
     return (
         <>
             {!verifyLoading && (
